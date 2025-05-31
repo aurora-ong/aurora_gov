@@ -1,0 +1,15 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: aurora-gov-letsencrypt
+  namespace: aurora-gov
+spec:
+  acme:
+    email: contacto@panoramapp.cl
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: aurora-gov-letsencrypt-key
+    solvers:
+      - http01:
+          ingress:
+            class: public

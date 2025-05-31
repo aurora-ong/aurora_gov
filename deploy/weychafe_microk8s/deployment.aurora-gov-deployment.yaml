@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aurora-gov-deployment
+  namespace: aurora-gov
+  labels:
+    app: aurora-gov
+spec:
+  replicas: 2
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: aurora-gov
+  template:
+    metadata:
+      labels:
+        app: aurora-gov
+    spec:
+      containers:
+        - name: aurora-gov-frontend
+          image: registry.weychafe.nicher.cl/panoramapp_web_frontend:26
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 4000
+              protocol: TCP
+          env:
+            - name: MIX_ENV
+              value: "frontend"
+            - name: PORT
+              value: "4000"
+            - name: PHX_HOST
+              value: "panoramapp.cl"
+
+
