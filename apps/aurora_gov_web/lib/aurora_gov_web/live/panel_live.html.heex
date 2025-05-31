@@ -1,0 +1,326 @@
+<.flash_group flash={@flash} />
+<div class="w-1/6 h-full flex flex-col py-5 px-5 gap-5">
+  <div class="py-5">
+    <h1 class="text-4xl font-semibold text-center">Aurora<br /><b>Gov</b>Tech</h1>
+  </div>
+   <hr />
+  <div class="menu ">
+    <ul class="gap-y-2 flex flex-col text-lg menu">
+      <li class="">
+        <.link
+          patch={~p"/app/home?context=#{@context}"}
+          replace
+          class={
+            if @module == "home",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-house h-7 w-7"></i> Inicio
+        </.link>
+      </li>
+      
+      <li class={
+        if @module == "home",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/tree?context=#{@context}"} replace>
+          <i class="fa-solid fa-sitemap h-7 w-7"></i> Estructura
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/members?context=#{@context}"}
+          replace
+          class={
+            if @module == "members",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-users-between-lines h-7 w-7"></i> Miembros
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/news?context=#{@context}"}
+          replace
+          class={
+            if @module == "news",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-newspaper h-7 w-7"></i> Noticias
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/events?context=#{@context}"}
+          replace
+          class={
+            if @module == "events",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-calendar h-7 w-7"></i> Eventos
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/power?context=#{@context}"}
+          replace
+          class={
+            if @module == "power",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-bolt h-7 w-7"></i> Poder
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/agreements?context=#{@context}"}
+          replace
+          class={
+            if @module == "agreements",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-handshake-simple h-7 w-7"></i> Acuerdos
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/authorizations?context=#{@context}"}
+          replace
+          class={
+            if @module == "authorizations",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-hand h-7 w-7"></i> Autorizaciones
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/projects?context=#{@context}"}
+          replace
+          class={
+            if @module == "projects",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-briefcase h-7 w-7"></i> Proyectos
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/resources?context=#{@context}"}
+          replace
+          class={
+            if @module == "resources",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-piggy-bank h-7 w-7"></i> Recursos
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/norms?context=#{@context}"}
+          replace
+          class={
+            if @module == "norms",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-scale-balanced h-7 w-7"></i> Normas
+        </.link>
+      </li>
+      
+      <li class="">
+        <.link
+          patch={~p"/app/culture?context=#{@context}"}
+          replace
+          class={
+            if @module == "culture",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-heart-circle-check h-7 w-7"></i> Cultura
+        </.link>
+      </li>
+    </ul>
+  </div>
+  
+  <div class="">
+    <ul class="menu text-lg ">
+      <li class="">
+        <.link
+          patch={~p"/app/config?context=#{@context}"}
+          replace
+          class={
+            if @module == "config",
+              do: "link active",
+              else: "link"
+          }
+        >
+          <i class="fa-solid fa-gear h-7 w-7"></i> Configuración
+        </.link>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<div class="w-5/6 h-full flex px-5 py-5 gap-2 flex-col">
+  <div class="flex flex-row justify-center items-center">
+    <section class="grow flex flex-col py-5 px-0 h-fit">
+      <form class="w-5/6">
+        <label
+          for="default-search"
+          class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
+        >
+          Search
+        </label>
+        
+        <div class="relative">
+          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+            <svg
+              class="w-4 h-4 text-gray-500 dark:text-gray-400"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 20 20"
+            >
+              <path
+                stroke="currentColor"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+              />
+            </svg>
+          </div>
+          
+          <input
+            type="search"
+            id="default-search"
+            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            placeholder="Buscar aquí personas, organizaciones, y otros"
+            required
+          />
+          <button
+            type="submit"
+            class="text-white absolute end-2.5 bottom-2.5 bg-aurora_orange hover:bg-aurora_orange/100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          >
+            Buscar
+          </button>
+        </div>
+      </form>
+    </section>
+    
+    <section class="w-auto flex flex-row py-5 px-5 h-fit gap-3">
+      <a href="#" class="iconbutton">
+        <i class="fa-solid fa-list-check h-7 w-7"></i>
+      </a>
+      
+      <.link
+        patch={~p"/app/#{@module}?context=#{@context}&show-tree=true&module=#{@module}"}
+        class="iconbutton"
+      >
+        <i class="fa-solid fa-sitemap h-7 w-7"></i>
+      </.link>
+      
+      <a href="#" class="iconbutton">
+        <i class="fa-solid fa-bell h-7 w-7"></i>
+      </a>
+      
+      <%= if @current_person do %>
+        <div class="bg-white flex-row flex gap-5 rounded-full px-10 py-2">
+          <div class="flex flex-col text-black">
+            <span class="font-bold">
+              {@current_person.person_id}
+            </span>
+            
+            <span>
+              {@current_person.person_name}
+            </span>
+          </div>
+          
+          <div>
+            <.link
+              href={~p"/persons/log_out"}
+              method="delete"
+              class="iconbutton text-white flex flex-row gap-3 justify-center items-center  hover:fill-white"
+            >
+              <i class="fa-solid fa-arrow-right-from-bracket h-7 w-7 text-black"></i>
+            </.link>
+          </div>
+        </div>
+      <% else %>
+        <.link href={~p"/persons/log_in"} class="iconbutton">
+          <i class="fa-solid fa-user h-7 w-7"></i>
+        </.link>
+      <% end %>
+    </section>
+  </div>
+   <.live_component module={PanelHeaderComponent} id="header" context={@context} uri={@uri} />
+  <div class="flex flex-row gap-2">
+    <%= case @module do %>
+      <% "home" -> %>
+        <.live_component module={HomePanelComponent} id="hero" context={@context} />
+      <% "members" -> %>
+        <.live_component module={MembersPanelComponent} id="members" context={@context} />
+      <% _ -> %>
+        <div class="card w-4/6 flex flex-col h-fit justify-center items-center">
+          <h1>En construcción</h1>
+        </div>
+    <% end %>
+    
+    <section class="w-4/12 flex flex-col h-fit justify-center items-center card">
+      <div class="flex flex-row justify-between content-between items-center w-full">
+        <h2 class="text-lg font-semibold">Panel lateral</h2>
+         <i class="fa-solid fa-xmark h-5 w-5"></i>
+      </div>
+       <hr class="my-5" />
+      <div class="flex flex-row justify-between content-between">
+        <h2 class="text-xl font-semibold">Detalles</h2>
+      </div>
+    </section>
+  </div>
+</div>
+
+<.modal
+  :if={@show_ou_select}
+  id="ou_tree-modal"
+  show
+  on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
+>
+  <.live_component
+    module={AuroraGovWeb.PanelOUTreeComponent}
+    id="ou_tree-modal"
+    action={@live_action}
+    context={@context}
+    app_module={@module}
+    patch={~p"/app/#{@module}?context=#{@context}"}
+  />
+</.modal>
