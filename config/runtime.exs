@@ -12,23 +12,32 @@ if config_env() == :prod do
     config :aurora_gov_web, AuroraGovWeb.Endpoint, server: true
   end
 
-  config(
-    :aurora_gov_web,
-    AuroraGovWeb.Endpoint,
-    ...,
-    database_url =
-      System.get_env("DATABASE_URL") ||
-        raise("""
-        environment variable DATABASE_URL is missing.
-        For example: ecto://USER:PASS@HOST/DATABASE
-        """)
-  )
-
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
+  eventstore_database_url =
+    System.get_env("EVENTSTORE_DATABASE_URL") ||
+      raise("""
+      environment variable EVENTSTORE_DATABASE_URL is missing.
+      For example: ecto://USER:PASS@HOST/DATABASE
+      """)
+
+  config :aurora_gov, AuroraGov.EventStore,
+    serializer: Commanded.Serialization.JsonSerializer,
+    url: eventstore_database_url,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    socket_options: maybe_ipv6
+
+  projector_database_url =
+    System.get_env("PROJECTOR_DATABASE_URL") ||
+      raise("""
+      environment variable PROJECTOR_DATABASE_URL is missing.
+      For example: ecto://USER:PASS@HOST/DATABASE
+      """)
+
+  # Configure Projector Database
   config :aurora_gov, AuroraGov.Projector.Repo,
     # ssl: true,
-    url: database_url,
+    url: projector_database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
 
@@ -49,10 +58,10 @@ if config_env() == :prod do
   host = System.get_env("PHX_HOST") || "example.com"
 
   config :aurora_gov_web, AuroraGovWeb.Endpoint,
+    url: [host: host, port: 443],
     http: [
       # Enable IPv6 and bind on all interfaces.
       # Set it to  {0, 0, 0, 0, 0, 0, 0, 1} for local network only access.
-      url: [host: host, port: 443],
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: String.to_integer(System.get_env("PORT") || "4000")
     ],

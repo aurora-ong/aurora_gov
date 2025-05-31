@@ -7,7 +7,15 @@ defmodule AuroraGov.Umbrella.MixProject do
       version: "0.1.0",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
-      aliases: aliases()
+      aliases: aliases(),
+      releases: [
+        aurora_gov_web: [
+          applications: [
+            aurora_gov: :permanent,
+            aurora_gov_web: :permanent
+          ]
+        ]
+      ]
     ]
   end
 

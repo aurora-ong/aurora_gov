@@ -18,7 +18,7 @@ ARG DEBIAN_VERSION=bullseye-20250520-slim
 ARG BUILDER_IMAGE="hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION}"
 ARG RUNNER_IMAGE="debian:${DEBIAN_VERSION}"
 
-FROM ${BUILDER_IMAGE} as builder
+FROM ${BUILDER_IMAGE} AS builder
 
 # install build dependencies
 RUN apt-get update -y && apt-get install -y build-essential git \
@@ -36,7 +36,9 @@ ENV MIX_ENV="prod"
 
 # install mix dependencies
 COPY mix.exs mix.lock ./
-RUN mix deps.get --only $MIX_ENV
+COPY apps/aurora_gov/mix.exs apps/aurora_gov/
+COPY apps/aurora_gov_web/mix.exs apps/aurora_gov_web/
+RUN mix deps.get --only ${MIX_ENV}
 RUN mkdir config
 
 # copy compile-time config files before we compile dependencies
@@ -45,14 +47,20 @@ RUN mkdir config
 COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
-COPY priv priv
+# CORE
+COPY apps/aurora_gov/priv apps/aurora_gov/priv
+COPY apps/aurora_gov/lib apps/aurora_gov/lib
 
-COPY lib lib
+# WEB
 
-COPY assets assets
+COPY apps/aurora_gov_web/priv apps/aurora_gov_web/priv
+COPY apps/aurora_gov_web/lib apps/aurora_gov_web/lib
 
-# compile assets
-RUN mix assets.deploy
+
+# ASSETS
+COPY apps/aurora_gov_web/assets apps/aurora_gov_web/assets
+# RUN cd apps/aurora_gov_web/assets && npm install
+RUN cd apps/aurora_gov_web/ && mix assets.deploy
 
 # Compile the release
 RUN mix compile
@@ -60,7 +68,7 @@ RUN mix compile
 # Changes to config/runtime.exs don't require recompiling the code
 COPY config/runtime.exs config/
 
-COPY rel rel
+COPY apps/aurora_gov_web/rel apps/aurora_gov_web/rel
 RUN mix release
 
 # start a new build stage so that the final image will only contain
@@ -74,9 +82,9 @@ RUN apt-get update -y && \
 # Set the locale
 RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
 
-ENV LANG en_US.UTF-8
-ENV LANGUAGE en_US:en
-ENV LC_ALL en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LANGUAGE=en_US:en
+ENV LC_ALL=en_US.UTF-8
 
 WORKDIR "/app"
 RUN chown nobody /app
@@ -94,4 +102,4 @@ USER nobody
 # above and adding an entrypoint. See https://github.com/krallin/tini for details
 # ENTRYPOINT ["/tini", "--"]
 
-CMD ["/app/bin/server"]
+CMD ["/app/bin/aurora_gov_web", "start"]
