@@ -11,14 +11,14 @@ defmodule AuroraGov.Projector do
   alias AuroraGov.Projector.Model.{Person, OU, Membership}
 
   project(
-    %PersonRegistered{person_id: person_id, person_name: person_name, person_mail: person_mail},
+    %PersonRegistered{person_id: person_id, person_name: person_name, person_mail: person_mail, person_secret: person_secret},
     metadata,
     fn multi ->
       projection = %Person{
         person_id: person_id,
         person_name: person_name,
         person_mail: person_mail,
-        person_secret: Pbkdf2.hash_pwd_salt("test"),
+        person_secret: person_secret,
         created_at: metadata.created_at,
         updated_at: metadata.created_at
       }

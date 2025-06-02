@@ -13,6 +13,18 @@ defmodule AuroraGovWeb.Release do
     end
   end
 
+  def db_eventstore_init do
+    {:ok, _} = Application.ensure_all_started(:postgrex)
+    {:ok, _} = Application.ensure_all_started(:ssl)
+
+    load_app()
+
+    config = AuroraGov.EventStore.config()
+
+    :ok = EventStore.Tasks.Create.exec(config, [])
+    :ok = EventStore.Tasks.Init.exec(config, [])
+  end
+
   def rollback(repo, version) do
     load_app()
     {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))

@@ -54,28 +54,22 @@ defmodule MembersPanelComponent do
             </li>
           </ul>
         </div>
-
-        <div class="flex w-fit">
-          <button class="justify-center items-center text-lg primary">
-            <i class="fa-solid fa-hand h-5 w-5"></i>
-          </button>
-        </div>
       </div>
        <hr class="my-5" />
       <div class="relative overflow-x-auto w-full">
         <table class="w-full text-md text-left text-gray-500">
-          <thead class="text-gray-700 uppercase bg-gray-50 text-center">
+          <thead class="text-gray-700 uppercase bg-gray-100 text-center">
             <tr>
-              <th scope="col" class="px-6 py-3">
+              <%!-- <th scope="col" class="px-6 py-3">
                 Id
-              </th>
+              </th> --%>
 
               <th scope="col" class="px-6 py-3">
                 Nombre miembro
               </th>
 
               <th scope="col" class="px-6 py-3">
-                Estado miembro
+                Status miembro
               </th>
 
               <th scope="col" class="px-6 py-3">
@@ -86,13 +80,13 @@ defmodule MembersPanelComponent do
 
           <tbody>
             <%= for m <- @members do %>
-              <tr class="bg-gray-200 border-b">
-                <th
+              <tr class="bg-gray-50 hover:bg-gray-100 border-b">
+                <%!-- <th
                   scope="row"
                   class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-center"
                 >
                   {m.person.person_id}
-                </th>
+                </th> --%>
 
                 <th
                   scope="row"

@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+    name: aurora-gov-pgsql-statefulset
+    namespace: aurora-gov
+spec:
+    selector:
+        matchLabels:
+            app: aurora-gov-pgsql
+    serviceName: "aurora-gov-database-statefulset-service"
+    replicas: 1
+    template:
+        metadata:
+            namespace: aurora-gov
+            labels:
+                app: aurora-gov-pgsql
+        spec:
+            containers:
+            -   name: "postgres"
+                image: "postgres:latest"
+                resources:
+                    requests:
+                        cpu: "250m"
+                        memory: "512Mi"
+                        ephemeral-storage: "100Mi"
+                imagePullPolicy: IfNotPresent
+                env:
+                -   name: "POSTGRES_PASSWORD"
+                    value: "password"
+                -   name: "PGDATA"
+                    value: "/pgsql_data/"
+                ports:
+                -   containerPort: 5432
+                volumeMounts:
+                -   mountPath: "/pgsql_data/"
+                    name: aurora-gov-posgresql-volume
+            volumes:
+            -   name: aurora-gov-posgresql-volume
+                persistentVolumeClaim:
+                    claimName: aurora-gov-database-pvc

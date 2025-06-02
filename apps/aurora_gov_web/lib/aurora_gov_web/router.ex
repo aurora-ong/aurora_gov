@@ -64,7 +64,10 @@ defmodule AuroraGovWeb.Router do
     pipe_through [:browser]
 
     live_session :panel,
-      on_mount: [{AuroraGovWeb.Auth, :mount_current_person}] do
+      on_mount: [
+        {AuroraGovWeb.Auth, :mount_current_person},
+        {AuroraGovWeb.Hooks.LoadOUMembership, :default}
+      ] do
       live "/", PanelLive, :index
       live "/:module", PanelLive, :module
     end

@@ -6,7 +6,7 @@ metadata:
   labels:
     app: aurora-gov
 spec:
-  replicas: 2
+  replicas: 1
   revisionHistoryLimit: 2
   selector:
     matchLabels:
@@ -17,18 +17,27 @@ spec:
         app: aurora-gov
     spec:
       containers:
-        - name: aurora-gov-frontend
-          image: registry.weychafe.nicher.cl/panoramapp_web_frontend:26
+        - name: aurora-gov
+          image: registry.weychafe.nicher.cl/aurora_gov:0
+          resources:
+            requests:
+                cpu: "200m"
+                memory: "256Mi"
+                ephemeral-storage: "100Mi"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 4000
               protocol: TCP
           env:
-            - name: MIX_ENV
-              value: "frontend"
+            - name: PHX_SERVER
+              value: "true"
             - name: PORT
               value: "4000"
             - name: PHX_HOST
-              value: "panoramapp.cl"
-
-
+              value: "gov.aurora.ong"
+            - name: SECRET_KEY_BASE
+              value: ""
+            - name: PROJECTOR_DATABASE_URL
+              value: "ecto://postgres:password@aurora-gov-database-service:5432/aurora_gov_projector"
+            - name: EVENTSTORE_DATABASE_URL
+              value: "ecto://postgres:password@aurora-gov-database-service:5432/aurora_gov_eventstore"

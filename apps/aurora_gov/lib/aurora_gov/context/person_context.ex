@@ -11,23 +11,77 @@ defmodule AuroraGov.Context.PersonContext do
   alias AuroraGov.Auth.AuthToken
 
   def register_person(person_params) do
-    {:ok, person} =
-      person_params
-      |> AuroraGov.Command.RegisterPerson.new()
-      |> Ecto.Changeset.apply_changes()
-      |> AuroraGov.dispatch(consistency: :eventual, returning: :aggregate_state)
+    changeset = AuroraGov.Command.RegisterPerson.new(person_params)
 
-      person.person_id
+    if changeset.valid? do
+      case Ecto.Changeset.apply_action(changeset, :register) do
+        {:ok, command} ->
+          case AuroraGov.dispatch(command, consistency: :eventual, returning: :aggregate_state) do
+            {:ok, %{person_id: person_id}} ->
+              {:ok, person_id}
+
+            {:error, :person_already_exists} ->
+              error_changeset =
+                Ecto.Changeset.add_error(
+                  changeset,
+                  :person_mail,
+                  "ya existe una cuenta con este correo"
+                )
+
+              {:error, error_changeset}
+
+            {:error, reason} ->
+              {:error,
+               Ecto.Changeset.add_error(
+                 changeset,
+                 :person_mail,
+                 "Error inesperado: #{inspect(reason)}"
+               )}
+          end
+
+        {:error, invalid_changeset} ->
+          {:error, invalid_changeset}
+      end
+    else
+      {:error, changeset}
+    end
   end
 
   def register_person!(person_params) do
-    {:ok, person} =
-      person_params
-      |> AuroraGov.Command.RegisterPerson.new()
-      |> Ecto.Changeset.apply_changes()
-      |> AuroraGov.dispatch(consistency: :strong, returning: :aggregate_state)
+    changeset = AuroraGov.Command.RegisterPerson.new(person_params)
 
-    get_person!(person.person_id)
+    if changeset.valid? do
+      case Ecto.Changeset.apply_action(changeset, :register) do
+        {:ok, command} ->
+          case AuroraGov.dispatch(command, consistency: :strong, returning: :aggregate_state) do
+            {:ok, %{person_id: person_id}} ->
+              {:ok, person_id}
+
+            {:error, :person_already_exists} ->
+              changeset =
+                Ecto.Changeset.add_error(
+                  changeset,
+                  :person_mail,
+                  "ya existe una cuenta con este correo"
+                )
+
+              {:error, changeset}
+
+            {:error, reason} ->
+              {:error,
+               Ecto.Changeset.add_error(
+                 changeset,
+                 :person_mail,
+                 "Error inesperado: #{inspect(reason)}"
+               )}
+          end
+
+        {:error, invalid_changeset} ->
+          {:error, invalid_changeset}
+      end
+    else
+      {:error, changeset}
+    end
   end
 
   ## Database getters
@@ -100,7 +154,6 @@ defmodule AuroraGov.Context.PersonContext do
   """
   def get_person!(id), do: Repo.get!(Person, id)
 
-
   ## Session
 
   @doc """
@@ -117,7 +170,7 @@ defmodule AuroraGov.Context.PersonContext do
   """
   def get_person_by_session_token(token) do
     {:ok, query} = AuthToken.verify_session_token_query(token)
-    IO.inspect("OK");
+    IO.inspect("OK")
     Repo.one(query)
   end
 
@@ -160,5 +213,4 @@ defmodule AuroraGov.Context.PersonContext do
     #   )
     # end
   end
-
 end

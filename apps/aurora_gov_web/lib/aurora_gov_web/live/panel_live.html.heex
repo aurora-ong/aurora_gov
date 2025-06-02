@@ -4,169 +4,125 @@
     <h1 class="text-4xl font-semibold text-center">Aurora<br /><b>Gov</b>Tech</h1>
   </div>
    <hr />
-  <div class="menu ">
-    <ul class="gap-y-2 flex flex-col text-lg menu">
-      <li class="">
-        <.link
-          patch={~p"/app/home?context=#{@context}"}
-          replace
-          class={
-            if @module == "home",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-house h-7 w-7"></i> Inicio
-        </.link>
-      </li>
-      
+  <div id="module-menu">
+    <ul class="gap-y-2 flex flex-col text-lg">
       <li class={
         if @module == "home",
           do: "link active",
           else: "link"
       }>
+        <.link patch={~p"/app/home?context=#{@context}"} replace>
+          <i class="fa-solid fa-house"></i> Inicio
+        </.link>
+      </li>
+      
+      <li class={
+        if @module == "tree",
+          do: "link active",
+          else: "link"
+      }>
         <.link patch={~p"/app/tree?context=#{@context}"} replace>
-          <i class="fa-solid fa-sitemap h-7 w-7"></i> Estructura
+          <i class="fa-solid fa-sitemap"></i> Estructura
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/members?context=#{@context}"}
-          replace
-          class={
-            if @module == "members",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-users-between-lines h-7 w-7"></i> Miembros
+      <li class={
+        if @module == "members",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/members?context=#{@context}"} replace>
+          <i class="fa-solid fa-users-between-lines"></i> Miembros
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/news?context=#{@context}"}
-          replace
-          class={
-            if @module == "news",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-newspaper h-7 w-7"></i> Noticias
+      <li class={
+        if @module == "news",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/news?context=#{@context}"} replace>
+          <i class="fa-solid fa-newspaper"></i> Noticias
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/events?context=#{@context}"}
-          replace
-          class={
-            if @module == "events",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-calendar h-7 w-7"></i> Eventos
+      <li class={
+        if @module == "events",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/events?context=#{@context}"} replace>
+          <i class="fa-solid fa-calendar"></i> Eventos
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/power?context=#{@context}"}
-          replace
-          class={
-            if @module == "power",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-bolt h-7 w-7"></i> Poder
+      <li class={
+        if @module == "power",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/power?context=#{@context}"} replace>
+          <i class="fa-solid fa-bolt"></i> Poder
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/agreements?context=#{@context}"}
-          replace
-          class={
-            if @module == "agreements",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-handshake-simple h-7 w-7"></i> Acuerdos
+      <li class={
+        if @module == "agreements",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/agreements?context=#{@context}"} replace>
+          <i class="fa-solid fa-handshake-simple"></i> Acuerdos
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/authorizations?context=#{@context}"}
-          replace
-          class={
-            if @module == "authorizations",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-hand h-7 w-7"></i> Autorizaciones
+      <li class={
+        if @module == "authorizations",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/authorizations?context=#{@context}"} replace>
+          <i class="fa-solid fa-hand"></i> Autorizaciones
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/projects?context=#{@context}"}
-          replace
-          class={
-            if @module == "projects",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-briefcase h-7 w-7"></i> Proyectos
+      <li class={
+        if @module == "projects",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/projects?context=#{@context}"} replace>
+          <i class="fa-solid fa-briefcase"></i> Proyectos
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/resources?context=#{@context}"}
-          replace
-          class={
-            if @module == "resources",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-piggy-bank h-7 w-7"></i> Recursos
+      <li class={
+        if @module == "resources",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/resources?context=#{@context}"} replace>
+          <i class="fa-solid fa-piggy-bank"></i> Recursos
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/norms?context=#{@context}"}
-          replace
-          class={
-            if @module == "norms",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-scale-balanced h-7 w-7"></i> Normas
+      <li class={
+        if @module == "norms",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/norms?context=#{@context}"} replace>
+          <i class="fa-solid fa-scale-balanced"></i> Normas
         </.link>
       </li>
       
-      <li class="">
-        <.link
-          patch={~p"/app/culture?context=#{@context}"}
-          replace
-          class={
-            if @module == "culture",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-heart-circle-check h-7 w-7"></i> Cultura
+      <li class={
+        if @module == "culture",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/culture?context=#{@context}"} replace>
+          <i class="fa-solid fa-heart-circle-check"></i> Cultura
         </.link>
       </li>
     </ul>
@@ -174,17 +130,13 @@
   
   <div class="">
     <ul class="menu text-lg ">
-      <li class="">
-        <.link
-          patch={~p"/app/config?context=#{@context}"}
-          replace
-          class={
-            if @module == "config",
-              do: "link active",
-              else: "link"
-          }
-        >
-          <i class="fa-solid fa-gear h-7 w-7"></i> Configuración
+      <li class={
+        if @module == "config",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/config?context=#{@context}"} replace>
+          <i class="fa-solid fa-gear"></i> Configuración
         </.link>
       </li>
     </ul>
@@ -224,13 +176,13 @@
           <input
             type="search"
             id="default-search"
-            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-aurora_orange focus:border-aurora_orange"
             placeholder="Buscar aquí personas, organizaciones, y otros"
             required
           />
           <button
             type="submit"
-            class="text-white absolute end-2.5 bottom-2.5 bg-aurora_orange hover:bg-aurora_orange/100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            class="text-white absolute end-2.5 bottom-2.5 bg-aurora_orange hover:bg-aurora_orange/100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 "
           >
             Buscar
           </button>
@@ -238,25 +190,18 @@
       </form>
     </section>
     
-    <section class="w-auto flex flex-row py-5 px-5 h-fit gap-3">
+    <section id="panel-menu" class="w-auto flex flex-row items-center py-5 px-5 h-fit gap-3">
       <a href="#" class="iconbutton">
-        <i class="fa-solid fa-list-check h-7 w-7"></i>
+        <i class="fa-solid fa-list-check"></i>
       </a>
       
-      <.link
-        patch={~p"/app/#{@module}?context=#{@context}&show-tree=true&module=#{@module}"}
-        class="iconbutton"
-      >
-        <i class="fa-solid fa-sitemap h-7 w-7"></i>
-      </.link>
-      
       <a href="#" class="iconbutton">
-        <i class="fa-solid fa-bell h-7 w-7"></i>
+        <i class="fa-solid fa-bell"></i>
       </a>
       
       <%= if @current_person do %>
-        <div class="bg-white flex-row flex gap-5 rounded-full px-10 py-2">
-          <div class="flex flex-col text-black">
+        <div class="bg-white flex-row flex gap-5 rounded-full px-10 py-2 border border-aurora_orange">
+          <div class="flex flex-col text-black justify-center items-start">
             <span class="font-bold">
               {@current_person.person_id}
             </span>
@@ -267,29 +212,27 @@
           </div>
           
           <div>
-            <.link
-              href={~p"/persons/log_out"}
-              method="delete"
-              class="iconbutton text-white flex flex-row gap-3 justify-center items-center  hover:fill-white"
-            >
-              <i class="fa-solid fa-arrow-right-from-bracket h-7 w-7 text-black"></i>
+            <.link href={~p"/persons/log_out"} method="delete" class="iconbutton">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
             </.link>
           </div>
         </div>
       <% else %>
         <.link href={~p"/persons/log_in"} class="iconbutton">
-          <i class="fa-solid fa-user h-7 w-7"></i>
+          <i class="fa-solid fa-user"></i>
         </.link>
       <% end %>
     </section>
   </div>
-   <.live_component module={PanelHeaderComponent} id="header" context={@context} uri={@uri} />
+   <.live_component module={PanelHeaderComponent} id="header" context={@context} app_module={@module} uri={@uri} />
   <div class="flex flex-row gap-2">
     <%= case @module do %>
       <% "home" -> %>
         <.live_component module={HomePanelComponent} id="hero" context={@context} />
       <% "members" -> %>
         <.live_component module={MembersPanelComponent} id="members" context={@context} />
+      <% "tree" -> %>
+        {inspect(@current_ou_tree)}
       <% _ -> %>
         <div class="card w-4/6 flex flex-col h-fit justify-center items-center">
           <h1>En construcción</h1>
@@ -310,17 +253,34 @@
 </div>
 
 <.modal
-  :if={@show_ou_select}
-  id="ou_tree-modal"
+  :if={@tree_modal}
+  id="tree-modal"
   show
   on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
 >
   <.live_component
     module={AuroraGovWeb.PanelOUTreeComponent}
-    id="ou_tree-modal"
-    action={@live_action}
+    id="tree-modal-component"
     context={@context}
     app_module={@module}
+    ou_tree={@current_ou_tree}
+    patch={~p"/app/#{@module}?context=#{@context}"}
+  />
+</.modal>
+
+<.modal
+  :if={@gov_modal}
+  id="gov-modal"
+  show
+  max_width="max-w-6xl"
+  on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
+>
+  <.live_component
+    module={AuroraGovWeb.GovLiveComponent}
+    id="gov-modal-component"
+    context={@context}
+    app_module={@module}
+    ou_tree={@current_ou_tree}
     patch={~p"/app/#{@module}?context=#{@context}"}
   />
 </.modal>

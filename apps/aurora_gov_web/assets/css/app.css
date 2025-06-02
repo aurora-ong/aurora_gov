@@ -1,123 +1,133 @@
 @import "tailwindcss/base";
+
 @import "tailwindcss/components";
+
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
 
 @font-face {
-    font-family: "Montserrat";
-    src: url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
+  font-family: "Montserrat";
+  src: url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 }
 
 @font-face {
-    font-family: "Oswald";
-    src: url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap");
+  font-family: "Oswald";
+  src: url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Oswald:wght@200..700&display=swap");
 }
 
-
 @layer components {
+  
+  /* Firefox (uncomment to work in Firefox, although other properties will not work!)  */
+  /** {
+    scrollbar-width: thin;
+    scrollbar-color: #FF11CF #DFE9EB;
+  }*/
+  
+  /* Chrome, Edge and Safari */
+  *::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    border-radius: 5px;
+    background-color: #999;
+  }
+  
+  *::-webkit-scrollbar-track:hover {
+    background-color: #FD4F00;
+  }
+  
+  *::-webkit-scrollbar-track:active {
+    background-color: #333;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    background-color: #666;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: #FD4F00;
+  }
+  
+  *::-webkit-scrollbar-thumb:active {
+    background-color: #FD4F00;
+  }
+  
+  .glass {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 3px solid rgba(255, 255, 255, 0.3);
+  }
+  
+  /* body { */
+    /* background-image: url("https://images.unsplash.com/photo-1637952112301-6090dca83ccb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"); */
+    /* background-size: cover; */
+  /* } */
+  
+  .app-container {
+    @apply w-full flex gap-5;
+  }
+  
+  hr {
+    @apply w-full h-0.5 mx-auto bg-gray-50/20 border-0 rounded;
+  }
+  
+  i {
+    @apply align-middle text-base;
+  }
+  
+  .card {
+    @apply py-7 px-10 border-2 rounded-xl border-gray-200;
+  }
+  
+  button.primary {
+    @apply hover:bg-aurora_orange hover:text-white flex flex-row gap-3 px-5 py-2 rounded-lg border-aurora_orange border;
+  }
+  
+  /* PANEL MENU */
+  
+  #panel-menu a.iconbutton {
+    @apply hover:bg-aurora_orange w-14 h-14 rounded-full cursor-pointer flex items-center justify-center hover:text-white text-xl;
+  }
+  
+  #panel-menu a.iconbutton i {
+    @apply text-2xl;
+  }
+  
+ 
+  /* MODULE MENU */
+  
+  div#module-menu ul > li > a {
+    @apply w-full h-full py-3 px-5 cursor-pointer hover:bg-gray-200/75 rounded-lg flex flex-row items-center gap-3;
+  }
+  
+  div#module-menu ul > li > a > i {
+    @apply text-xl;
+  }
+  
+  div#module-menu ul li.link {
+    @apply flex flex-row w-full gap-3 border-l-4 border-white;
+  }
+  
+  div#module-menu ul li.link.active {
+    @apply border-l-4 border-aurora_orange text-aurora_orange font-semibold;
+  }
+  
+  div#module-menu ul {
+    @apply grow my-5 overflow-y-auto px-2.5 gap-y-2 flex flex-col text-lg;
+  }
 
-    /* Firefox (uncomment to work in Firefox, although other properties will not work!)  */
-    /** {
-  scrollbar-width: thin;
-  scrollbar-color: #FF11CF #DFE9EB;
-}*/
-
-    /* Chrome, Edge and Safari */
-    *::-webkit-scrollbar {
-        height: 5px;
-        width: 5px;
-    }
-
-    *::-webkit-scrollbar-track {
-        border-radius: 5px;
-        background-color: #DFE9EB;
-    }
-
-    *::-webkit-scrollbar-track:hover {
-        background-color: #B8C0C2;
-    }
-
-    *::-webkit-scrollbar-track:active {
-        background-color: #B8C0C2;
-    }
-
-    *::-webkit-scrollbar-thumb {
-        border-radius: 5px;
-        background-color: #FF11CF;
-    }
-
-    *::-webkit-scrollbar-thumb:hover {
-        background-color: #FF11CF;
-    }
-
-    *::-webkit-scrollbar-thumb:active {
-        background-color: #FF11CF;
-    }
-
-    .glass {
-        background: rgba(255, 255, 255, 0.2);
-        border-radius: 16px;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 3px solid rgba(255, 255, 255, 0.3);
-    }
-
-    body {
-
-        /* background-image: url("https://images.unsplash.com/photo-1637952112301-6090dca83ccb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"); */
-        /* background-size: cover; */
-    }
-
-    .app-container {
-        @apply w-full flex gap-5;
-    }
-
-    hr {
-        @apply w-full h-0.5 mx-auto bg-gray-50/20 border-0 rounded;
-    }
-
-    .card {
-        @apply py-7 px-10 border-2 rounded-xl border-gray-200;
-    }
-
-    button.primary {
-        @apply hover:bg-aurora_orange flex flex-row gap-3 px-5 py-2 rounded-lg border-aurora_orange border;
-    }
-
-    ul.tabs>li {
-        @apply hover:bg-aurora_orange/75 px-10 py-2 rounded-lg cursor-pointer;
-    }
-
-    ul.tabs>li.active {
-        @apply bg-aurora_orange;
-    }
-
-    a.iconbutton {
-        @apply hover:bg-aurora_orange px-3 py-3 rounded-full cursor-pointer visited:fill-white;
-    }
-
-    ul.menu>li {
-        @apply hover:border-l-4 border-aurora_orange py-3 px-5 cursor-pointer flex flex-row gap-3;
-    }
-
-    ul.menu>li a.active {
-        @apply bg-aurora_orange;
-    }
-
-    div.menu li.link {
-        @apply flex flex-row w-full hover:bg-aurora_orange/75 py-3 px-5 cursor-pointer fill-white gap-3
-    }
-
-    div.menu li.link.active {
-        @apply border-l-4 border-aurora_orange text-aurora_orange;
-    }
-
-    div.menu {
-        @apply grow my-5 overflow-y-auto px-2.5 gap-y-2 flex flex-col text-lg 
-    }
-
-
-
+    /* ul.tabs > li {
+    @apply hover:bg-aurora_orange/75 border-aurora_orange/75 px-10 py-2 rounded-lg cursor-pointer;
+  } */
+  
+  /* ul.tabs > li.active {
+    @apply bg-aurora_orange;
+  } */
 }

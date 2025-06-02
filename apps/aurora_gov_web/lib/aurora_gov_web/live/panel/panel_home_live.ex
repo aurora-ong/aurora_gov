@@ -7,6 +7,7 @@ defmodule HomePanelComponent do
     socket =
       socket
       |> assign(:context, assigns.context)
+      |> assign(:page_title, "Inicio")
       |> assign(:ou, AuroraGov.Projector.OU.get_ou_by_id(assigns.context))
 
     {:ok, socket}

@@ -5,7 +5,7 @@ metadata:
   namespace: aurora-gov
 spec:
   acme:
-    email: contacto@panoramapp.cl
+    email: contacto@aurora.ong
     server: https://acme-v02.api.letsencrypt.org/directory
     privateKeySecretRef:
       name: aurora-gov-letsencrypt-key

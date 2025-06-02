@@ -13,7 +13,12 @@ defmodule AuroraGov.Umbrella.MixProject do
           applications: [
             aurora_gov: :permanent,
             aurora_gov_web: :permanent
-          ]
+          ],
+          # overlays: [
+          #   {:copy, "rel/overlays/bin/db_eventstore_int", "bin/migrate"},
+          #   {:copy, "rel/create", "bin/create"},
+          #   {:copy, "rel/drop", "bin/drop"}
+          # ]
         ]
       ]
     ]

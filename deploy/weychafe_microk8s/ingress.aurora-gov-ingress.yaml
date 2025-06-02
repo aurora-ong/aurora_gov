@@ -7,29 +7,14 @@ metadata:
     cert-manager.io/cluster-issuer: aurora-gov-letsencrypt
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
-    nginx.ingress.kubernetes.io/server-snippet: |
-      if ($host = www.panoramapp.cl) {
-        return 301 https://panoramapp.cl$request_uri;
-      }
 spec:
   ingressClassName: public
   tls:
     - hosts:
-        - panoramapp.cl
-        - www.panoramapp.cl
+        - gov.aurora.ong
       secretName: aurora-gov-tls
   rules:
-    - host: panoramapp.cl
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: aurora-gov-service
-                port:
-                  number: 80
-    - host: www.panoramapp.cl
+    - host: gov.aurora.ong
       http:
         paths:
           - path: /

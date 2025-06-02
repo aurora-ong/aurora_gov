@@ -40,6 +40,7 @@ defmodule AuroraGovWeb.CoreComponents do
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
   slot :inner_block, required: true
+  attr :max_width, :string, default: "max-w-3xl"
 
   def modal(assigns) do
     ~H"""
@@ -60,7 +61,7 @@ defmodule AuroraGovWeb.CoreComponents do
         tabindex="0"
       >
         <div class="flex min-h-full items-center justify-center">
-          <div class="w-full max-w-3xl p-4 sm:p-6 lg:py-8">
+          <div class={"w-full #{@max_width} p-4 sm:p-6 lg:py-8"}>
             <.focus_wrap
               id={"#{@id}-container"}
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
@@ -202,7 +203,7 @@ defmodule AuroraGovWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="space-y-8 bg-white">
         {render_slot(@inner_block, f)}
         <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
           {render_slot(action, f)}
@@ -271,6 +272,7 @@ defmodule AuroraGovWeb.CoreComponents do
   attr :id, :any, default: nil
   attr :name, :any
   attr :label, :string, default: nil
+  attr :description, :string, default: nil
   attr :value, :any
 
   attr :type, :string,
@@ -361,6 +363,7 @@ defmodule AuroraGovWeb.CoreComponents do
         ]}
         {@rest}
       >{Phoenix.HTML.Form.normalize_value("textarea", @value)}</textarea>
+      <small :if={@description != nil} class="text-gray-600">{@description}</small>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -383,6 +386,7 @@ defmodule AuroraGovWeb.CoreComponents do
         ]}
         {@rest}
       />
+      <small :if={@description != nil} class="text-sm">{@description}</small>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
