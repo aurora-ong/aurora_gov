@@ -1,18 +1,29 @@
 defmodule AuroraGov.Command do
-  defmacro __using__(fields_with_opts) do
-    command_fields = for {name, opts} <- fields_with_opts, do: {name, Keyword.get(opts, :type, :string)}
+  defmacro __using__(opts) do
+    quote bind_quoted: [opts: opts] do
+      fields = Keyword.fetch!(opts, :fields)
+      meta = Keyword.get(opts, :gov_power, [])
 
-    quote bind_quoted: [command_fields: command_fields, fields_with_opts: fields_with_opts] do
-      # Define los campos del comando (Commanded los convierte en defstruct)
-      use Commanded.Command, Enum.into(command_fields, %{})
+      # Definir el struct del comando
+      field_names = Keyword.keys(fields)
+      field_types = for {k, v} <- fields, do: {k, Keyword.get(v, :type, :string)}
+
+      use Commanded.Command, Enum.into(field_types, %{})
 
       Module.register_attribute(__MODULE__, :form_fields, accumulate: true)
-
-      for {name, opts} <- fields_with_opts do
-        @form_fields {name, opts}
-      end
+      for {name, meta} <- fields, do: @form_fields {name, meta}
 
       def fields, do: Enum.into(@form_fields, %{})
+
+      @gov_power meta
+
+      def gov_power do
+        %{
+          id: Keyword.fetch!(@gov_power, :id),
+          name: Keyword.fetch!(@gov_power, :name),
+          description: Keyword.fetch!(@gov_power, :description)
+        }
+      end
     end
   end
 end

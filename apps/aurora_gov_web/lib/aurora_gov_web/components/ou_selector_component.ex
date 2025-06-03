@@ -76,8 +76,6 @@ defmodule AuroraGovWeb.OUSelectorComponent do
     ou_tree = socket.assigns.ou_tree || []
     _only_if_member? = socket.assigns[:only_if_member?] || false
 
-    IO.inspect(ou_tree, label: "OU Tree")
-
     results =
       Enum.filter(ou_tree, fn ou ->
         match?(
@@ -104,7 +102,7 @@ defmodule AuroraGovWeb.OUSelectorComponent do
     Phoenix.LiveView.send_update(
       socket.assigns.parent_module,
       id: socket.assigns.parent_id,
-      info: {:trigger_validation, socket.assigns.field.name}
+      info: {:ou_selected, socket.assigns.field.field, selected.ou_id}
     )
 
     {:noreply,

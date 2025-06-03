@@ -10,7 +10,6 @@ defmodule AuroraGov.Command.CreateProposal do
 
   def handle_validate(changeset) do
     changeset
-    |> put_change(:proposal_id, Ecto.ShortUUID.generate())
     |> validate_required([:proposal_title, :proposal_description, :proposal_ou_origin, :proposal_ou_end, :proposal_power, :proposal_power_data])
   end
 end

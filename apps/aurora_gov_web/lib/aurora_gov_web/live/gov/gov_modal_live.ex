@@ -2,13 +2,10 @@ defmodule AuroraGovWeb.GovLiveComponent do
   use AuroraGovWeb, :live_component
 
   @impl true
-  def update(%{info: {:trigger_validation, _field_name}} = assigns, socket) do
-    form_data = socket.assigns.form.params || %{}
-    IO.inspect(assigns, label: "Update GovLiveComponent")
-
+  def update(%{info: {:ou_selected, field_name, field_data}} = assigns, socket) do
     changeset =
-      form_data
-      |> AuroraGov.Command.CreateProposal.new()
+      socket.assigns.form.source
+      |> Ecto.Changeset.change(Map.new() |> Map.put(field_name, field_data))
       |> Map.put(:action, :validate)
 
     {:ok, assign(socket, form: to_form(changeset, as: "proposal"))}
@@ -20,7 +17,7 @@ defmodule AuroraGovWeb.GovLiveComponent do
       socket
       |> assign(assigns)
       |> assign_new(:form, fn ->
-        to_form(%{}, as: "proposal")
+        to_form(AuroraGov.Command.CreateProposal.new(), as: "proposal")
       end)
 
     {:ok, socket}
@@ -81,9 +78,20 @@ defmodule AuroraGovWeb.GovLiveComponent do
             />
           </div>
         </div>
+
         <div class="flex flex-row gap-4 justify-between items-center flex-nowrap">
           <div class="flex flex-col gap-5 basis-1/2">
-            <.input field={@form[:proposal_power]} type="text" label="Poder" required />
+            <.input
+              phx-change="change_power_type"
+              phx-target={@myself}
+              field={@form[:proposal_power]}
+              type="select"
+              label="Poder"
+              options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
+              description="Selecciona el poder que deseas proponer. Este poder será ejecutado por la unidad destino."
+            />
+            { inspect(@form[:proposal_power].errors)}
+            <%!-- <.input field={@form[:proposal_power]} type="text" label="Poder" required /> --%>
           </div>
 
           <div class="flex flex-col basis-1/2 gap-5 justify-center px-10">
@@ -95,10 +103,11 @@ defmodule AuroraGovWeb.GovLiveComponent do
         </div>
 
         <.live_component
+          :if={@form[:proposal_power].value != nil and @form[:proposal_power].value != ""}
           module={AuroraGovWeb.DynamicCommandFormComponent}
           id="register-form"
-          form={@form}
-          command_module={AuroraGov.Command.StartMembership}
+          form={@form_power}
+          command_module={AuroraGov.CommandUtils.find_command_by_id(@form[:proposal_power].value)}
           validate_event="validate"
           submit_event="submit"
           target={@myself}
@@ -115,53 +124,64 @@ defmodule AuroraGovWeb.GovLiveComponent do
               ¿Ya tienes cuenta? Ingresa aquí
             </a>
           </small>
-        </:actions> --%>
+        </:actions> --%> {inspect(
+          @form[:proposal_power].value
+        )} <%!-- {inspect(
+                assigns[:form_power]
+              )}  --%>
+        <br /> {inspect(assigns.form)}
       </.simple_form>
     </div>
     """
   end
 
   @impl true
-  def handle_event("validate", params, socket) do
-    IO.inspect(params, label: "Validate Params")
+  @spec handle_event(<<_::64>>, nil | maybe_improper_list() | map(), any()) :: {:noreply, any()}
+  def handle_event("validate", %{"proposal" => proposal_params} = x, socket) do
+    IO.inspect(x, label: "Validate Params")
+    IO.inspect(proposal_params, label: "Validate Params")
 
     changeset =
-      params["proposal"]
+      proposal_params
       |> AuroraGov.Command.CreateProposal.new()
       |> Map.put(:action, :validate)
 
-    {:noreply, assign(socket, form: to_form(changeset, as: "proposal"))}
+
+
+    socket =
+      socket
+      |> assign(form: to_form(changeset, as: "proposal"))
+
+    {:noreply, socket}
   end
 
-  # def handle_event("validate", %{"person" => person_params}, socket) do
-  #   changeset =
-  #     person_params
-  #     |> Map.put("person_id", person_params["person_mail"] || "")
-  #     |> AuroraGov.Command.RegisterPerson.new()
-  #     |> Map.put(:action, :validate)
+  def handle_event(
+        "change_power_type",
+        %{"proposal" => %{"proposal_power" => power_id}},
+        socket
+      ) do
+    IO.inspect(power_id, label: "Change Power Type")
+    IO.inspect(socket.assigns.form.source, label: "PARAMS")
 
-  #   form = to_form(changeset, as: "person")
+    changeset =
+      socket.assigns.form.source
+      |> Ecto.Changeset.change(%{proposal_power: power_id})
+      |> Map.put(:action, :validate)
 
-  #   {:noreply, assign(socket, form: form)}
-  # end
+    power_changeset =
+      if power_id != nil and power_id != "" do
+        AuroraGov.CommandUtils.find_command_by_id(power_id).new()
+        |> Map.put(:action, :validate)
+      else
+        %{}
+      end
 
-  def handle_event("register", %{"person" => person_params}, socket) do
-    person_params = Map.put(person_params, "person_id", person_params["person_mail"] || "")
+    socket =
+      socket
+      |> assign(form: to_form(changeset, as: "proposal"))
+      |> assign(form_power: to_form(power_changeset, as: "power"))
 
-    case AuroraGov.Context.PersonContext.register_person!(person_params) do
-      {:ok, _person} ->
-        socket =
-          socket
-          |> put_flash(:info, "Cuenta creada exitosamente. Por favor, inicia sesión.")
-
-        # PUSH REDIRECT
-        {:noreply, redirect(socket, to: ~p"/persons/log_in")}
-
-      {:error, changeset} ->
-        IO.inspect(changeset, label: "Register Person Error")
-
-        form = to_form(%{changeset | action: :validate}, as: "person")
-        {:noreply, assign(socket, form: form)}
-    end
+    # Hacer algo con el nuevo valor seleccionado
+    {:noreply, socket}
   end
 end

@@ -1,15 +1,13 @@
 defmodule AuroraGov.Command.StartMembership do
   use AuroraGov.Command,
-    ou_id: [
-      type: :string,
-      visible?: false
+    gov_power: [
+      id: "org.membership.start",
+      name: "Iniciar membresía",
+      description: "Permite iniciar la membresía de una persona en una unidad organizacional"
     ],
-    person_id: [
-      type: :string,
-      label: "Persona que se unirá",
-      form_type: :text,
-      description: "ID de la persona que se unirá",
-      visible?: true
+    fields: [
+      ou_id: [type: :string, label: "Unidad", form_type: :text, visible?: true],
+      person_id: [type: :string, label: "Persona", form_type: :text, visible?: true]
     ]
 
   def handle_validate(changeset) do
