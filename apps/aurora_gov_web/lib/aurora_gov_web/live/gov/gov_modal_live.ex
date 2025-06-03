@@ -26,6 +26,7 @@ defmodule AuroraGovWeb.GovLiveComponent do
     {:ok, socket}
   end
 
+  @impl true
   def render(assigns) do
     ~H"""
     <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
@@ -120,6 +121,7 @@ defmodule AuroraGovWeb.GovLiveComponent do
     """
   end
 
+  @impl true
   def handle_event("validate", params, socket) do
     IO.inspect(params, label: "Validate Params")
 
