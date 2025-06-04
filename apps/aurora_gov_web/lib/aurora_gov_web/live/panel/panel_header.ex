@@ -35,7 +35,7 @@ defmodule PanelHeaderComponent do
 
         <.link patch={~p"/app/#{@module}?context=#{@context}&tree-modal=true"}>
           <button class="justify-center items-center text-lg primary">
-            <i class="fa-solid fa-arrows-up-down text-xl"></i> Navegar
+            <i class="fa-solid fa-sitemap text-xl"></i> Navegar
           </button>
         </.link>
 

@@ -76,7 +76,8 @@ defmodule AuroraGovWeb.CoreComponents do
                   class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
                   aria-label={gettext("close")}
                 >
-                  <.icon name="hero-x-mark-solid" class="h-5 w-5" />
+                  <%!-- <.icon name="hero-x-mark-solid" class="h-5 w-5" /> --%>
+                  <i class="fa-solid fa-close text-2xl"></i>
                 </button>
               </div>
               <div id={"#{@id}-content"}>
@@ -129,7 +130,8 @@ defmodule AuroraGovWeb.CoreComponents do
       </p>
       <p class="mt-2 text-sm leading-5">{msg}</p>
       <button type="button" class="group absolute top-1 right-1 p-2" aria-label={gettext("close")}>
-        <.icon name="hero-x-mark-solid" class="h-5 w-5 opacity-40 group-hover:opacity-70" />
+        <%!-- <.icon name="hero-x-mark-solid" class="h-5 w-5 opacity-40 group-hover:opacity-70" /> --%>
+        <i class="fa-solid fa-close text-2xl opacity-40 group-hover:opacity-70"></i>
       </button>
     </div>
     """

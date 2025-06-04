@@ -31,7 +31,7 @@ defmodule AuroraGov.Projector.OU do
         select: %{
           ou_id: ou.ou_id,
           ou_name: ou.ou_name,
-          ou_description: ou.ou_description,
+          ou_goal: ou.ou_goal,
           membership_status: m.membership_status,
           membership_created_at: m.created_at
         }
@@ -45,7 +45,7 @@ defmodule AuroraGov.Projector.OU do
         select: %{
           ou_id: ou.ou_id,
           ou_name: ou.ou_name,
-          ou_description: ou.ou_description,
+          ou_goal: ou.ou_goal,
           membership_status: nil,
           membership_created_at: nil
         }

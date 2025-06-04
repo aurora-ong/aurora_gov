@@ -5,13 +5,14 @@ defmodule AuroraGov.Utils.OUTree do
   end
 
   def is_root?(id) do
-    id =~ "."
+    not String.contains?(id, ".")
   end
 
   def get_parent!(id) do
     case is_root?(id) do
       false ->
         id
+
       true ->
         split_string = String.split(id, ".")
         parents = List.delete_at(split_string, length(split_string) - 1)
