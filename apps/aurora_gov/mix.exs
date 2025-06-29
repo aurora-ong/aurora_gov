@@ -62,7 +62,7 @@ defmodule AuroraGov.MixProject do
       reset: ["ecto.drop", "event_store.drop"],
       "projector.setup": ["ecto.create", "ecto.migrate", "run #{__DIR__}/priv/repo/seeds.exs"],
       "projector.reset": ["ecto.drop", "projector.setup"],
-      "event_store.setup": ["event_store.create", "event_store.init", "run #{__DIR__}/priv/repo/seeds.exs"],
+      "event_store.setup": ["event_store.create", "event_store.init"],
       "event_store.reset": ["event_store.drop", "event_store.setup"],
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"]
     ]

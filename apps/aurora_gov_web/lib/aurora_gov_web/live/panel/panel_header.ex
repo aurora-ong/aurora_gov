@@ -3,21 +3,22 @@ defmodule PanelHeaderComponent do
   alias Phoenix.LiveView.JS
 
   def update(assigns, socket) do
+    IO.inspect(assigns, label: "PanelHeaderComponent Update")
     socket =
       socket
       |> assign(:context, assigns.context)
-      |> assign(:module, assigns.app_module)
-      |> assign(:uri, assigns.uri)
-      |> assign(:ou, AuroraGov.Projector.OU.get_ou_by_id(assigns.context))
+      # |> assign(:module, assigns.app_module)
+      # |> assign(:uri, assigns.uri)
+      |> assign(:ou, AuroraGov.Context.OUContext.get_ou_by_id(assigns.context))
 
     # |> assign(:ou_list, assigns.ou_tree)
 
     {:ok, socket}
   end
 
-  def render(assigns) do
+    def render(assigns) do
     ~H"""
-    <section class="card w-full flex flex-row h-fit justify-center items-center">
+    <section class="card w-full flex flex-row h-fit justify-center items-center gap-5">
       <div class="flex flex-col flex-grow">
         <h2 class="text-white w-fit bg-black px-2 py-0.5 font-bold rounded">{@ou.ou_id}</h2>
 
@@ -27,17 +28,13 @@ defmodule PanelHeaderComponent do
       </div>
 
       <div class="flex flex-row gap-3 items-center justify-center h-full">
-        <.link patch={~p"/app/#{@module}?context=#{@context}&gov-modal=true"}>
-          <button class="justify-center items-center text-lg primary">
-            <i class="fa-solid fa-hand text-xl"></i> Gobernar
-          </button>
-        </.link>
+        <button phx-click="open_gov_modal" class="justify-center items-center text-lg primary">
+          <i class="fa-solid fa-hand text-xl"></i> Gobernar
+        </button>
 
-        <.link patch={~p"/app/#{@module}?context=#{@context}&tree-modal=true"}>
-          <button class="justify-center items-center text-lg primary">
-            <i class="fa-solid fa-sitemap text-xl"></i> Navegar
-          </button>
-        </.link>
+        <button phx-click="open_tree_modal" class="justify-center items-center text-lg primary">
+          <i class="fa-solid fa-sitemap text-xl rotate-180"></i> Navegar
+        </button>
 
         <%!-- <button class="justify-center items-center text-lg primary h-full">
           <i class="fa-solid fa-arrow-up text-xl"></i>

@@ -6,7 +6,7 @@ defmodule AuroraGov.Command do
 
       # Definir el struct del comando
       field_names = Keyword.keys(fields)
-      field_types = for {k, v} <- fields, do: {k, Keyword.get(v, :type, :string)}
+      field_types = for {k, v} <- fields, do: {k, Keyword.get(v, :command_type, :string)}
 
       use Commanded.Command, Enum.into(field_types, %{})
 

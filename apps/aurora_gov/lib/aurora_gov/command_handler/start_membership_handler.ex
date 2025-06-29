@@ -1,8 +1,8 @@
 defmodule AuroraGov.CommandHandler.StartMembershipHandler do
   @behaviour Commanded.Commands.Handler
+  alias AuroraGov.Utils.OUTree
   alias EventStore.UUID
   alias AuroraGov.Aggregate.{OU, Person}
-  alias AuroraGov.Utils.OUTree
   alias AuroraGov.Command.StartMembership
   alias AuroraGov.Event.MembershipStarted
 
@@ -10,55 +10,41 @@ defmodule AuroraGov.CommandHandler.StartMembershipHandler do
     {:error, :ou_not_exists}
   end
 
-  def handle(%OU{ou_status: :active} = uo, %StartMembership{
+  def handle(%OU{ou_status: :active} = ou, %StartMembership{
         ou_id: ou_id,
         person_id: person_id
       }) do
-    with true <- check_person_exists(person_id),
-         true <- check_membership_in_ou(uo, person_id),
-         true <- check_membership_in_parent_ou(ou_id, person_id),
-         do: %MembershipStarted{
-           ou_id: ou_id,
-           person_id: person_id,
-           membership_id: UUID.uuid4()
-         }
+    with {:person, _person} <- Person.get_person(person_id),
+         {:error, :membership_not_found} <- OU.get_membership_by_person(ou, person_id),
+         :ok <- check_parent_membership(ou_id, person_id) do
+      %MembershipStarted{
+        ou_id: ou_id,
+        person_id: person_id,
+        membership_id: ShortUUID.encode!(UUID.uuid4())
+      }
+    else
+      {:membership, _} -> {:error, :membership_already_active}
+      error -> error
+    end
   end
 
   def handle(_ou, %StartMembership{}) do
     {:error, :ou_not_active}
   end
 
-  defp check_membership_in_ou(ou, person_id) do
-    if OU.has_active_membership?(ou, person_id) do
-      {:error, :has_active_membership}
-    else
-      true
-    end
-  end
-
-  defp check_membership_in_parent_ou(ou_id, person_id) do
+  def check_parent_membership(ou_id, person_id) do
     case OUTree.get_parent!(ou_id) do
       ^ou_id ->
-        true
+        :ok
 
       parent ->
-        parent_ou = AuroraGov.aggregate_state(OU, parent)
-
-        if OU.has_active_membership?(parent_ou, person_id) do
-          true
+        with {:ou, ou} <- OU.get_ou(parent),
+             {:membership, _membership} <- OU.get_membership_by_person(ou, person_id) do
+          :ok
         else
-          {:error, :parent_membership_missing}
+          {:error, :membership_not_found} -> {:error, :parent_membership_not_found}
+          error -> raise("Error: #{inspect(error)}")
         end
-    end
-  end
-
-  defp check_person_exists(person_id) do
-    case AuroraGov.aggregate_state(Person, person_id) do
-      %Person{person_id: nil} ->
-        {:error, :person_not_exists}
-
-      _ ->
-        true
     end
   end
 end

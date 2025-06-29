@@ -1,28 +1,71 @@
 defmodule PowerPanelComponent do
-  # In Phoenix apps, the line is typically: use MyAppWeb, :live_component
-  use Phoenix.LiveComponent
+  alias Phoenix.LiveView.AsyncResult
+  use AuroraGovWeb, :live_component
 
-  # @impl true
-  # def mount(socket) do
-  #   socket =
-  #     socket
-  #     |> assign(:filter, "all")
+  @impl true
+  def mount(socket) do
+    socket =
+      socket
+      |> assign(:ou_power_list, AsyncResult.loading())
 
-  #   {:ok, socket}
-  # end
+    {:ok, socket}
+  end
 
-  # @impl true
-  # def update(assigns, socket) do
-  #   socket =
-  #     socket
-  #     |> assign(:context, assigns.context)
-  #     |> assign(
-  #       :members,
-  #       AuroraGov.Projector.Membership.get_all_membership_by_uo(assigns.context)
-  #     )
+  @impl true
+  def update(%{update: {:power_updated, %{ou_id: ou_id}}}, socket) do
+    socket =
+      if ou_id == socket.assigns.context do
+        socket
+        |> assign(:ou_power_list, AsyncResult.loading())
+        |> start_async(:load_data, fn ->
+          AuroraGov.Context.PowerContext.get_ou_power(ou_id)
+        end)
+      else
+        socket
+      end
 
-  #   {:ok, socket}
-  # end
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(assigns, socket) do
+    socket =
+      socket
+      |> assign(:context, assigns.context)
+      |> assign(power_modal: false)
+      |> assign(power_modal_power_id: nil)
+      |> start_async(:load_data, fn ->
+        :timer.sleep(1000)
+        AuroraGov.Context.PowerContext.get_ou_power(assigns.context)
+      end)
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def handle_async(:load_data, {:ok, ou_powers}, socket) do
+    power_info =
+      AuroraGov.CommandUtils.all_proposable_modules()
+      |> Enum.map(fn module ->
+        Map.merge(module.gov_power(), %{})
+      end)
+
+    power_ids =
+      (Enum.map(power_info, & &1.id) ++ Enum.map(ou_powers, & &1.power_id))
+      |> Enum.uniq()
+
+    combined =
+      Enum.map(power_ids, fn id ->
+        %{
+          id: id,
+          power_info: Enum.find(power_info, &(&1.id == id)),
+          ou_power: Enum.find(ou_powers, &(&1.power_id == id))
+        }
+      end)
+
+    %{ou_power_list: ou_power_list} = socket.assigns
+    {:noreply, assign(socket, :ou_power_list, AsyncResult.ok(ou_power_list, combined))}
+  end
 
   @impl true
   def render(assigns) do
@@ -30,80 +73,121 @@ defmodule PowerPanelComponent do
     <section class="card w-4/6 flex flex-col h-fit">
       <h2 class="text-2xl font-bold mb-6">Tabla de consensos</h2>
 
-      <div class="grid grid-cols-2 gap-4">
-        <div class="border px-5 py-5 rounded-lg">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-lg font-semibold">Crear nueva unidad</h3>
+      <.async_result :let={ou_power_list} assign={@ou_power_list}>
+        <:loading>Cargando...</:loading>
 
-              <p class="text-sm text-gray-600">
-                Permite formalizar nuevas unidades organizativas dentro del árbol organizacional.
-              </p>
+        <:failed :let={_failure}>there was an error loading the organization</:failed>
+
+        <div class="grid grid-cols-2 gap-4">
+          <%= for power <- ou_power_list do %>
+            <div class="border px-5 py-5 rounded-lg flex flex-col justify-between">
+              <div class="flex justify-between items-start">
+                <div>
+                  <h3 class="text-lg font-semibold">
+                    {get_in(power, [:power_info, :name]) || power.id}
+                  </h3>
+
+                  <p class="text-sm text-gray-600">
+                    {get_in(power, [:power_info, :description]) || ""}
+                  </p>
+                </div>
+
+                <div class="flex flex-row gap-1">
+                  <button
+                    phx-click="update_power"
+                    phx-value-power_id={power.id}
+                    phx-target={@myself}
+                    class="justify-center items-center text-lg primary !px-3"
+                  >
+                    <i class="fa-solid fa-hand-point-up text-sm"></i>
+                  </button>
+
+                  <button
+                    phx-click="update_power"
+                    phx-value-power_id={power.id}
+                    phx-target={@myself}
+                    class="justify-center items-center text-lg primary !px-3"
+                  >
+                    <i class="fa-solid fa-eye text-sm"></i>
+                  </button>
+                </div>
+              </div>
+
+              <div :if={power.ou_power != nil} class="mt-3">
+                <div class="flex flex-row">
+                  <label class="text-sm text-gray-500 flex-grow">
+                    Requiere <strong>{power.ou_power.power_average}%</strong> de aprobación colectiva
+                  </label>
+
+                  <span class="text-sm flex flex-row items-center gap-1">
+                    <%!-- {power.ou_poder}/{power.power_person_total} --%>
+                    <i class="fa-solid fa-user-group text-sm"></i>
+                  </span>
+                </div>
+
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div
+                    class={"#{get_progress_bar_color(Decimal.to_float(power.ou_power.power_average))} h-2 rounded-full"}
+                    style={"width: #{power.ou_power.power_average}%;"}
+                  >
+                  </div>
+                </div>
+
+                <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
+                  <%!-- <i class="fa-solid fa-hand mr-2" />Usado {power.power_use_7_days} veces en los últimos 7 días --%>
+                </p>
+              </div>
             </div>
-
-            <button class="text-blue-600 text-sm hover:underline" onclick="openModal('crear-unidad')">
-              Actualizar mi sensibilidad
-            </button>
-          </div>
-
-          <div class="mt-3">
-            <label class="text-sm text-gray-500">
-              Requiere <strong>45%</strong> de aprobación colectiva
-            </label>
-
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-              <div class="bg-blue-600 h-2 rounded-full" style="width: 45%;"></div>
-            </div>
-
-            <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
-              <i class="fa-solid fa-hand mr-2" />Usado 2 veces en los últimos 7 días
-            </p>
-          </div>
+          <% end %>
         </div>
+      </.async_result>
 
-        <div class="border px-5 py-5 rounded-lg">
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-lg font-semibold">Iniciar membresía</h3>
-
-              <p class="text-sm text-gray-600">
-                Permite iniciar la membresía de una persona en una unidad organizacional.
-              </p>
-            </div>
-
-            <button class="text-blue-600 text-sm hover:underline" onclick="openModal('crear-unidad')">
-              Actualizar mi sensibilidad
-            </button>
-          </div>
-
-          <div class="mt-5">
-            <label class="text-sm text-gray-500">
-              Requiere <strong>85%</strong> de aprobación colectiva
-            </label>
-
-            <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-              <div class="bg-red-600 h-2 rounded-full" style="width: 85%;"></div>
-            </div>
-
-            <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
-              <i class="fa-solid fa-hand mr-2" />Usado 0 veces en los últimos 7 días
-            </p>
-          </div>
-        </div>
-      </div>
+      <.modal
+        :if={@power_modal}
+        id="power-modal"
+        show
+        max_width="max-w-3xl"
+        on_cancel={JS.push("modal_closed", target: @myself, value: %{modal: "power_modal"})}
+      >
+        <.live_component
+          module={AuroraGovWeb.App.Power.PowerSensibilityModalLive}
+          id={"power-modal-#{@power_modal_power_id}"}
+          context={@context}
+          power_id={@power_modal_power_id}
+        />
+      </.modal>
     </section>
     """
   end
 
-  @impl true
-  def handle_event("update_filter", %{"filter" => filter}, socket) do
-    IO.inspect(filter, label: "QQ")
+  defp get_progress_bar_color(power_consensus) do
+    cond do
+      power_consensus <= 33 ->
+        "bg-blue-600"
 
-    {:noreply, assign(socket, filter: filter)}
+      power_consensus >= 66 ->
+        "bg-red-600"
+
+      true ->
+        "bg-aurora_orange"
+    end
   end
 
-  def handle_info(msg, socket) do
-    IO.inspect(msg, label: "Actualizando PUBSUB Panel Members")
+  @impl true
+  def handle_event("update_power", %{"power_id" => power_id}, socket) do
+    IO.inspect(power_id, label: "update_power")
+
+    socket =
+      socket
+      |> assign(power_modal_power_id: power_id)
+      |> assign(power_modal: true)
+
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("modal_closed", %{"modal" => "power_modal"}, socket) do
+    IO.inspect("Cerrando modal")
+    {:noreply, assign(socket, power_modal: false)}
   end
 end

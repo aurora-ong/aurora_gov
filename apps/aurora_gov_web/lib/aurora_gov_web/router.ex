@@ -44,20 +44,12 @@ defmodule AuroraGovWeb.Router do
 
   scope "/", AuroraGovWeb do
     pipe_through [:browser, :require_authenticated_person]
-
-    live_session :require_authenticated_person,
-      on_mount: [{AuroraGovWeb.Auth, :ensure_authenticated}] do
-    end
   end
 
   scope "/", AuroraGovWeb do
     pipe_through [:browser]
 
     delete "/persons/log_out", PersonSessionController, :delete
-
-    live_session :current_person,
-      on_mount: [{AuroraGovWeb.Auth, :mount_current_person}] do
-    end
   end
 
   scope "/app", AuroraGovWeb do
@@ -65,8 +57,7 @@ defmodule AuroraGovWeb.Router do
 
     live_session :panel,
       on_mount: [
-        {AuroraGovWeb.Auth, :mount_current_person},
-        {AuroraGovWeb.Hooks.LoadOUMembership, :default}
+        {AuroraGovWeb.Auth, :mount_current_person}
       ] do
       live "/", PanelLive, :index
       live "/:module", PanelLive, :module

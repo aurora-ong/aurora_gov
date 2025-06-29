@@ -45,3 +45,19 @@ AuroraGov.dispatch(%AuroraGov.Command.CreateOU{
   ou_goal:
     "Impulsar la vida cultural y el involucramiento activo de los vecinos en la construcción de comunidad."
 })
+
+AuroraGov.Context.PersonContext.register_person!(%{person_id: "000@test.com", person_name: "Camila Saez", person_mail: "c.saez@gmail.com", person_password: "123456"})
+AuroraGov.Context.PersonContext.register_person!(%{person_id: "111@test.com", person_name: "Pedro Diaz", person_mail: "c.saez@gmail.com", person_password: "123456"})
+AuroraGov.Context.PersonContext.register_person!(%{person_id: "222@test.com", person_name: "Sebastian Duran", person_mail: "c.saez@gmail.com", person_password: "123456"})
+
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{ou_id: "barrio_vivo", person_id: "000@test.com"})
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{ou_id: "barrio_vivo", person_id: "111@test.com"})
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{ou_id: "barrio_vivo.seguridad", person_id: "222@test.com"})
+
+AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{ou_id: "barrio_vivo", membership_id: "g4AFfCqpWtioetCuMbQJtu"})
+
+AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "7d23a9db-4cfd-4a20-a8e2-7ca1de9c4a0a", power_id: "org.member.add", power_value: 100})
+
+AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "UdREpu6p9zexCjSzDNFauW", power_id: "org.member.add", power_value: 100})
+AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "g4AFfCqpWtioetCuMbQJtu", power_id: "org.member.add", power_value: 100})
+AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "g4AFfCqpWtioetCuMbQJtu", power_id: "org.member.add", power_value: 100})

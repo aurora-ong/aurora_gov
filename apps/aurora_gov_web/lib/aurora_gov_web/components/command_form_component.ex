@@ -10,17 +10,15 @@ defmodule AuroraGovWeb.DynamicCommandFormComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <%= for {field, meta} <- @command_module.fields(), meta[:visible?] do %>
+      <%= for {field, meta} <- @command_module.fields(), meta[:field_type] == :user do %>
         <div class="mb-4">
           <.input
             field={@form[field]}
             type={meta[:form_type] || :text}
             label={meta[:label]}
             class="w-full"
+            description={meta[:description]}
           />
-          <%= if meta[:description] do %>
-            <p class="text-sm text-gray-500">{meta[:description]}</p>
-          <% end %>
         </div>
       <% end %>
     </div>

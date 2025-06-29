@@ -1,16 +1,13 @@
 defmodule MembersPanelComponent do
-  # In Phoenix apps, the line is typically: use MyAppWeb, :live_component
-  use Phoenix.LiveComponent
+  use AuroraGovWeb, :live_component
 
   @impl true
   def mount(socket) do
-    if connected?(socket) do
-      Phoenix.PubSub.subscribe(AuroraGov.PubSub, "projector_update")
-    end
-
     socket =
       socket
       |> assign(:filter, "all")
+      |> stream_configure(:member_list, dom_id: & &1.membership_id)
+      |> stream(:member_list, [])
 
     {:ok, socket}
   end
@@ -20,18 +17,42 @@ defmodule MembersPanelComponent do
     socket =
       socket
       |> assign(:context, assigns.context)
-      |> assign(
-        :members,
-        AuroraGov.Projector.Membership.get_all_membership_by_uo(assigns.context)
-      )
+      |> assign(loading: true)
+      |> start_async(:load_data, fn ->
+        :timer.sleep(1000)
+        AuroraGov.Context.MembershipContext.get_all_membership_by_uo(assigns.context)
+      end)
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_async(:load_data, {:ok, member_list}, socket) do
+    socket =
+      socket
+      |> assign(:loading, false)
+      |> stream(:member_list, member_list, reset: true)
+
+    {:noreply, socket}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
     <section class="card w-4/6 flex flex-col h-fit justify-center items-center">
+      <button
+        phx-click="open_gov_modal"
+        phx-value-proposal_title="Titulo propuesta"
+        phx-value-proposal_description="Descripcion de propuesta en detalle"
+        phx-value-proposal_ou_origin="raiz"
+        phx-value-proposal_ou_end="raiz.sub"
+        phx-value-proposal_power="org.membership.start"
+        phx-value-person_id="aperson"
+        class="justify-center items-center text-lg primary"
+      >
+        <i class="fa-solid fa-hand text-xl"></i> Nuevo miembro
+      </button>
+
       <div class="flex w-full h-12 flex-row">
         <div class="flex w-fit grow">
           <ul class="flex flex-row gap-3 items-center tabs">
@@ -57,55 +78,48 @@ defmodule MembersPanelComponent do
       </div>
        <hr class="my-5" />
       <div class="relative overflow-x-auto w-full">
-        <table class="w-full text-md text-left text-gray-500">
-          <thead class="text-gray-700 uppercase bg-gray-100 text-center">
-            <tr>
-              <%!-- <th scope="col" class="px-6 py-3">
-                Id
-              </th> --%>
+        <%= if @loading do %>
+          <div class="text-center py-10">
+            
+                        
+          </div>
+        <% else %>
+          <%!-- <%= if Stream.|.empty?(@streams.member_list) do %>
+            <div class="text-center py-10 text-gray-500">
+              No hay miembros registrados aún.
+            </div>
+          <% else %>
+            <!-- tu tabla aquí -->
+          <% end %> --%>
+          <.table id="webs" rows={@streams.member_list}>
+            <:col :let={{_id, membership}} label="Membership Id">
+              {membership.membership_id}
+            </:col>
 
-              <th scope="col" class="px-6 py-3">
-                Nombre miembro
-              </th>
+            <:col :let={{_id, membership}} label="Person Id">
+              {membership.person_id}
+            </:col>
 
-              <th scope="col" class="px-6 py-3">
-                Status miembro
-              </th>
+            <:col :let={{_id, membership}} label="Person Name">
+              {membership.person.person_name}
+            </:col>
 
-              <th scope="col" class="px-6 py-3">
-                Miembro desde
-              </th>
-            </tr>
-          </thead>
+            <:col :let={{_id, membership}} label="Membership Status">
+              <%= case (membership.membership_status) do %>
+                <% "junior" -> %>
+                  <span class="font-semibold">{membership.membership_status}</span>
+                <% "regular" -> %>
+                  <span class="font-semibold">{membership.membership_status}</span>
+                <% "senior" -> %>
+                  <span class="text-red-500 font-semibold">{membership.membership_status}</span>
+              <% end %>
+            </:col>
 
-          <tbody>
-            <%= for m <- @members do %>
-              <tr class="bg-gray-50 hover:bg-gray-100 border-b">
-                <%!-- <th
-                  scope="row"
-                  class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-center"
-                >
-                  {m.person.person_id}
-                </th> --%>
-
-                <th
-                  scope="row"
-                  class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap text-center"
-                >
-                  {m.person.person_name}
-                </th>
-
-                <td class="px-6 py-4 text-center">
-                  {m.membership_status}
-                </td>
-
-                <td class="px-6 py-4 text-center">
-                  {m.created_at}
-                </td>
-              </tr>
-            <% end %>
-          </tbody>
-        </table>
+            <:col :let={{_id, membership}} label="Miembro desde">
+              {membership.created_at}
+            </:col>
+          </.table>
+        <% end %>
       </div>
     </section>
     """
@@ -116,10 +130,5 @@ defmodule MembersPanelComponent do
     IO.inspect(filter, label: "QQ")
 
     {:noreply, assign(socket, filter: filter)}
-  end
-
-  def handle_info(msg, socket) do
-    IO.inspect(msg, label: "Actualizando PUBSUB Panel Members")
-    {:noreply, socket}
   end
 end

@@ -1,6 +1,8 @@
 defmodule HomePanelComponent do
+  alias AuroraGovWeb.CoreComponents
   # In Phoenix apps, the line is typically: use MyAppWeb, :live_component
   use Phoenix.LiveComponent
+  import CoreComponents
 
   def update(assigns, socket) do
 
@@ -8,7 +10,7 @@ defmodule HomePanelComponent do
       socket
       |> assign(:context, assigns.context)
       |> assign(:page_title, "Inicio")
-      |> assign(:ou, AuroraGov.Projector.OU.get_ou_by_id(assigns.context))
+      |> assign(:ou, AuroraGov.Context.OUContext.get_ou_by_id(assigns.context))
 
     {:ok, socket}
   end
@@ -19,6 +21,7 @@ defmodule HomePanelComponent do
       <h1>Inicio</h1>
       <h2><%= @ou.ou_description %></h2>
       <h2><%= @ou.created_at %></h2>
+
     </section>
     """
   end

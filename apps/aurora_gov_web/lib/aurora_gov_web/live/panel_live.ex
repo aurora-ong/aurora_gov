@@ -3,6 +3,10 @@ defmodule AuroraGovWeb.PanelLive do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(AuroraGov.PubSub, "projector_update")
+    end
+
     {:ok, socket}
   end
 
@@ -12,8 +16,8 @@ defmodule AuroraGovWeb.PanelLive do
       socket
       |> assign_context(params)
       |> assign(:module, params["module"] || "home")
-      |> assign(:tree_modal, params["tree-modal"] == "true")
-      |> assign(:gov_modal, params["gov-modal"] == "true")
+      |> assign(:tree_modal, false)
+      |> assign(:gov_modal, false)
       |> assign(:uri, uri)
 
     {:noreply, socket}
@@ -24,7 +28,8 @@ defmodule AuroraGovWeb.PanelLive do
   end
 
   defp assign_context(socket, _params) do
-    case get_in(socket.assigns, [:current_ou_tree, Access.at(0), :ou_id]) do
+
+    case (Enum.at(AuroraGov.Context.OUContext.get_ou_tree(), 0) || %{}).ou_id do
       ou_id when is_binary(ou_id) and ou_id != "" ->
         assign(socket, :context, ou_id)
 
@@ -35,28 +40,41 @@ defmodule AuroraGovWeb.PanelLive do
     end
   end
 
-  @impl true
-  def handle_info(msg, socket) do
-    IO.inspect(msg, label: "Actualizando PUBSUB Panel Live")
+  defp update_context(ou_id, socket) do
+    socket = socket
+    |> assign(:context, ou_id)
+    # |> assign(:current_membership, )
 
-    socket =
-      socket
-      |> create_notification(msg)
+  end
+
+  @impl true
+  def handle_info(event, socket) do
+    IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
+    socket = AuroraGovWeb.PanelEventRouter.handle_event(event, socket)
 
     {:noreply, socket}
   end
 
-  defp create_notification(socket, msg) do
-    case msg do
-      %{membership_notification: %{person: person, ou: ou}} ->
-        put_flash(
-          socket,
-          :info,
-          "#{person.person_name} (#{person.person_id}) ahora es miembro de #{ou.ou_name} (#{ou.ou_id})"
-        )
+  @impl true
+  def handle_event("open_gov_modal", params, socket) do
+    IO.inspect(params, label: "Params")
 
-      _ ->
-        socket
-    end
+    socket =
+      socket
+      |> assign(:gov_modal, true)
+      |> assign(:initial_proposal_values, params)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("open_tree_modal", params, socket) do
+    IO.inspect(params, label: "Params")
+
+    socket =
+      socket
+      |> assign(:tree_modal, true)
+
+    {:noreply, socket}
   end
 end

@@ -346,6 +346,7 @@ defmodule AuroraGovWeb.CoreComponents do
         <option :if={@prompt} value="">{@prompt}</option>
         {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
+      <small :if={@description != nil} class="text-xs">{@description}</small>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -388,7 +389,7 @@ defmodule AuroraGovWeb.CoreComponents do
         ]}
         {@rest}
       />
-      <small :if={@description != nil} class="text-sm">{@description}</small>
+      <small :if={@description != nil} class="text-xs">{@description}</small>
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -678,5 +679,11 @@ defmodule AuroraGovWeb.CoreComponents do
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  def loading_spinner(assigns) do
+    ~H"""
+      <i class="fa-solid fa-spinner fa-spin text-3xl text-gray-500"></i>
+    """
   end
 end

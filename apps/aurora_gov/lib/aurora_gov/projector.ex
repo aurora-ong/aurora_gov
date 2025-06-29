@@ -7,11 +7,20 @@ defmodule AuroraGov.Projector do
 
   require Logger
 
+  alias AuroraGov.Projector.MembershipProjector
+  alias AuroraGov.Projector.PowerProjector
+  alias AuroraGov.Event.PowerUpdated
+  alias AuroraGov.Event.MembershipPromoted
   alias AuroraGov.Event.{PersonRegistered, OUCreated, MembershipStarted}
   alias AuroraGov.Projector.Model.{Person, OU, Membership}
 
   project(
-    %PersonRegistered{person_id: person_id, person_name: person_name, person_mail: person_mail, person_secret: person_secret},
+    %PersonRegistered{
+      person_id: person_id,
+      person_name: person_name,
+      person_mail: person_mail,
+      person_secret: person_secret
+    },
     metadata,
     fn multi ->
       projection = %Person{
@@ -45,27 +54,33 @@ defmodule AuroraGov.Projector do
     end
   )
 
+  project(%MembershipStarted{} = evt, metadata, &MembershipProjector.project(evt, metadata, &1))
+
   project(
-    %MembershipStarted{membership_id: membership_id, ou_id: ou_id, person_id: person_id},
+    %MembershipPromoted{
+      membership_id: membership_id,
+      ou_id: ou_id,
+      membership_status: membership_status
+    },
     metadata,
     fn multi ->
-      projection = %Membership{
-        membership_id: membership_id,
-        ou_id: ou_id,
-        person_id: person_id,
-        membership_status: :junior,
-        created_at: metadata.created_at,
-        updated_at: metadata.created_at
-      }
-
       multi
-      |> Ecto.Multi.insert(:membership_table_insert, projection,
-        returning: true,
-        preload: [:ou]
-      )
-      |> Ecto.Multi.run(:membership_notification, fn repo,
-                                                     %{membership_table_insert: membership} ->
-        # Realizamos una consulta para precargar las asociaciones
+      |> Ecto.Multi.run(:membership_lookup, fn repo, _changes ->
+        case repo.get_by(Membership, membership_id: membership_id, ou_id: ou_id) do
+          nil -> {:error, :membership_not_found}
+          membership -> {:ok, membership}
+        end
+      end)
+      |> Ecto.Multi.update(:membership_update, fn %{membership_lookup: membership} ->
+        changeset =
+          Ecto.Changeset.change(membership,
+            membership_status: membership_status,
+            updated_at: metadata.created_at
+          )
+
+        changeset
+      end)
+      |> Ecto.Multi.run(:membership_notification, fn repo, %{membership_update: membership} ->
         membership
         |> repo.preload([:ou, :person])
         |> then(&{:ok, &1})
@@ -73,12 +88,12 @@ defmodule AuroraGov.Projector do
     end
   )
 
+  project(%PowerUpdated{} = evt, metadata, &PowerProjector.project(evt, metadata, &1))
+
   @impl Commanded.Projections.Ecto
-  def after_update(event, metadata, changes) do
-    IO.inspect(event, label: "Notificando (event)")
-    IO.inspect(changes, label: "Notificando (changes)")
-    IO.inspect(metadata, label: "Notificando (metadata)")
-    Phoenix.PubSub.broadcast(AuroraGov.PubSub, "projector_update", changes)
+  def after_update(_event, _metadata, %{projector_update: projector_update}) do
+    IO.inspect(projector_update, label: "Notificando (projector_update)")
+    Phoenix.PubSub.broadcast(AuroraGov.PubSub, "projector_update", projector_update)
     :ok
   end
 

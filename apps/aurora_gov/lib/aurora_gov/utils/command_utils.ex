@@ -1,14 +1,15 @@
 defmodule AuroraGov.CommandUtils do
   @proposable_power [
     Elixir.AuroraGov.Command.StartMembership,
-    Elixir.AuroraGov.Command.CreateOU
+    Elixir.AuroraGov.Command.CreateOU,
+    Elixir.AuroraGov.Command.PromoteMembership
   ]
 
   def all_proposable_modules do
     @proposable_power
     # |> Enum.map(&elem(&1, 0))
     # |> Enum.filter(&String.starts_with?(Atom.to_string(&1), "Elixir.AuroraGov.Command."))
-    |> Enum.filter(&function_exported?(&1, :gov_power, 0))
+    # |> Enum.filter(&function_exported?(&1, :gov_power, 0))
   end
 
   def all_proposable_modules_select do

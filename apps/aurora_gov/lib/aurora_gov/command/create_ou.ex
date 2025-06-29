@@ -7,19 +7,29 @@ defmodule AuroraGov.Command.CreateOU do
     ],
     fields: [
       ou_id: [
-        type: :string,
+        command_type: :string,
         label: "Identificador de la unidad",
         form_type: :text,
-        visible?: true,
+        field_type: :user,
         description: "Identificador único de la unidad organizacional."
       ],
-      ou_name: [type: :string, label: "Nombre de la unidad", form_type: :text, visible?: true],
-      ou_goal: [type: :string, label: "Objetivo de la unidad", form_type: :text, visible?: true],
+      ou_name: [
+        command_type: :string,
+        label: "Nombre de la unidad",
+        form_type: :text,
+        field_type: :user
+      ],
+      ou_goal: [
+        command_type: :string,
+        label: "Objetivo de la unidad",
+        form_type: :text,
+        field_type: :user
+      ],
       ou_description: [
-        type: :string,
+        command_type: :string,
         label: "Descripción de la unidad",
         form_type: :textarea,
-        visible?: true
+        field_type: :user
       ]
     ]
 

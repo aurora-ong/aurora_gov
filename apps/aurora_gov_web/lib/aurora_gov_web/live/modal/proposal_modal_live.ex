@@ -1,23 +1,66 @@
 defmodule AuroraGovWeb.GovLiveComponent do
   use AuroraGovWeb, :live_component
+  alias Phoenix.LiveView.AsyncResult
+
+  @impl true
+  def update(%{info: {:ou_selected, field_name, nil}}, socket) do
+    IO.inspect("OU_clear #{field_name}")
+
+    changeset =
+      socket.assigns.step_0_form_proposal.source
+      |> Ecto.Changeset.change(Map.new() |> Map.put(field_name, nil))
+      |> Map.put(:action, :validate)
+
+    {:ok, assign(socket, step_0_form_proposal: to_form(changeset, as: "proposal"))}
+  end
 
   @impl true
   def update(%{info: {:ou_selected, field_name, field_data}}, socket) do
     changeset =
-      socket.assigns.form_proposal.source
+      socket.assigns.step_0_form_proposal.source
       |> Ecto.Changeset.change(Map.new() |> Map.put(field_name, field_data))
       |> Map.put(:action, :validate)
 
-    {:ok, assign(socket, form_proposal: to_form(changeset, as: "proposal"))}
+    {:ok, assign(socket, step_0_form_proposal: to_form(changeset, as: "proposal"))}
   end
 
   def update(assigns, socket) do
     # Inicializa el formulario si no está presente
+
     socket =
       socket
       |> assign(assigns)
-      |> assign_new(:form_proposal, fn ->
-        to_form(AuroraGov.Command.CreateProposal.new(), as: "proposal")
+      |> assign_new(:step_0_form_proposal, fn ->
+        IO.inspect(assigns[:initial_values], label: "Initial values")
+
+        form_proposal_params = assigns[:initial_values] || %{}
+
+        form_proposal_params
+        |> AuroraGov.Command.CreateProposal.handle_validate_step(0)
+        |> to_form(as: "proposal")
+      end)
+      |> assign_new(:step_0_ou_power_detail, fn -> nil end)
+      |> then(fn socket ->
+        proposal_power = Map.get(assigns[:initial_values], "proposal_power", nil)
+
+        if proposal_power != nil do
+          power_changeset =
+            AuroraGov.CommandUtils.find_command_by_id(proposal_power).new(
+              assigns[:initial_values]
+            )
+
+          socket
+          |> assign(step_1_form_power: to_form(power_changeset, as: "power"))
+        else
+          socket
+        end
+      end)
+      |> assign_new(:step_2_form_proposal, fn ->
+        form_proposal_params = assigns[:initial_values] || %{}
+
+        form_proposal_params
+        |> AuroraGov.Command.CreateProposal.handle_validate_step(1)
+        |> to_form(as: "proposal")
       end)
       |> assign_new(:step, fn -> 0 end)
 
@@ -36,33 +79,33 @@ defmodule AuroraGovWeb.GovLiveComponent do
 
       <.simple_form
         :if={@step == 0}
-        for={@form_proposal}
+        for={@step_0_form_proposal}
         id="login_form"
-        phx-submit="next"
-        phx-change="validate"
+        phx-submit="step_0_next"
+        phx-change="step_0_validate"
         phx-target={@myself}
         class="w-full"
       >
-        <%!-- <.input field={@form_proposal[:proposal_title]} type="text" label="Título propuesta" required />
-        <.input
-          field={@form_proposal[:proposal_description]}
-          type="textarea"
-          label="Descripción propuesta"
-          description="Describe como esta propuesta contribuye al objetivo de la unidad."
-          required
-        /> --%>
-        <div class="flex flex-row gap-4 justify-between items-center flex-nowrap border border-gray-200 py-5 bg-gray-50 px-5 rounded-lg">
+        <div class="flex flex-row gap-4 justify-between items-start flex-nowrap">
           <div class="flex flex-col gap-5 basis-1/2">
             <.live_component
               module={AuroraGovWeb.OUSelectorComponent}
               parent_module={__MODULE__}
               parent_id="gov-modal-component"
               id="proposal_ou_origin"
-              field={@form_proposal[:proposal_ou_origin]}
+              field={@step_0_form_proposal[:proposal_ou_origin]}
               label="Unidad Origen"
               ou_tree={@ou_tree}
               only_if_member?={true}
               current_person_id="p.delgado@gmail.com"
+              description="Debes pertenecer a esta unidad."
+            />
+            <.input
+              field={@step_0_form_proposal[:proposal_power]}
+              type="select"
+              label="Acción"
+              options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
+              description="Esta acción será ejecutada en la unidad destino."
             />
           </div>
            <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
@@ -72,35 +115,25 @@ defmodule AuroraGovWeb.GovLiveComponent do
               parent_module={__MODULE__}
               parent_id="gov-modal-component"
               id="proposal_ou_end"
-              field={@form_proposal[:proposal_ou_end]}
+              field={@step_0_form_proposal[:proposal_ou_end]}
               label="Unidad Destino"
               ou_tree={@ou_tree}
               only_if_member?={false}
               current_person_id="p.delgado@gmail.com"
+              description="Unidad donde se ejecutará la acción."
             />
-          </div>
-        </div>
-
-        <div class="flex flex-row gap-4 justify-between items-center flex-nowrap">
-          <div class="flex flex-col gap-5 basis-1/2">
-            <.input
-              field={@form_proposal[:proposal_power]}
-              type="select"
-              label="Poder"
-              options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
-              description="Selecciona el poder que deseas proponer. Este poder será ejecutado por la unidad destino."
-            />
-          </div>
-
-          <div class="flex flex-col basis-1/2 gap-5 justify-center px-10">
             <div
               :if={
-                @form_proposal[:proposal_power].value != nil and
-                  @form_proposal[:proposal_power].value != ""
+                @step_0_form_proposal[:proposal_power].value != nil and
+                  @step_0_form_proposal[:proposal_power].value != ""
               }
               class="border border-aurora_orange px-5 py-5 rounded-lg"
             >
-              <div>
+              <div :if={@step_0_ou_power_detail == nil} class="flex justify-center">
+                <i class="fa-solid fa-spinner animate-spin text-orange-600 text-xl"></i>
+              </div>
+
+              <div :if={@step_0_ou_power_detail != nil}>
                 <label class="text-sm text-gray-500">
                   Requiere <strong>45%</strong> de aprobación colectiva
                 </label>
@@ -117,18 +150,12 @@ defmodule AuroraGovWeb.GovLiveComponent do
           </div>
         </div>
 
-        <.live_component
-          :if={
-            @form_proposal[:proposal_power].value != nil and
-              @form_proposal[:proposal_power].value != ""
-          }
-          module={AuroraGovWeb.DynamicCommandFormComponent}
-          id="proposal-power_form"
-          form={@form_power}
-          command_module={
-            AuroraGov.CommandUtils.find_command_by_id(@form_proposal[:proposal_power].value)
-          }
-        />
+        <div class="flex flex-row gap-4 justify-between items-center flex-nowrap">
+          <div class="flex flex-col gap-5 basis-1/2"></div>
+
+          <div class="flex flex-col basis-1/2 gap-5 justify-center px-10"></div>
+        </div>
+
         <:actions>
           <.button phx-disable-with="..." class="w-full">
             Siguiente <span aria-hidden="true">→</span>
@@ -138,124 +165,261 @@ defmodule AuroraGovWeb.GovLiveComponent do
 
       <.simple_form
         :if={@step == 1}
-        for={@form_proposal}
+        for={@step_1_form_power}
         id="proposal_details_form"
-        phx-submit="next"
-        phx-change="validate"
+        phx-submit="step_1_next"
+        phx-change="step_1_validate"
+        phx-target={@myself}
+        class="w-full"
+      >
+        {inspect(@proposal_data)} <br /> {inspect(@step_1_form_power)}
+        <.live_component
+          module={AuroraGovWeb.DynamicCommandFormComponent}
+          id="proposal-power_form"
+          form={@step_1_form_power}
+          command_module={AuroraGov.CommandUtils.find_command_by_id(@proposal_data.proposal_power)}
+        />
+        <:actions>
+          <.button
+            phx-click="step_back"
+            phx-value-step="0"
+            phx-target={@myself}
+            phx-disable-with="..."
+            class="w-full"
+            type="button"
+          >
+            Atrás
+          </.button>
+
+          <.button phx-disable-with="..." class="w-full">
+            Siguiente
+          </.button>
+        </:actions>
+      </.simple_form>
+
+      <.simple_form
+        :if={@step == 2}
+        for={@step_2_form_proposal}
+        id="proposal_details_form"
+        phx-submit="step_2_next"
+        phx-change="step_2_validate"
         phx-target={@myself}
         class="w-full"
       >
         <.input
-          field={@form_proposal[:proposal_title]}
+          field={@step_2_form_proposal[:proposal_title]}
           type="text"
           label="Título propuesta"
           required
         />
         <.input
-          field={@form_proposal[:proposal_description]}
+          field={@step_2_form_proposal[:proposal_description]}
           type="textarea"
           label="Descripción propuesta"
           description="Describe como esta propuesta contribuye al objetivo de la unidad donde se aplicará. Debe ser consistente con el poder a utilizar."
           required
         />
         <:actions>
-          <.button phx-click="back" phx-target={@myself} phx-disable-with="..." class="w-full">
+          <.button
+            phx-click="step_back"
+            phx-value-step="1"
+            phx-target={@myself}
+            phx-disable-with="..."
+            class="w-full"
+            type="button"
+          >
             Atrás
           </.button>
 
           <.button phx-disable-with="..." class="w-full">
-            Finalizar
+            Revisar
           </.button>
         </:actions>
       </.simple_form>
+
+      <div :if={@step == 3}>
+        <h2>Revisa la propuesta</h2>
+         {inspect(@proposal_data)} {inspect(@power_data)}
+        <div>
+          <.button
+            type="button"
+            phx-click="step_back"
+            phx-value-step="2"
+            phx-target={@myself}
+            phx-disable-with="..."
+            class="w-full"
+          >
+            Atrás
+          </.button>
+
+          <.button
+            phx-click="step_2_submit"
+            phx-target={@myself}
+            phx-disable-with="..."
+            class="w-full"
+          >
+            Finalizar
+          </.button>
+        </div>
+      </div>
     </div>
     """
   end
 
   @impl true
-  def handle_event("validate", params, socket) do
-    proposal_params = Map.get(params, "proposal", %{})
-    power_params = Map.get(params, "power", %{})
-
-    proposal_power_old = socket.assigns.form_proposal[:proposal_power].value
-    proposal_power_new = proposal_params["proposal_power"]
-
-    form_power =
-      cond do
-        proposal_power_new in [nil, ""] ->
-          nil
-
-        proposal_power_new == proposal_power_old and socket.assigns[:form_power] ->
-          command_module = AuroraGov.CommandUtils.find_command_by_id(proposal_power_new)
-
-          power_params
-          |> command_module.new()
-          |> Map.put(:action, :validate)
-          |> then(&to_form(&1, as: "power"))
-
-        true ->
-          AuroraGov.CommandUtils.find_command_by_id(proposal_power_new).new(%{})
-          |> then(&to_form(&1, as: "power"))
-      end
-
+  def handle_event("step_0_validate", %{"proposal" => proposal_params}, socket) do
     proposal_changeset =
       proposal_params
-      |> AuroraGov.Command.CreateProposal.new()
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(0)
       |> Map.put(:action, :validate)
 
     socket =
       socket
-      |> assign(form_proposal: to_form(proposal_changeset, as: "proposal"))
-      |> assign(form_power: form_power)
+      |> assign(step_0_form_proposal: to_form(proposal_changeset, as: "proposal"))
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("next", params, socket) do
-    proposal_params = Map.get(params, "proposal", %{})
-    power_params = Map.get(params, "power", %{})
-
-    proposal_power_old = socket.assigns.form_proposal[:proposal_power].value
-    proposal_power_new = proposal_params["proposal_power"]
-
-    form_power =
-      cond do
-        proposal_power_new in [nil, ""] ->
-          nil
-
-        proposal_power_new == proposal_power_old and socket.assigns[:form_power] ->
-          command_module = AuroraGov.CommandUtils.find_command_by_id(proposal_power_new)
-
-          power_params
-          |> command_module.new()
-          |> Map.put(:action, :validate)
-          |> then(&to_form(&1, as: "power"))
-
-        true ->
-          AuroraGov.CommandUtils.find_command_by_id(proposal_power_new).new(%{})
-          |> then(&to_form(&1, as: "power"))
-      end
-
+  def handle_event("step_0_next", %{"proposal" => proposal_params}, socket) do
     proposal_changeset =
       proposal_params
-      |> AuroraGov.Command.CreateProposal.new()
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(0)
       |> Map.put(:action, :validate)
 
     socket =
       socket
-      |> assign(form_proposal: to_form(proposal_changeset, as: "proposal"))
-      |> assign(form_power: form_power)
-      |> assign(step: 1)
+      |> assign(step_0_form_proposal: to_form(proposal_changeset, as: "proposal"))
+      |> then(fn socket ->
+        if proposal_changeset.valid? do
+          socket
+          |> assign(proposal_data: proposal_changeset.changes)
+          |> assign_new(:step_1_form_power, fn ->
+            proposal_power = proposal_changeset.changes.proposal_power
+            command_module = AuroraGov.CommandUtils.find_command_by_id(proposal_power)
+
+            power_changeset = command_module.new(%{})
+
+            to_form(power_changeset, as: "power")
+          end)
+          |> assign(step: 1)
+        else
+          socket
+        end
+      end)
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("back", _params, socket) do
+  def handle_event("step_back", %{"step" => step}, socket) do
     socket =
       socket
-      |> assign(step: 0)
+      |> assign(step: String.to_integer(step))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_1_validate", %{"power" => power_params}, socket) do
+    command_module =
+      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power)
+
+    power_changeset =
+      power_params
+      |> command_module.new()
+      |> Map.put(:action, :validate)
+
+    socket =
+      socket
+      |> assign(step_1_form_power: to_form(power_changeset, as: "power"))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_1_next", %{"power" => power_params}, socket) do
+    command_module =
+      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power)
+
+    power_changeset =
+      power_params
+      |> command_module.new()
+      |> Map.put(:action, :validate)
+
+    socket =
+      socket
+      |> assign(step_1_form_power: to_form(power_changeset, as: "power"))
+      |> then(fn socket ->
+        if power_changeset.valid? do
+          socket
+          |> assign(power_data: power_changeset.changes)
+          |> assign_new(:step_2_form_proposal, fn ->
+            AuroraGov.Command.CreateProposal.handle_validate_step(%{}, 1)
+          end)
+          |> assign(step: 2)
+        else
+          socket
+        end
+      end)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_2_validate", %{"proposal" => proposal_params}, socket) do
+    proposal_changeset =
+      proposal_params
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(1)
+      |> Map.put(:action, :validate)
+
+    socket =
+      socket
+      |> assign(step_2_form_proposal: to_form(proposal_changeset, as: "proposal"))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_2_next", %{"proposal" => proposal_params}, socket) do
+    proposal_changeset =
+      proposal_params
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(1)
+      |> Map.put(:action, :validate)
+
+    socket =
+      socket
+      |> assign(step_2_form_proposal: to_form(proposal_changeset, as: "proposal"))
+      |> then(fn socket ->
+        if proposal_changeset.valid? do
+          socket
+          |> assign(
+            proposal_data: Map.merge(socket.assigns.proposal_data, proposal_changeset.changes)
+          )
+          |> assign(step: 3)
+        else
+          socket
+        end
+      end)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_2_submit", _params, socket) do
+    IO.inspect(socket.assigns.proposal_data, label: "Proposal Data")
+    IO.inspect(socket.assigns.power_data, label: "Power Data")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_async(:load_power_detail, {:ok, ou_id, power_id}, socket) do
+    ou_power_detail = AuroraGov.Context.PowerContext.get_power_consensus_by_ou(ou_id, power_id)
+
+    socket =
+      socket
+      |> assign(:step_0_ou_power_detail, AsyncResult.ok(ou_power_detail))
 
     {:noreply, socket}
   end

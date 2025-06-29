@@ -1,6 +1,6 @@
-defmodule AuroraGov.Projector.OU do
+defmodule AuroraGov.Context.OUContext do
   @moduledoc """
-  The Persons context.
+  The OU context.
   """
 
   import Ecto.Query, warn: false
@@ -34,20 +34,6 @@ defmodule AuroraGov.Projector.OU do
           ou_goal: ou.ou_goal,
           membership_status: m.membership_status,
           membership_created_at: m.created_at
-        }
-
-    Repo.all(query)
-  end
-
-  def get_ou_tree_with_membership() do
-    query =
-      from ou in AuroraGov.Projector.Model.OU,
-        select: %{
-          ou_id: ou.ou_id,
-          ou_name: ou.ou_name,
-          ou_goal: ou.ou_goal,
-          membership_status: nil,
-          membership_created_at: nil
         }
 
     Repo.all(query)

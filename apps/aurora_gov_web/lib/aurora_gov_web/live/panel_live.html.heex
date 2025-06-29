@@ -214,22 +214,15 @@
       <% end %>
     </section>
   </div>
-  
-  <.live_component
-    module={PanelHeaderComponent}
-    id="header"
-    context={@context}
-    app_module={@module}
-    uri={@uri}
-  />
+   <.live_component module={PanelHeaderComponent} id="header" context={@context} />
   <div class="flex flex-row gap-2">
     <%= case @module do %>
       <% "home" -> %>
-        <.live_component module={HomePanelComponent} id="hero" context={@context} />
+        <.live_component module={HomePanelComponent} id="panel-home" context={@context} />
       <% "members" -> %>
-        <.live_component module={MembersPanelComponent} id="members" context={@context} />
+        <.live_component module={MembersPanelComponent} id="panel-members" context={@context} />
       <% "power" -> %>
-        <.live_component module={PowerPanelComponent} id="power" context={@context} />
+        <.live_component module={PowerPanelComponent} id="panel-power" context={@context} />
       <% _ -> %>
         <div class="card w-4/6 flex flex-col h-fit justify-center items-center">
           <h1>En construcción</h1>
@@ -243,7 +236,8 @@
       </div>
        <hr class="my-5" />
       <div class="flex flex-row justify-between content-between">
-        <h2 class="text-xl font-semibold">Detalles</h2>
+        <h2 class="text-xl font-semibold block">Detalles</h2>
+         {@current_person && @current_person.person_id || "Vacio"}
       </div>
     </section>
   </div>
@@ -253,8 +247,7 @@
   :if={@tree_modal}
   id="tree-modal"
   show
-      max_width="max-w-4xl"
-
+  max_width="max-w-4xl"
   on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
 >
   <.live_component
@@ -262,7 +255,7 @@
     id="tree-modal-component"
     context={@context}
     app_module={@module}
-    ou_tree={@current_ou_tree}
+    current_person={@current_person}
     patch={~p"/app/#{@module}?context=#{@context}"}
   />
 </.modal>
@@ -281,5 +274,6 @@
     app_module={@module}
     ou_tree={@current_ou_tree}
     patch={~p"/app/#{@module}?context=#{@context}"}
+    initial_values={@initial_proposal_values}
   />
 </.modal>
