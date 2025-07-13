@@ -28,7 +28,6 @@ defmodule AuroraGovWeb.PanelLive do
   end
 
   defp assign_context(socket, _params) do
-
     case (Enum.at(AuroraGov.Context.OUContext.get_ou_tree(), 0) || %{}).ou_id do
       ou_id when is_binary(ou_id) and ou_id != "" ->
         assign(socket, :context, ou_id)
@@ -38,13 +37,6 @@ defmodule AuroraGovWeb.PanelLive do
         |> put_flash(:error, "No se encontró ninguna unidad organizacional")
         |> push_patch(to: "/")
     end
-  end
-
-  defp update_context(ou_id, socket) do
-    socket = socket
-    |> assign(:context, ou_id)
-    # |> assign(:current_membership, )
-
   end
 
   @impl true

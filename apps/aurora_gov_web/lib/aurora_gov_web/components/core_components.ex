@@ -683,7 +683,9 @@ defmodule AuroraGovWeb.CoreComponents do
 
   def loading_spinner(assigns) do
     ~H"""
+    <div class="text-center py-10">
       <i class="fa-solid fa-spinner fa-spin text-3xl text-gray-500"></i>
+    </div>
     """
   end
 end

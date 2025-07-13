@@ -21,8 +21,13 @@ To contribute in this projects contact with Pavel Delgado (p.delgado@aurora.ong)
 6. Visit [`localhost:4000`](http://localhost:4000) to access to web app
 
 
+## Test Commands
 
+### Registrar persona
 
+`{:ok, person} = AuroraGov.Context.PersonContext.register_person!(%{person_name: "Camila Saez", person_id: "c.saez@gmail.com", person_mail: "c.saez@gmail.com", person_password: "123456"})`
 
+### Iniciar membresía
+`{:ok, membership} = AuroraGov.dispatch(%AuroraGov.Command.StartMembership{ou_id: "barrio_vivo", person_id: "c.saez@gmail.com"})`
 
 

@@ -1,4 +1,4 @@
 defmodule AuroraGov.Event.MembershipPromoted do
   @derive Jason.Encoder
-  defstruct [:membership_id, :ou_id, :membership_status]
+  defstruct [:person_id, :ou_id, :membership_status]
 end

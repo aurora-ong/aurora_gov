@@ -2,7 +2,7 @@ defmodule AuroraGov.Aggregate.OU do
   defstruct [:ou_id, :ou_status, :ou_membership, :ou_power]
 
   defmodule Membership do
-    defstruct [:membership_id, :person_id, :membership_status]
+    defstruct [:membership_status]
   end
 
   defmodule Power do
@@ -23,26 +23,24 @@ defmodule AuroraGov.Aggregate.OU do
     }
   end
 
-  def apply(%OU{} = ou, %MembershipStarted{person_id: person_id, membership_id: membership_id}) do
+  def apply(%OU{} = ou, %MembershipStarted{person_id: person_id}) do
     %OU{
       ou
       | ou_membership:
-          Map.put(ou.ou_membership, membership_id, %Membership{
-            person_id: person_id,
-            membership_id: membership_id,
+          Map.put(ou.ou_membership, person_id, %Membership{
             membership_status: :junior
           })
     }
   end
 
   def apply(%OU{} = ou, %MembershipPromoted{
-        membership_id: membership_id,
+        person_id: person_id,
         membership_status: membership_status
       }) do
     %OU{
       ou
       | ou_membership:
-          Map.update!(ou.ou_membership, membership_id, fn membership ->
+          Map.update!(ou.ou_membership, person_id, fn membership ->
             %Membership{
               membership
               | membership_status: membership_status
@@ -52,8 +50,7 @@ defmodule AuroraGov.Aggregate.OU do
   end
 
   def apply(%OU{} = ou, %PowerUpdated{
-        membership_id: membership_id,
-        ou_id: ou_id,
+        person_id: person_id,
         power_id: power_id,
         power_value: power_value,
         power_updated_at: power_updated_at
@@ -63,8 +60,7 @@ defmodule AuroraGov.Aggregate.OU do
         ou.ou_power || %{},
         power_id,
         %{
-          membership_id => %Power{
-            membership_id: membership_id,
+          person_id => %Power{
             power_id: power_id,
             power_value: power_value,
             power_updated_at: power_updated_at
@@ -73,9 +69,8 @@ defmodule AuroraGov.Aggregate.OU do
         fn power_map ->
           Map.update(
             power_map,
-            membership_id,
+            person_id,
             %Power{
-              membership_id: membership_id,
               power_id: power_id,
               power_value: power_value,
               power_updated_at: power_updated_at
@@ -104,26 +99,15 @@ defmodule AuroraGov.Aggregate.OU do
     end
   end
 
-  def get_membership_by_person(%OU{ou_membership: ou_membership}, person_id) do
-    membership =
-      Map.values(ou_membership)
-      |> Enum.find(fn membership -> membership.person_id == person_id end)
-
-    case membership do
-      nil -> {:error, :membership_not_found}
-      %Membership{} = membership -> {:membership, membership}
+  def get_membership(%OU{ou_membership: ou_membership}, person_id) do
+    case Map.fetch(ou_membership, person_id) do
+      :error -> {:error, :membership_not_found}
+      {:ok, %Membership{} = membership} -> {:membership, membership}
     end
   end
 
-  def get_membership_by_id(%OU{ou_membership: ou_membership}, membership_id) do
-    case Map.get(ou_membership, membership_id) do
-      nil -> {:error, :membership_not_found}
-      %Membership{} = membership -> {:membership, membership}
-    end
-  end
-
-  def get_power_by_membership(%OU{ou_power: ou_power}, power_id, membership_id) do
-    case get_in(ou_power, [power_id, membership_id]) do
+  def get_person_power(%OU{ou_power: ou_power}, power_id, person_id) do
+    case get_in(ou_power, [power_id, person_id]) do
       nil -> {:error, :power_not_found}
       %Power{} = power -> {:power, power}
     end

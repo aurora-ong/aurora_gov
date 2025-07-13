@@ -12,7 +12,7 @@
           else: "link"
       }>
         <.link patch={~p"/app/home?context=#{@context}"} replace>
-          <i class="fa-solid fa-gauge"></i> Resumen
+          <i class="fa-solid fa-gauge"></i> Actividad
         </.link>
       </li>
       
@@ -237,7 +237,7 @@
        <hr class="my-5" />
       <div class="flex flex-row justify-between content-between">
         <h2 class="text-xl font-semibold block">Detalles</h2>
-         {@current_person && @current_person.person_id || "Vacio"}
+         {(@current_person && @current_person.person_id) || "Vacio"}
       </div>
     </section>
   </div>
@@ -272,7 +272,7 @@
     id="gov-modal-component"
     context={@context}
     app_module={@module}
-    ou_tree={@current_ou_tree}
+    current_person={@current_person}
     patch={~p"/app/#{@module}?context=#{@context}"}
     initial_values={@initial_proposal_values}
   />

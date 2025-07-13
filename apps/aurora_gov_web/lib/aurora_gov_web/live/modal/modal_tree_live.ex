@@ -57,7 +57,7 @@ defmodule TreePanelComponent do
         <.ou_visual_tree ou_tree={ou_tree}>
           <:ou_item :let={ou}>
             <.link patch={~p"/app/#{@module}?context=#{ou.ou_id}"} replace>
-              <div class={"cursor-pointer hover:bg-gray-100 rounded px-5 py-3 rounded-lg my-1 flex flex-row items-center #{if @context == ou.ou_id, do: "border-2 border-aurora_orange", else: "border"}" }>
+              <div class={"cursor-pointer hover:bg-gray-100 px-5 py-3 rounded-lg my-1 flex flex-row items-center #{if @context == ou.ou_id, do: "border-2 border-aurora_orange", else: "border"}" }>
                 <div class="flex flex-col flex-grow">
                   <span class="text-white w-fit bg-black px-2 py-0.5 font-semibold text-sm rounded">
                     {ou.ou_id}

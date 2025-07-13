@@ -10,13 +10,13 @@ defmodule AuroraGov.CommandHandler.PromoteMembershipHandler do
 
   def handle(%OU{ou_status: :active} = ou, %PromoteMembership{
         ou_id: ou_id,
-        membership_id: membership_id
+        person_id: person_id
       }) do
-    with {:membership, %OU.Membership{} = membership} <- OU.get_membership_by_id(ou, membership_id),
-         {:ok, membership_status} <- get_promote_stament(membership) do
+    with {:membership, %OU.Membership{} = membership} <- OU.get_membership(ou, person_id),
+         {:ok, membership_status} <- get_next_stament(membership) do
       %MembershipPromoted{
         ou_id: ou_id,
-        membership_id: membership_id,
+        person_id: person_id,
         membership_status: membership_status
       }
     end
@@ -26,7 +26,7 @@ defmodule AuroraGov.CommandHandler.PromoteMembershipHandler do
     {:error, :ou_not_active}
   end
 
-  defp get_promote_stament(%OU.Membership{membership_status: membership_status}) do
+  defp get_next_stament(%OU.Membership{membership_status: membership_status}) do
     cond do
       membership_status == :junior -> {:ok, :regular}
       membership_status == :regular -> {:ok, :senior}

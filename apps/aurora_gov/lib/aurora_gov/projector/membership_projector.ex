@@ -3,12 +3,11 @@ defmodule AuroraGov.Projector.MembershipProjector do
   alias AuroraGov.Event.MembershipStarted
 
   def project(
-        %MembershipStarted{membership_id: membership_id, ou_id: ou_id, person_id: person_id},
+        %MembershipStarted{ou_id: ou_id, person_id: person_id},
         metadata,
         multi
       ) do
     projection = %Membership{
-      membership_id: membership_id,
       ou_id: ou_id,
       person_id: person_id,
       membership_status: "junior",

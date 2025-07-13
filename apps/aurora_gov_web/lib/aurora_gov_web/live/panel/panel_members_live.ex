@@ -6,7 +6,7 @@ defmodule MembersPanelComponent do
     socket =
       socket
       |> assign(:filter, "all")
-      |> stream_configure(:member_list, dom_id: & &1.membership_id)
+      |> stream_configure(:member_list, dom_id: & &1.person_id)
       |> stream(:member_list, [])
 
     {:ok, socket}
@@ -79,10 +79,8 @@ defmodule MembersPanelComponent do
        <hr class="my-5" />
       <div class="relative overflow-x-auto w-full">
         <%= if @loading do %>
-          <div class="text-center py-10">
-            
-                        
-          </div>
+            <.loading_spinner></.loading_spinner>
+
         <% else %>
           <%!-- <%= if Stream.|.empty?(@streams.member_list) do %>
             <div class="text-center py-10 text-gray-500">
@@ -92,10 +90,6 @@ defmodule MembersPanelComponent do
             <!-- tu tabla aquí -->
           <% end %> --%>
           <.table id="webs" rows={@streams.member_list}>
-            <:col :let={{_id, membership}} label="Membership Id">
-              {membership.membership_id}
-            </:col>
-
             <:col :let={{_id, membership}} label="Person Id">
               {membership.person_id}
             </:col>

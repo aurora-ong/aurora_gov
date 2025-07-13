@@ -17,6 +17,6 @@ defmodule AuroraGov.Context.MembershipContext do
 
   def get_membership(ou_id, person_id) do
     query = from(m in Membership, where: m.ou_id == ^ou_id and m.person_id == ^person_id)
-    Repo.all(query)
+    Repo.one(query)
   end
 end

@@ -3,6 +3,17 @@ defmodule AuroraGovWeb.GovLiveComponent do
   alias Phoenix.LiveView.AsyncResult
 
   @impl true
+  def mount(socket) do
+    IO.inspect(socket.assigns)
+
+    socket =
+      socket
+      |> assign(:ou_tree, AsyncResult.loading())
+
+    {:ok, socket}
+  end
+
+  @impl true
   def update(%{info: {:ou_selected, field_name, nil}}, socket) do
     IO.inspect("OU_clear #{field_name}")
 
@@ -30,6 +41,13 @@ defmodule AuroraGovWeb.GovLiveComponent do
     socket =
       socket
       |> assign(assigns)
+      |> start_async(:load_data, fn ->
+        :timer.sleep(10000)
+
+        AuroraGov.Context.OUContext.get_ou_tree_with_membership(
+          assigns[:current_person].person_id
+        )
+      end)
       |> assign_new(:step_0_form_proposal, fn ->
         IO.inspect(assigns[:initial_values], label: "Initial values")
 
@@ -86,75 +104,84 @@ defmodule AuroraGovWeb.GovLiveComponent do
         phx-target={@myself}
         class="w-full"
       >
-        <div class="flex flex-row gap-4 justify-between items-start flex-nowrap">
-          <div class="flex flex-col gap-5 basis-1/2">
-            <.live_component
-              module={AuroraGovWeb.OUSelectorComponent}
-              parent_module={__MODULE__}
-              parent_id="gov-modal-component"
-              id="proposal_ou_origin"
-              field={@step_0_form_proposal[:proposal_ou_origin]}
-              label="Unidad Origen"
-              ou_tree={@ou_tree}
-              only_if_member?={true}
-              current_person_id="p.delgado@gmail.com"
-              description="Debes pertenecer a esta unidad."
-            />
-            <.input
-              field={@step_0_form_proposal[:proposal_power]}
-              type="select"
-              label="Acción"
-              options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
-              description="Esta acción será ejecutada en la unidad destino."
-            />
-          </div>
-           <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
-          <div class="flex flex-col basis-1/2 gap-5 justify-center">
-            <.live_component
-              module={AuroraGovWeb.OUSelectorComponent}
-              parent_module={__MODULE__}
-              parent_id="gov-modal-component"
-              id="proposal_ou_end"
-              field={@step_0_form_proposal[:proposal_ou_end]}
-              label="Unidad Destino"
-              ou_tree={@ou_tree}
-              only_if_member?={false}
-              current_person_id="p.delgado@gmail.com"
-              description="Unidad donde se ejecutará la acción."
-            />
-            <div
-              :if={
-                @step_0_form_proposal[:proposal_power].value != nil and
-                  @step_0_form_proposal[:proposal_power].value != ""
-              }
-              class="border border-aurora_orange px-5 py-5 rounded-lg"
-            >
-              <div :if={@step_0_ou_power_detail == nil} class="flex justify-center">
-                <i class="fa-solid fa-spinner animate-spin text-orange-600 text-xl"></i>
-              </div>
+        <.async_result :let={ou_tree} assign={@ou_tree}>
+          <:loading>
+            <.loading_spinner></.loading_spinner>
+          </:loading>
 
-              <div :if={@step_0_ou_power_detail != nil}>
-                <label class="text-sm text-gray-500">
-                  Requiere <strong>45%</strong> de aprobación colectiva
-                </label>
+          <:failed :let={_failure}>there was an error loading the organization</:failed>
 
-                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                  <div class="bg-blue-600 h-2 rounded-full" style="width: 45%;"></div>
+          <div class="flex flex-row gap-4 justify-between items-start flex-nowrap">
+            <div class="flex flex-col gap-5 basis-1/2">
+              <.live_component
+                module={AuroraGovWeb.OUSelectorComponent}
+                parent_module={__MODULE__}
+                parent_id="gov-modal-component"
+                id="proposal_ou_origin"
+                field={@step_0_form_proposal[:proposal_ou_origin]}
+                label="Unidad Origen"
+                ou_tree={ou_tree}
+                only_if_member?={true}
+                current_person_id="p.delgado@gmail.com"
+                description="Debes pertenecer a esta unidad."
+                enabled="false"
+              />
+              <.input
+                field={@step_0_form_proposal[:proposal_power]}
+                type="select"
+                label="Acción"
+                options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
+                description="Esta acción será ejecutada en la unidad destino."
+              />
+            </div>
+             <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
+            <div class="flex flex-col basis-1/2 gap-5 justify-center">
+              <.live_component
+                module={AuroraGovWeb.OUSelectorComponent}
+                parent_module={__MODULE__}
+                parent_id="gov-modal-component"
+                id="proposal_ou_end"
+                field={@step_0_form_proposal[:proposal_ou_end]}
+                label="Unidad Destino"
+                ou_tree={ou_tree}
+                only_if_member?={false}
+                current_person_id="p.delgado@gmail.com"
+                description="Unidad donde se ejecutará la acción."
+              />
+              <div
+                :if={
+                  @step_0_form_proposal[:proposal_power].value != nil and
+                    @step_0_form_proposal[:proposal_power].value != ""
+                }
+                class="border border-aurora_orange px-5 py-5 rounded-lg"
+              >
+                <div :if={@step_0_ou_power_detail == nil} class="flex justify-center">
+                  <i class="fa-solid fa-spinner animate-spin text-orange-600 text-xl"></i>
                 </div>
 
-                <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
-                  <i class="fa-solid fa-hand mr-2" />Usado 2 veces en los últimos 7 días
-                </p>
+                <div :if={@step_0_ou_power_detail != nil}>
+                  <label class="text-sm text-gray-500">
+                    Requiere <strong>45%</strong> de aprobación colectiva
+                  </label>
+
+                  <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                    <div class="bg-blue-600 h-2 rounded-full" style="width: 45%;"></div>
+                  </div>
+
+                  <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
+                    <i class="fa-solid fa-hand mr-2" />Usado 2 veces en los últimos 7 días
+                  </p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="flex flex-row gap-4 justify-between items-center flex-nowrap">
-          <div class="flex flex-col gap-5 basis-1/2"></div>
+          <div class="flex flex-row gap-4 justify-between items-center flex-nowrap">
+            <div class="flex flex-col gap-5 basis-1/2"></div>
 
-          <div class="flex flex-col basis-1/2 gap-5 justify-center px-10"></div>
-        </div>
+            <div class="flex flex-col basis-1/2 gap-5 justify-center px-10"></div>
+          </div>
+        </.async_result>
 
         <:actions>
           <.button phx-disable-with="..." class="w-full">
@@ -422,5 +449,11 @@ defmodule AuroraGovWeb.GovLiveComponent do
       |> assign(:step_0_ou_power_detail, AsyncResult.ok(ou_power_detail))
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_async(:load_data, {:ok, ou_tree}, socket) do
+    %{ou_tree: ou_tree_async} = socket.assigns
+    {:noreply, assign(socket, :ou_tree, AsyncResult.ok(ou_tree_async, ou_tree))}
   end
 end

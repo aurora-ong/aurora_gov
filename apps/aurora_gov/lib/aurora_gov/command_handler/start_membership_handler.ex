@@ -1,8 +1,7 @@
 defmodule AuroraGov.CommandHandler.StartMembershipHandler do
   @behaviour Commanded.Commands.Handler
   alias AuroraGov.Utils.OUTree
-  alias EventStore.UUID
-  alias AuroraGov.Aggregate.{OU, Person}
+    alias AuroraGov.Aggregate.{OU, Person}
   alias AuroraGov.Command.StartMembership
   alias AuroraGov.Event.MembershipStarted
 
@@ -15,12 +14,11 @@ defmodule AuroraGov.CommandHandler.StartMembershipHandler do
         person_id: person_id
       }) do
     with {:person, _person} <- Person.get_person(person_id),
-         {:error, :membership_not_found} <- OU.get_membership_by_person(ou, person_id),
+         {:error, :membership_not_found} <- OU.get_membership(ou, person_id),
          :ok <- check_parent_membership(ou_id, person_id) do
       %MembershipStarted{
         ou_id: ou_id,
-        person_id: person_id,
-        membership_id: ShortUUID.encode!(UUID.uuid4())
+        person_id: person_id
       }
     else
       {:membership, _} -> {:error, :membership_already_active}
@@ -39,7 +37,7 @@ defmodule AuroraGov.CommandHandler.StartMembershipHandler do
 
       parent ->
         with {:ou, ou} <- OU.get_ou(parent),
-             {:membership, _membership} <- OU.get_membership_by_person(ou, person_id) do
+             {:membership, _membership} <- OU.get_membership(ou, person_id) do
           :ok
         else
           {:error, :membership_not_found} -> {:error, :parent_membership_not_found}

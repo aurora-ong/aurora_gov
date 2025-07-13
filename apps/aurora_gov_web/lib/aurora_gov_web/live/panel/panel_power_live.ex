@@ -3,22 +3,13 @@ defmodule PowerPanelComponent do
   use AuroraGovWeb, :live_component
 
   @impl true
-  def mount(socket) do
-    socket =
-      socket
-      |> assign(:ou_power_list, AsyncResult.loading())
-
-    {:ok, socket}
-  end
-
-  @impl true
   def update(%{update: {:power_updated, %{ou_id: ou_id}}}, socket) do
     socket =
       if ou_id == socket.assigns.context do
         socket
         |> assign(:ou_power_list, AsyncResult.loading())
         |> start_async(:load_data, fn ->
-          AuroraGov.Context.PowerContext.get_ou_power(ou_id)
+          AuroraGov.Context.PowerContext.get_ou_power_list(ou_id)
         end)
       else
         socket
@@ -28,15 +19,23 @@ defmodule PowerPanelComponent do
   end
 
   @impl true
+  def update(%{close_modal: modal}, socket) do
+    IO.inspect("CLose modal #{modal}")
+
+    {:ok, assign(socket, power_modal: false)}
+  end
+
+  @impl true
   def update(assigns, socket) do
     socket =
       socket
       |> assign(:context, assigns.context)
+      |> assign(:ou_power_list, AsyncResult.loading())
       |> assign(power_modal: false)
       |> assign(power_modal_power_id: nil)
       |> start_async(:load_data, fn ->
         :timer.sleep(1000)
-        AuroraGov.Context.PowerContext.get_ou_power(assigns.context)
+        AuroraGov.Context.PowerContext.get_ou_power_list(assigns.context)
       end)
 
     {:ok, socket}
@@ -74,9 +73,11 @@ defmodule PowerPanelComponent do
       <h2 class="text-2xl font-bold mb-6">Tabla de consensos</h2>
 
       <.async_result :let={ou_power_list} assign={@ou_power_list}>
-        <:loading>Cargando...</:loading>
+        <:loading>
+          <.loading_spinner></.loading_spinner>
+        </:loading>
 
-        <:failed :let={_failure}>there was an error loading the organization</:failed>
+        <:failed :let={_failure}>error loading</:failed>
 
         <div class="grid grid-cols-2 gap-4">
           <%= for power <- ou_power_list do %>
@@ -121,6 +122,7 @@ defmodule PowerPanelComponent do
 
                   <span class="text-sm flex flex-row items-center gap-1">
                     <%!-- {power.ou_poder}/{power.power_person_total} --%>
+                    10/10
                     <i class="fa-solid fa-user-group text-sm"></i>
                   </span>
                 </div>
@@ -129,6 +131,30 @@ defmodule PowerPanelComponent do
                   <div
                     class={"#{get_progress_bar_color(Decimal.to_float(power.ou_power.power_average))} h-2 rounded-full"}
                     style={"width: #{power.ou_power.power_average}%;"}
+                  >
+                  </div>
+                </div>
+
+                <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
+                  <%!-- <i class="fa-solid fa-hand mr-2" />Usado {power.power_use_7_days} veces en los últimos 7 días --%>
+                </p>
+              </div>
+                        <div :if={power.ou_power == nil} class="mt-3">
+                <div class="flex flex-row">
+                  <label class="text-sm text-gray-500 flex-grow">
+                    Sin postura
+                  </label>
+
+                  <span class="text-sm flex flex-row items-center gap-1">
+                    0/12
+                    <i class="fa-solid fa-user-group text-sm"></i>
+                  </span>
+                </div>
+
+                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
+                  <div
+                    class="bg-gray-600 h-2 rounded-full"
+                    style={"width: 50%;"}
                   >
                   </div>
                 </div>
@@ -147,7 +173,7 @@ defmodule PowerPanelComponent do
         id="power-modal"
         show
         max_width="max-w-3xl"
-        on_cancel={JS.push("modal_closed", target: @myself, value: %{modal: "power_modal"})}
+        on_cancel={JS.push("modal_closed", target: @myself, value: %{modal: "power_update_modal"})}
       >
         <.live_component
           module={AuroraGovWeb.App.Power.PowerSensibilityModalLive}
@@ -186,8 +212,8 @@ defmodule PowerPanelComponent do
   end
 
   @impl true
-  def handle_event("modal_closed", %{"modal" => "power_modal"}, socket) do
-    IO.inspect("Cerrando modal")
+  def handle_event("modal_closed", %{"modal" => "power_update_modal"}, socket) do
+    IO.inspect("Cerrando modal power_update_modal")
     {:noreply, assign(socket, power_modal: false)}
   end
 end

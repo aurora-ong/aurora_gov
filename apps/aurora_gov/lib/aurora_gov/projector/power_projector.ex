@@ -6,7 +6,7 @@ defmodule AuroraGov.Projector.PowerProjector do
 
   def project(
         %PowerUpdated{
-          membership_id: membership_id,
+          person_id: person_id,
           ou_id: ou_id,
           power_id: power_id,
           power_value: power_value,
@@ -17,7 +17,7 @@ defmodule AuroraGov.Projector.PowerProjector do
       ) do
     multi
     |> Ecto.Multi.run(:power_lookup, fn repo, _changes ->
-      case repo.get_by(Power, membership_id: membership_id, ou_id: ou_id, power_id: power_id) do
+      case repo.get_by(Power, person_id: person_id, ou_id: ou_id, power_id: power_id) do
         nil -> {:ok, nil}
         power -> {:ok, power}
       end
@@ -27,7 +27,7 @@ defmodule AuroraGov.Projector.PowerProjector do
         case existing_power do
           nil ->
             Power.changeset(%Power{}, %{
-              membership_id: membership_id,
+              person_id: person_id,
               ou_id: ou_id,
               power_id: power_id,
               power_value: power_value,

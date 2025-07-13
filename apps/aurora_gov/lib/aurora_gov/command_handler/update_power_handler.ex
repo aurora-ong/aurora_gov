@@ -9,21 +9,21 @@ defmodule AuroraGov.CommandHandler.UpdatePowerHandler do
   end
 
   def handle(%OU{ou_status: :active} = ou, %UpdatePower{
-        membership_id: membership_id,
+        person_id: person_id,
         power_id: power_id,
         ou_id: ou_id,
         power_value: power_value
       }) do
     with {:membership, %OU.Membership{} = membership} <-
-           OU.get_membership_by_id(ou, membership_id),
+           OU.get_membership(ou, person_id),
          :ok <- check_membership_status(membership),
-         power <- OU.get_power_by_membership(ou, power_id, membership_id),
+         power <- OU.get_person_power(ou, power_id, person_id),
          :ok <- check_power_constrains(power) do
       IO.inspect(membership, label: "Membership")
       IO.inspect(power, label: "Power")
 
       %PowerUpdated{
-        membership_id: membership_id,
+        person_id: person_id,
         ou_id: ou_id,
         power_id: power_id,
         power_value: power_value,

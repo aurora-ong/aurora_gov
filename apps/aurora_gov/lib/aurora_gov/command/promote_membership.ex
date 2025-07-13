@@ -7,10 +7,10 @@ defmodule AuroraGov.Command.PromoteMembership do
     ],
     fields: [
       ou_id: [command_type: :string, label: "Unidad Organizacional", form_type: :text, field_type: :user],
-      membership_id: [
+      person_id: [
         command_type: :string,
-        label: "Identificador membresía",
-        description: "Identificador de la membresia a promover",
+        label: "Identificador persona",
+        description: "Identificador de la persona a promover",
         form_type: :text,
         field_type: :user
       ]
@@ -18,6 +18,6 @@ defmodule AuroraGov.Command.PromoteMembership do
 
   def handle_validate(changeset) do
     changeset
-    |> validate_required([:ou_id, :membership_id])
+    |> validate_required([:ou_id, :person_id])
   end
 end

@@ -2,7 +2,7 @@ defmodule AuroraGovWeb.PanelEventRouter do
   require Logger
   import Phoenix.LiveView
 
-  def handle_event({:membership_started, %{person: person, ou: ou} = membership}, socket) do
+  def handle_event({:membership_started, %{person: person, ou: ou} = _membership}, socket) do
     socket
     |> put_flash(
       :info,
@@ -19,6 +19,10 @@ defmodule AuroraGovWeb.PanelEventRouter do
     )
 
     socket
+    |> put_flash(
+      :info,
+      "#{power.power_id} se ha actualizado en (#{power.ou_id})"
+    )
   end
 
   def handle_event(data, socket) do
@@ -44,18 +48,4 @@ defmodule AuroraGovWeb.PanelEventRouter do
 
   #   socket
   # end
-
-  defp create_notification(socket, msg) do
-    case msg do
-      %{membership_notification: %{person: person, ou: ou}} ->
-        put_flash(
-          socket,
-          :info,
-          "#{person.person_name} (#{person.person_id}) ahora es miembro de #{ou.ou_name} (#{ou.ou_id})"
-        )
-
-      _ ->
-        socket
-    end
-  end
 end

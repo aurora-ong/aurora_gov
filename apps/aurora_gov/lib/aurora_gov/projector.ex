@@ -58,7 +58,7 @@ defmodule AuroraGov.Projector do
 
   project(
     %MembershipPromoted{
-      membership_id: membership_id,
+      person_id: person_id,
       ou_id: ou_id,
       membership_status: membership_status
     },
@@ -66,7 +66,7 @@ defmodule AuroraGov.Projector do
     fn multi ->
       multi
       |> Ecto.Multi.run(:membership_lookup, fn repo, _changes ->
-        case repo.get_by(Membership, membership_id: membership_id, ou_id: ou_id) do
+        case repo.get_by(Membership, person_id: person_id, ou_id: ou_id) do
           nil -> {:error, :membership_not_found}
           membership -> {:ok, membership}
         end
@@ -94,6 +94,12 @@ defmodule AuroraGov.Projector do
   def after_update(_event, _metadata, %{projector_update: projector_update}) do
     IO.inspect(projector_update, label: "Notificando (projector_update)")
     Phoenix.PubSub.broadcast(AuroraGov.PubSub, "projector_update", projector_update)
+    :ok
+  end
+
+    @impl Commanded.Projections.Ecto
+  def after_update(_event, _metadata, data) do
+    Logger.debug("Notificando (projector_update) (Sin datos para notificar) #{inspect(data)}")
     :ok
   end
 

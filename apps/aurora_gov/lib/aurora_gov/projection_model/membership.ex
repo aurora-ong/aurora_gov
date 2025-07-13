@@ -1,7 +1,7 @@
 defmodule AuroraGov.Projector.Model.Membership do
   use Ecto.Schema
 
-  @primary_key {:membership_id, :string, autogenerate: false}
+  @primary_key false
   schema "membership_table" do
     belongs_to :ou, AuroraGov.Projector.Model.OU,
       type: :string,
@@ -17,8 +17,4 @@ defmodule AuroraGov.Projector.Model.Membership do
     field :created_at, :utc_datetime_usec
     field :updated_at, :utc_datetime_usec
   end
-end
-
-defimpl Phoenix.Param, for: AuroraGov.Projector.Model.Membership do
-  def to_param(%{membership_id: id}), do: id
 end

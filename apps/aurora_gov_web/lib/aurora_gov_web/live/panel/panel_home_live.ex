@@ -1,8 +1,7 @@
 defmodule HomePanelComponent do
-  alias AuroraGovWeb.CoreComponents
+
   # In Phoenix apps, the line is typically: use MyAppWeb, :live_component
   use Phoenix.LiveComponent
-  import CoreComponents
 
   def update(assigns, socket) do
 
