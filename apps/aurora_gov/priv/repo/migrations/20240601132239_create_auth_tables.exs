@@ -4,9 +4,9 @@ defmodule AuroraGov.Projector.Repo.Migrations.CreateAuthTables do
   def change do
 
     create table(:auth_table, primary_key: false) do
-      add :person_id, references(:person_table, [on_delete: :delete_all, column: :person_id, type: :string]), primary_key: true
-      add :token, :binary, null: false
+      add :person_id, references(:person_table, [on_delete: :delete_all, column: :person_id, type: :string]), null: false
       add :context, :string, null: false
+      add :token, :binary, null: false
       add :sent_to, :string
       timestamps(updated_at: false)
     end

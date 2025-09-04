@@ -70,8 +70,6 @@ defmodule PowerPanelComponent do
   def render(assigns) do
     ~H"""
     <section class="card w-4/6 flex flex-col h-fit">
-      <h2 class="text-2xl font-bold mb-6">Tabla de consensos</h2>
-
       <.async_result :let={ou_power_list} assign={@ou_power_list}>
         <:loading>
           <.loading_spinner></.loading_spinner>
@@ -81,89 +79,15 @@ defmodule PowerPanelComponent do
 
         <div class="grid grid-cols-2 gap-4">
           <%= for power <- ou_power_list do %>
-            <div class="border px-5 py-5 rounded-lg flex flex-col justify-between">
-              <div class="flex justify-between items-start">
-                <div>
-                  <h3 class="text-lg font-semibold">
-                    {get_in(power, [:power_info, :name]) || power.id}
-                  </h3>
-
-                  <p class="text-sm text-gray-600">
-                    {get_in(power, [:power_info, :description]) || ""}
-                  </p>
-                </div>
-
-                <div class="flex flex-row gap-1">
-                  <button
-                    phx-click="update_power"
-                    phx-value-power_id={power.id}
-                    phx-target={@myself}
-                    class="justify-center items-center text-lg primary !px-3"
-                  >
-                    <i class="fa-solid fa-hand-point-up text-sm"></i>
-                  </button>
-
-                  <button
-                    phx-click="update_power"
-                    phx-value-power_id={power.id}
-                    phx-target={@myself}
-                    class="justify-center items-center text-lg primary !px-3"
-                  >
-                    <i class="fa-solid fa-eye text-sm"></i>
-                  </button>
-                </div>
-              </div>
-
-              <div :if={power.ou_power != nil} class="mt-3">
-                <div class="flex flex-row">
-                  <label class="text-sm text-gray-500 flex-grow">
-                    Requiere <strong>{power.ou_power.power_average}%</strong> de aprobación colectiva
-                  </label>
-
-                  <span class="text-sm flex flex-row items-center gap-1">
-                    <%!-- {power.ou_poder}/{power.power_person_total} --%>
-                    10/10
-                    <i class="fa-solid fa-user-group text-sm"></i>
-                  </span>
-                </div>
-
-                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                  <div
-                    class={"#{get_progress_bar_color(Decimal.to_float(power.ou_power.power_average))} h-2 rounded-full"}
-                    style={"width: #{power.ou_power.power_average}%;"}
-                  >
-                  </div>
-                </div>
-
-                <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
-                  <%!-- <i class="fa-solid fa-hand mr-2" />Usado {power.power_use_7_days} veces en los últimos 7 días --%>
-                </p>
-              </div>
-                        <div :if={power.ou_power == nil} class="mt-3">
-                <div class="flex flex-row">
-                  <label class="text-sm text-gray-500 flex-grow">
-                    Sin postura
-                  </label>
-
-                  <span class="text-sm flex flex-row items-center gap-1">
-                    0/12
-                    <i class="fa-solid fa-user-group text-sm"></i>
-                  </span>
-                </div>
-
-                <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                  <div
-                    class="bg-gray-600 h-2 rounded-full"
-                    style={"width: 50%;"}
-                  >
-                  </div>
-                </div>
-
-                <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
-                  <%!-- <i class="fa-solid fa-hand mr-2" />Usado {power.power_use_7_days} veces en los últimos 7 días --%>
-                </p>
-              </div>
-            </div>
+            <.live_component
+              module={AuroraGovWeb.Components.Power.PowerCardComponent}
+              id={"power-card-#{power.id}"}
+              power_id={power.id}
+              show_actions={true}
+              power_info={power.power_info}
+              ou_power={power.ou_power}
+              parent_target={@myself}
+            />
           <% end %>
         </div>
       </.async_result>
@@ -184,19 +108,6 @@ defmodule PowerPanelComponent do
       </.modal>
     </section>
     """
-  end
-
-  defp get_progress_bar_color(power_consensus) do
-    cond do
-      power_consensus <= 33 ->
-        "bg-blue-600"
-
-      power_consensus >= 66 ->
-        "bg-red-600"
-
-      true ->
-        "bg-aurora_orange"
-    end
   end
 
   @impl true

@@ -43,14 +43,15 @@ defmodule AuroraGovWeb.MixProject do
       {:phoenix_live_view, "~> 1.0"},
       {:floki, ">= 0.30.0", only: :test},
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
-      {:tailwind, "~> 0.2.0", runtime: Mix.env() == :dev},
+      {:tailwind, "~> 0.3.1", runtime: Mix.env() == :dev},
       {:telemetry_metrics, "~> 1.0"},
       {:telemetry_poller, "~> 1.0"},
       {:gettext, "~> 0.26"},
       {:aurora_gov, in_umbrella: true},
       {:jason, "~> 1.2"},
       {:bandit, "~> 1.5"},
-      {:live_debugger, "~> 0.3.0", only: :dev}
+      {:live_debugger, "~> 0.3.0", only: :dev},
+      {:timex, "~> 3.7"}
     ]
   end
 

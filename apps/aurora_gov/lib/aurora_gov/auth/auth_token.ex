@@ -18,8 +18,7 @@ defmodule AuroraGov.Auth.AuthToken do
     field :token, :binary
     field :context, :string
     field :sent_to, :string
-    belongs_to :person, AuroraGov.Projector.Model.Person, [type: :string, primary_key: true, references: :person_id]
-
+    belongs_to :person, AuroraGov.Projector.Model.Person, references: :person_id, type: :string
     timestamps(updated_at: false)
   end
 

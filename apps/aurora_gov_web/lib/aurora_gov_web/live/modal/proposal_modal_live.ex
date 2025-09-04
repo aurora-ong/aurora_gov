@@ -17,22 +17,26 @@ defmodule AuroraGovWeb.GovLiveComponent do
   def update(%{info: {:ou_selected, field_name, nil}}, socket) do
     IO.inspect("OU_clear #{field_name}")
 
-    changeset =
-      socket.assigns.step_0_form_proposal.source
-      |> Ecto.Changeset.change(Map.new() |> Map.put(field_name, nil))
-      |> Map.put(:action, :validate)
+    params =
+      socket.assigns.step_0_form_proposal.params
+      |> Map.put(to_string(field_name), nil)
 
-    {:ok, assign(socket, step_0_form_proposal: to_form(changeset, as: "proposal"))}
+    {:noreply, socket} = handle_event("step_0_validate", %{"proposal" => params}, socket)
+
+    {:ok, socket}
   end
 
   @impl true
   def update(%{info: {:ou_selected, field_name, field_data}}, socket) do
-    changeset =
-      socket.assigns.step_0_form_proposal.source
-      |> Ecto.Changeset.change(Map.new() |> Map.put(field_name, field_data))
-      |> Map.put(:action, :validate)
+    IO.inspect("OU Selected #{field_name} #{field_data}")
 
-    {:ok, assign(socket, step_0_form_proposal: to_form(changeset, as: "proposal"))}
+    params =
+      socket.assigns.step_0_form_proposal.params
+      |> Map.put(to_string(field_name), field_data)
+
+    {:noreply, socket} = handle_event("step_0_validate", %{"proposal" => params}, socket)
+
+    {:ok, socket}
   end
 
   def update(assigns, socket) do
@@ -42,8 +46,6 @@ defmodule AuroraGovWeb.GovLiveComponent do
       socket
       |> assign(assigns)
       |> start_async(:load_data, fn ->
-        :timer.sleep(10000)
-
         AuroraGov.Context.OUContext.get_ou_tree_with_membership(
           assigns[:current_person].person_id
         )
@@ -148,30 +150,26 @@ defmodule AuroraGovWeb.GovLiveComponent do
                 current_person_id="p.delgado@gmail.com"
                 description="Unidad donde se ejecutará la acción."
               />
-              <div
-                :if={
-                  @step_0_form_proposal[:proposal_power].value != nil and
-                    @step_0_form_proposal[:proposal_power].value != ""
-                }
-                class="border border-aurora_orange px-5 py-5 rounded-lg"
-              >
-                <div :if={@step_0_ou_power_detail == nil} class="flex justify-center">
-                  <i class="fa-solid fa-spinner animate-spin text-orange-600 text-xl"></i>
-                </div>
+              <div :if={@step_0_ou_power_detail != nil}>
+                <.async_result :let={ou_power} assign={@step_0_ou_power_detail}>
+                  <:loading>
+                    <.loading_spinner></.loading_spinner>
+                  </:loading>
 
-                <div :if={@step_0_ou_power_detail != nil}>
-                  <label class="text-sm text-gray-500">
-                    Requiere <strong>45%</strong> de aprobación colectiva
-                  </label>
-
-                  <div class="w-full bg-gray-200 rounded-full h-2 mt-1">
-                    <div class="bg-blue-600 h-2 rounded-full" style="width: 45%;"></div>
-                  </div>
-
-                  <p class="text-xs text-gray-500 mt-2 flex flex-row items-center">
-                    <i class="fa-solid fa-hand mr-2" />Usado 2 veces en los últimos 7 días
-                  </p>
-                </div>
+                  <.live_component
+                    module={AuroraGovWeb.Components.Power.PowerCardComponent}
+                    id="power-card"
+                    show_actions={false}
+                    power_id={@step_0_form_proposal[:proposal_power].value}
+                    power_info={
+                      AuroraGov.Context.PowerContext.get_power_metadata(
+                        @step_0_form_proposal[:proposal_power].value
+                      )
+                    }
+                    ou_power={ou_power}
+                    parent_target={@myself}
+                  />
+                </.async_result>
               </div>
             </div>
           </div>
@@ -303,6 +301,26 @@ defmodule AuroraGovWeb.GovLiveComponent do
     socket =
       socket
       |> assign(step_0_form_proposal: to_form(proposal_changeset, as: "proposal"))
+      |> then(fn socket ->
+        proposal_power = Map.get(proposal_params, "proposal_power")
+        proposal_ou_end = Map.get(proposal_params, "proposal_ou_end")
+
+        if proposal_power && proposal_ou_end do
+          socket
+          |> assign(:step_0_ou_power_detail, AsyncResult.loading())
+          |> start_async(:load_power_detail, fn ->
+            :timer.sleep(1000)
+            AuroraGov.Context.PowerContext.get_ou_power(proposal_ou_end, proposal_power)
+          end)
+        else
+          socket
+          |> assign(:step_0_ou_power_detail, nil)
+        end
+      end)
+
+    # |> start_async(:load_power_detail, fn ->
+    #   AuroraGov.Context.PowerContext.get_power_consensus_by_ou(ou_id, power_id)
+    # end)
 
     {:noreply, socket}
   end
@@ -441,9 +459,7 @@ defmodule AuroraGovWeb.GovLiveComponent do
   end
 
   @impl true
-  def handle_async(:load_power_detail, {:ok, ou_id, power_id}, socket) do
-    ou_power_detail = AuroraGov.Context.PowerContext.get_power_consensus_by_ou(ou_id, power_id)
-
+  def handle_async(:load_power_detail, {:ok, ou_power_detail}, socket) do
     socket =
       socket
       |> assign(:step_0_ou_power_detail, AsyncResult.ok(ou_power_detail))

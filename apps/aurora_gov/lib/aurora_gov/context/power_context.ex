@@ -63,4 +63,12 @@ defmodule AuroraGov.Context.PowerContext do
         {:error, invalid_changeset}
     end
   end
+
+  def get_power_metadata(power_id) do
+    AuroraGov.CommandUtils.all_proposable_modules()
+    |> Enum.map(fn module ->
+      Map.merge(module.gov_power(), %{})
+    end)
+    |> Enum.find(fn info -> info.id == power_id end)
+  end
 end

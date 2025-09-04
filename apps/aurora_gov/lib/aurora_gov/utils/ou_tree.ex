@@ -5,7 +5,7 @@ defmodule AuroraGov.Utils.OUTree do
   end
 
   def is_root?(id) do
-    not String.contains?(id, ".")
+    is_binary(id) and not String.contains?(id, ".")
   end
 
   def get_parent!(id) do

@@ -162,7 +162,6 @@ defmodule AuroraGov.Context.PersonContext do
   """
   def get_person_by_session_token(token) do
     {:ok, query} = AuthToken.verify_session_token_query(token)
-    IO.inspect("OK")
     Repo.one(query)
   end
 

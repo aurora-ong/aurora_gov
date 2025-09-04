@@ -1,7 +1,7 @@
 defmodule AuroraGov.CommandHandler.StartMembershipHandler do
   @behaviour Commanded.Commands.Handler
   alias AuroraGov.Utils.OUTree
-    alias AuroraGov.Aggregate.{OU, Person}
+  alias AuroraGov.Aggregate.{OU, Person}
   alias AuroraGov.Command.StartMembership
   alias AuroraGov.Event.MembershipStarted
 

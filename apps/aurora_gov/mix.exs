@@ -59,8 +59,9 @@ defmodule AuroraGov.MixProject do
   defp aliases do
     [
       setup: ["deps.get", "event_store.setup", "projector.setup"],
-      reset: ["ecto.drop", "event_store.drop"],
-      "dev.reset": ["reset", "event_store.setup", "projector.setup", "run #{__DIR__}/priv/repo/seeds.exs"],
+      "db.drop": ["ecto.drop", "event_store.drop"],
+      "db.reset": ["db.drop", "db.setup"],
+      "db.setup": ["event_store.setup", "projector.setup", "run #{__DIR__}/priv/repo/seeds.exs"],
       "projector.setup": ["ecto.create", "ecto.migrate"],
       "projector.reset": ["ecto.drop", "projector.setup"],
       "event_store.setup": ["event_store.create", "event_store.init"],
