@@ -6,7 +6,8 @@ defmodule AuroraGov.Router do
     CreateOU,
     StartMembership,
     UpdatePower,
-    PromoteMembership
+    PromoteMembership,
+    CreateProposal
   }
 
   alias AuroraGov.CommandHandler.{
@@ -14,10 +15,11 @@ defmodule AuroraGov.Router do
     CreateOUHandler,
     StartMembershipHandler,
     UpdatePowerHandler,
-    PromoteMembershipHandler
+    PromoteMembershipHandler,
+    CreateProposalHandler
   }
 
-  alias AuroraGov.Aggregate.{Person, OU}
+  alias AuroraGov.Aggregate.{Person, OU, Proposal}
 
   # middleware AuthorizeCommand TODO AÑADIR PARA VERIFICAR PODERES
 
@@ -26,4 +28,5 @@ defmodule AuroraGov.Router do
   dispatch(StartMembership, to: StartMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(PromoteMembership, to: PromoteMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(UpdatePower, to: UpdatePowerHandler, aggregate: OU, identity: :ou_id)
+  dispatch(CreateProposal, to: CreateProposalHandler, aggregate: Proposal, identity: :proposal_id)
 end

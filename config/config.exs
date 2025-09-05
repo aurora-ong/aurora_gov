@@ -14,6 +14,8 @@ config :aurora_gov,
   ecto_repos: [AuroraGov.Projector.Repo],
   event_stores: [AuroraGov.EventStore]
 
+config :flop, repo: AuroraGov.Projector.Repo
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

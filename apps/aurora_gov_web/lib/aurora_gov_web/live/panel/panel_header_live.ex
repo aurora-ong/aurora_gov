@@ -1,4 +1,4 @@
-defmodule PanelHeaderComponent do
+defmodule AuroraGovWeb.Live.Panel.Header do
   use AuroraGovWeb, :live_component
   alias Phoenix.LiveView.JS
 

@@ -7,11 +7,10 @@ defmodule AuroraGov.Projector do
 
   require Logger
 
-  alias AuroraGov.Projector.MembershipProjector
-  alias AuroraGov.Projector.PowerProjector
+  alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector}
   alias AuroraGov.Event.PowerUpdated
   alias AuroraGov.Event.MembershipPromoted
-  alias AuroraGov.Event.{PersonRegistered, OUCreated, MembershipStarted}
+  alias AuroraGov.Event.{PersonRegistered, OUCreated, MembershipStarted, ProposalCreated}
   alias AuroraGov.Projector.Model.{Person, OU, Membership}
 
   project(
@@ -56,6 +55,8 @@ defmodule AuroraGov.Projector do
 
   project(%MembershipStarted{} = evt, metadata, &MembershipProjector.project(evt, metadata, &1))
 
+  project(%ProposalCreated{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
+
   project(
     %MembershipPromoted{
       person_id: person_id,
@@ -97,7 +98,7 @@ defmodule AuroraGov.Projector do
     :ok
   end
 
-    @impl Commanded.Projections.Ecto
+  @impl Commanded.Projections.Ecto
   def after_update(_event, _metadata, data) do
     Logger.debug("Notificando (projector_update) (Sin datos para notificar) #{inspect(data)}")
     :ok

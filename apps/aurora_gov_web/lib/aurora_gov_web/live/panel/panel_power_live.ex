@@ -1,4 +1,4 @@
-defmodule PowerPanelComponent do
+defmodule AuroraGovWeb.Live.Panel.Power do
   alias Phoenix.LiveView.AsyncResult
   use AuroraGovWeb, :live_component
 
@@ -100,7 +100,7 @@ defmodule PowerPanelComponent do
         on_cancel={JS.push("modal_closed", target: @myself, value: %{modal: "power_update_modal"})}
       >
         <.live_component
-          module={AuroraGovWeb.App.Power.PowerSensibilityModalLive}
+          module={AuroraGovWeb.Live.Power.SensibilityUpdate}
           id={"power-modal-#{@power_modal_power_id}"}
           context={@context}
           power_id={@power_modal_power_id}

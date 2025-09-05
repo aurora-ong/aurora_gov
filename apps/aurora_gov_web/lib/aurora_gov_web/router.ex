@@ -59,8 +59,8 @@ defmodule AuroraGovWeb.Router do
       on_mount: [
         {AuroraGovWeb.Auth, :mount_current_person}
       ] do
-      live "/", PanelLive, :index
-      live "/:module", PanelLive, :module
+      live "/", Live.Panel, :index
+      live "/:module", Live.Panel, :module
     end
   end
 end

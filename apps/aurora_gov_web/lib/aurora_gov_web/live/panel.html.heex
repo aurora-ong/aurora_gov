@@ -67,11 +67,11 @@
       </li>
       
       <li class={
-        if @module == "authorizations",
+        if @module == "proposals",
           do: "link active",
           else: "link"
       }>
-        <.link patch={~p"/app/authorizations?context=#{@context}"} replace>
+        <.link patch={~p"/app/proposals?context=#{@context}"} replace>
           <i class="fa-solid fa-hand"></i> Propuestas
         </.link>
       </li>
@@ -214,15 +214,29 @@
       <% end %>
     </section>
   </div>
-   <.live_component module={PanelHeaderComponent} id="header" context={@context} />
+   <.live_component module={AuroraGovWeb.Live.Panel.Header} id="header" context={@context} />
   <div class="flex flex-row gap-2">
     <%= case @module do %>
       <% "home" -> %>
-        <.live_component module={HomePanelComponent} id="panel-home" context={@context} />
+        <.live_component module={AuroraGovWeb.Live.Panel.Home} id="panel-home" context={@context} />
       <% "members" -> %>
-        <.live_component module={MembersPanelComponent} id="panel-members" context={@context} />
+        <.live_component
+          module={AuroraGovWeb.Live.Panel.Members}
+          id="panel-members"
+          context={@context}
+        />
       <% "power" -> %>
-        <.live_component module={PowerPanelComponent} id="panel-power" context={@context} />
+        <.live_component
+          module={AuroraGovWeb.Live.Panel.Power}
+          id="panel-power"
+          context={@context}
+        />
+      <% "proposals" -> %>
+        <.live_component
+          module={AuroraGovWeb.Live.Panel.Proposals}
+          id="panel-proposal"
+          context={@context}
+        />
       <% _ -> %>
         <div class="card w-4/6 flex flex-col h-fit justify-center items-center">
           <h1>En construcción</h1>
@@ -251,8 +265,8 @@
   on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
 >
   <.live_component
-    module={TreePanelComponent}
-    id="tree-modal-component"
+    module={AuroraGovWeb.Live.Panel.TreeNavigator}
+    id="tree-navigator-modal"
     context={@context}
     app_module={@module}
     current_person={@current_person}
@@ -268,8 +282,8 @@
   on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
 >
   <.live_component
-    module={AuroraGovWeb.GovLiveComponent}
-    id="gov-modal-component"
+    module={AuroraGovWeb.Live.Panel.ProposalCreate}
+    id="proposal-create-modal"
     context={@context}
     app_module={@module}
     current_person={@current_person}
@@ -277,4 +291,3 @@
     initial_values={@initial_proposal_values}
   />
 </.modal>
-

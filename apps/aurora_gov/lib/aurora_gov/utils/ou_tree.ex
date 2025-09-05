@@ -23,4 +23,12 @@ defmodule AuroraGov.Utils.OUTree do
   def get_complex_level(id) do
     Enum.count(String.split(id, "."))
   end
+
+  def ou_tree_list(id) do
+    parts = String.split(id, ".")
+    Enum.reduce_while(Enum.reverse(0..(length(parts) - 1)), [], fn i, acc ->
+      sub_id = Enum.take(parts, i + 1) |> Enum.join(".")
+      {:cont, [sub_id | acc]}
+    end)
+  end
 end

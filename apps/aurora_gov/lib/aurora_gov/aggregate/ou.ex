@@ -112,4 +112,23 @@ defmodule AuroraGov.Aggregate.OU do
       %Power{} = power -> {:power, power}
     end
   end
+
+  def get_power_avg_sensitivity(%OU{ou_power: ou_power}, power_id) do
+    case Map.get(ou_power, power_id) do
+      nil -> {:ok, 0}
+      power_map when map_size(power_map) == 0 -> {:ok, 0}
+      power_map ->
+        sensitivities =
+          power_map
+          |> Map.values()
+          |> Enum.map(& &1.power_value)
+
+        avg =
+          sensitivities
+          |> Enum.sum()
+          |> Kernel./(length(sensitivities))
+
+        {:ok, avg}
+    end
+  end
 end

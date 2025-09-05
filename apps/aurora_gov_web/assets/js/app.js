@@ -17,15 +17,31 @@
 
 // Include phoenix_html to handle method=PUT/DELETE in forms and buttons.
 import "phoenix_html"
-// Establish Phoenix Socket and LiveView configuration.
+
 import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
+import tippy from "tippy.js"
+import 'tippy.js/dist/tippy.css'
+
+let Hooks = {}
+
+Hooks.Tippy = {
+  mounted() {
+    tippy(this.el, {
+      content: this.el.dataset.tippyContent,
+      placement: this.el.dataset.tippyPlacement || 'top',
+      theme: this.el.dataset.tippyTheme || undefined
+    })
+  }
+}
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
-  params: {_csrf_token: csrfToken}
+  params: {_csrf_token: csrfToken},
+  hooks: Hooks
 })
 
 // Show progress bar on live navigation and form submits

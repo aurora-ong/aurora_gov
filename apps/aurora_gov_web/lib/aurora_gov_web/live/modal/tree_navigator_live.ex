@@ -1,4 +1,4 @@
-defmodule TreePanelComponent do
+defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
   alias Phoenix.LiveView.AsyncResult
   use AuroraGovWeb, :live_component
   import AuroraGovWeb.OUVisualTreeComponent
@@ -81,7 +81,7 @@ defmodule TreePanelComponent do
     <!-- Caso: pertenece (usa assigns calculados arriba) -->
     <span
       :if={!is_nil(@status)}
-      class={"inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border border-green-200 bg-green-50 text-green-700"}
+      class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border border-green-200 bg-green-50 text-green-700"
     >
       <i class={"text-[12px] " <> @m_icon}></i> {@m_label}
     </span>
@@ -130,25 +130,6 @@ defmodule TreePanelComponent do
         <i class="fa-solid fa-sitemap mr-3 text-3xl rotate-180"></i> Navegar
       </h2>
 
-    <!-- Leyenda -->
-      <div class="mx-auto mb-4 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600 !hidden">
-        <span class="inline-flex items-center gap-1">
-          <i class="fa-solid fa-calendar-days"></i> Fundación
-        </span>
-
-        <span class="inline-flex items-center gap-1">
-          <i class="fa-regular fa-circle-user"></i> Sin unidad
-        </span>
-         <span class="inline-flex items-center gap-1"><i class="fa-solid fa-user"></i> Junior</span>
-        <span class="inline-flex items-center gap-1">
-          <i class="fa-solid fa-user-check"></i> Regular
-        </span>
-
-        <span class="inline-flex items-center gap-1">
-          <i class="fa-solid fa-user-tie"></i> Senior
-        </span>
-      </div>
-
       <.async_result :let={ou_tree} assign={@ou_tree}>
         <:loading>
           <.loading_spinner />
@@ -193,7 +174,9 @@ defmodule TreePanelComponent do
                     <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
                       <.chip icon_class="fa-solid fa-hashtag">{ou.ou_id}</.chip>
 
-                      <.chip icon_class="fa-solid fa-calendar-days">{Timex.lformat!(ou[:created_at], "{relative}", "es", :relative)}</.chip>
+                      <.chip icon_class="fa-solid fa-calendar-days">
+                        {Timex.lformat!(ou[:created_at], "{relative}", "es", :relative)}
+                      </.chip>
                        <.membership_badge status={ou[:membership_status]} />
                     </div>
                   </div>
@@ -205,6 +188,25 @@ defmodule TreePanelComponent do
             </.link>
           </:ou_item>
         </.ou_visual_tree>
+
+    <!-- Leyenda -->
+        <div class="mx-auto mt-10 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600 !hidden">
+          <span class="inline-flex items-center gap-1">
+            <i class="fa-solid fa-calendar-days"></i> Fecha Fundación
+          </span>
+
+          <span class="inline-flex items-center gap-1">
+            <i class="fa-regular fa-circle-user"></i> Sin unidad
+          </span>
+           <span class="inline-flex items-center gap-1"><i class="fa-solid fa-user"></i> Junior</span>
+          <span class="inline-flex items-center gap-1">
+            <i class="fa-solid fa-user-check"></i> Regular
+          </span>
+
+          <span class="inline-flex items-center gap-1">
+            <i class="fa-solid fa-user-tie"></i> Senior
+          </span>
+        </div>
       </.async_result>
     </section>
     """

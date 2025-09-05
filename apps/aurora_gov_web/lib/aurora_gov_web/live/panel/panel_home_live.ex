@@ -1,4 +1,4 @@
-defmodule HomePanelComponent do
+defmodule AuroraGovWeb.Live.Panel.Home do
 
   # In Phoenix apps, the line is typically: use MyAppWeb, :live_component
   use Phoenix.LiveComponent

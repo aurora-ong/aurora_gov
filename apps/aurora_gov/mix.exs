@@ -49,7 +49,9 @@ defmodule AuroraGov.MixProject do
       {:pbkdf2_elixir, "~> 2.0"},
       {:faker, "~> 0.18.0"},
       {:ecto_shortuuid, "~> 0.2"},
-      {:commanded_messaging, "~> 0.2.0"}
+      {:commanded_messaging, "~> 0.2.0"},
+      {:flop, "~> 0.26.3"},
+      {:flop_phoenix, "~> 0.25.3"}
     ]
   end
 

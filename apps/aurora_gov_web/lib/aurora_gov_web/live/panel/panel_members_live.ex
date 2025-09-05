@@ -1,4 +1,4 @@
-defmodule MembersPanelComponent do
+defmodule AuroraGovWeb.Live.Panel.Members do
   use AuroraGovWeb, :live_component
 
   @impl true

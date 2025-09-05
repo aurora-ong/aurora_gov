@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.GovLiveComponent do
+defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   use AuroraGovWeb, :live_component
   alias Phoenix.LiveView.AsyncResult
 

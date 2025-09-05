@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.PanelLive do
+defmodule AuroraGovWeb.Live.Panel do
   use AuroraGovWeb, :live_view
 
   @impl true
@@ -42,7 +42,7 @@ defmodule AuroraGovWeb.PanelLive do
   @impl true
   def handle_info(event, socket) do
     IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
-    socket = AuroraGovWeb.PanelEventRouter.handle_event(event, socket)
+    socket = AuroraGovWeb.Panel.EventRouter.handle_event(event, socket)
 
     {:noreply, socket}
   end

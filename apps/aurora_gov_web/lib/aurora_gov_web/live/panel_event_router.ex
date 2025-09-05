@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.PanelEventRouter do
+defmodule AuroraGovWeb.Panel.EventRouter do
   require Logger
   import Phoenix.LiveView
 
@@ -13,7 +13,7 @@ defmodule AuroraGovWeb.PanelEventRouter do
   def handle_event({:power_updated, power} = update, socket) do
     IO.inspect(power, label: "Handle")
 
-    send_update(PowerPanelComponent,
+    send_update(AuroraGovWeb.Live.Panel.Power,
       id: "panel-power",
       update: update
     )

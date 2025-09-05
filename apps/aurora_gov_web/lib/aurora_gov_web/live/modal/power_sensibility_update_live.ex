@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.App.Power.PowerSensibilityModalLive do
+defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
   alias AuroraGov.Context.PowerContext
   alias AuroraGov.Context.OUContext
   use AuroraGovWeb, :live_component
@@ -296,7 +296,7 @@ defmodule AuroraGovWeb.App.Power.PowerSensibilityModalLive do
     socket =
       case AuroraGov.Context.PowerContext.update_person_power!(update_params) do
         {:ok, _result} ->
-          send_update(PowerPanelComponent,
+          send_update(AuroraGovWeb.Live.Panel.Power,
             id: "panel-power",
             close_modal: "update_power_modal"
           )
