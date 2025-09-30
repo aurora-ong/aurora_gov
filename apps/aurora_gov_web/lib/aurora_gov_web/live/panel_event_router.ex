@@ -25,8 +25,13 @@ defmodule AuroraGovWeb.Panel.EventRouter do
     )
   end
 
+  def handle_event({event, _data}, socket) do
+    Logger.info("No se encontró ruta para #{event}")
+    socket
+  end
+
   def handle_event(data, socket) do
-    Logger.info("No se encontró ruta para #{data}")
+    Logger.warning("No se encontró ruta para #{inspect(data)}")
     socket
   end
 

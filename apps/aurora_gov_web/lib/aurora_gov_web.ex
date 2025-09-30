@@ -88,7 +88,9 @@ defmodule AuroraGovWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      import AuroraGovWeb.CoreComponents
+       #import AuroraGovWeb.CoreComponents
+      use AuroraGovWeb.Components.MishkaComponents
+      import AuroraGovWeb.Components.AuroraComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

@@ -58,6 +58,10 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
         do: filters ++ [%{field: :proposal_title, op: :ilike, value: "%" <> search <> "%"}],
         else: filters
 
+    filters = [
+      %{field: :proposal_ou_end_id, op: :==, value: context}
+    ]
+
     IO.inspect(filters)
     params = Map.put(params, :filters, filters)
 
@@ -126,66 +130,120 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
   end
 
   @impl true
+  def handle_event("proposal_row_click", %{"id" => proposal_id}, socket) do
+    # Aquí puedes abrir el panel lateral, cargar detalles, etc.
+    IO.inspect(proposal_id, label: "Fila clickeada")
+
+    {:noreply,
+     assign(socket,
+       side_panel_open: true
+     )}
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def render(assigns) do
     ~H"""
-    <section class="card w-full max-w-5xl flex flex-col h-fit justify-center items-center bg-white shadow-lg rounded-lg p-6">
+    <section class="card w-full max-w-5xl flex flex-col justify-center items-center bg-white shadow-lg rounded-lg p-6 overflow-y-auto">
       <div class="flex flex-col md:flex-row w-full justify-between items-center mb-4 gap-2">
         <div class="flex gap-2">
-          <button
-            class={"btn btn-sm " <> if @filter_type == "all", do: "btn-primary", else: "btn-outline"}
-            phx-click="update_filter"
-            phx-value-filter="all"
-            phx-target={@myself}
-          >
-            Todas
-          </button>
-
-          <button
-            class={"btn btn-sm " <> if @filter_type == "out", do: "btn-primary", else: "btn-outline"}
-            phx-click="update_filter"
-            phx-value-filter="out"
-            phx-target={@myself}
-          >
-            De salida
-          </button>
-
-          <button
-            class={"btn btn-sm " <> if @filter_type == "in", do: "btn-primary", else: "btn-outline"}
-            phx-click="update_filter"
-            phx-value-filter="in"
-            phx-target={@myself}
-          >
-            Entrantes
-          </button>
+          <.filter_button_group
+            options={[
+              %{label: "Todas", value: :all},
+              %{label: "Internas", value: :internal},
+              %{label: "Entrantes", value: :in},
+              %{label: "Salientes", value: :out}
+            ]}
+            selected={:all}
+            on_select="filter_changed"
+          />
         </div>
 
         <form phx-change="search" phx-target={@myself} class="flex items-center gap-2">
-          <input
-            name="search"
-            value={@search}
-            placeholder="Buscar por título..."
-            class="input input-bordered input-sm"
-          />
+          <.search_field name="search" value={@search} placeholder="Búsqueda rápida" />
         </form>
       </div>
 
       <div class="relative overflow-x-auto w-full rounded-lg border border-gray-200 bg-gray-50 min-h-[200px]">
         <%= if @loading do %>
-          <.loading_spinner></.loading_spinner>
+          <.loading_spinner size="double_large" />
         <% else %>
-          <.table id="proposals" rows={@streams.proposal_list}>
-            <:col :let={{_id, proposal}} label="Título">
-              {proposal.proposal_title}
+          <.table
+            id="proposals"
+            rows={@streams.proposal_list}
+            row_click={
+              fn {_id, proposal} ->
+                JS.push("open_side_panel",
+                  value: %{
+                    component: AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+                    assigns: %{proposal_id: proposal.proposal_id}
+                  }
+                )
+              end
+            }
+          >
+            <:col :let={{_id, proposal}} label="Título" class="w-10">
+              <div class="flex-col flex">
+                <div class="flex-row flex">
+                  <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
+                    <.ou_id_badge
+                      ou_id={proposal.proposal_ou_start_id}
+                      ou_name={proposal.proposal_ou_start.ou_name}
+                    />
+                    <span class="mx-2 text-gray-400 flex items-center">
+                      <i class="fa fa-arrow-right"></i>
+                    </span>
+
+                    <.ou_id_badge
+                      ou_id={proposal.proposal_ou_end_id}
+                      ou_name={proposal.proposal_ou_end.ou_name}
+                    />
+                  <% else %>
+                    <.ou_id_badge
+                      ou_id={proposal.proposal_ou_end_id}
+                      ou_name={proposal.proposal_ou_end.ou_name}
+                    />
+                  <% end %>
+                </div>
+
+                <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
+
+                <p class="text-md text-gray-600 font-normal">{proposal.proposal_description}</p>
+              </div>
             </:col>
 
-            <:col :let={{_id, proposal}} label="Descripción">
-              {proposal.proposal_description}
-            </:col>
+            <:col :let={{_id, proposal}} label="Estado">
+              {inspect(AuroraGov.Context.ProposalContext.calculate_voting_status(proposal))}
+              <.voting_progress_simple voting_map={
+                AuroraGov.Context.ProposalContext.calculate_voting_status(proposal)
+              } />
+              <%!-- <.voting_progress_full voting_map={
+                AuroraGov.Context.ProposalContext.calculate_voting_status(proposal)
+              } /> --%>
+              <%!-- <.progress class="w-96 h-50">
+                <.progress_section class="bg-orange-600 text-white" value={60}>
+                  <:tooltip label="Images" position="top" class="font-bold">
+                    Tooltip content for Images
+                  </:tooltip>
+                </.progress_section>
 
-            <:col :let={{_id, proposal}} label="Tipo"></:col>
+                <.progress_section class="bg-red-600" value={10}>
+                  <:tooltip label="15%" position="bottom" class="text-white text-sm bg-black">
+                    Only 5% left
+                  </:tooltip>
+                </.progress_section>
 
-            <:col :let={{_id, proposal}} label="Fecha">
-              {Timex.lformat!(proposal.created_at, "{0D}/{0M}/{YYYY} {h24}:{m}", "es")}
+                <.progress_section color="misc" class="bg-blue-600 text-white" value={30}>
+                  <:tooltip label="Other" position="top" clickable={true} class="font-bold">
+                    This section represents other files
+                  </:tooltip>
+                </.progress_section>
+              </.progress> --%> {Timex.lformat!(
+                proposal.created_at,
+                "{0D}/{0M}/{YYYY} {h24}:{m}",
+                "es"
+              )} {proposal.proposal_owner.person_name} {proposal.proposal_power_id} {proposal.proposal_status}
             </:col>
           </.table>
 

@@ -19,7 +19,7 @@ defmodule AuroraGovWeb.OUSelectorComponent do
           end)
         end
       end)
-      |> assign(:errors, Enum.map(assigns.field.errors, &translate_error(&1)))
+      # |> assign(:errors, Enum.map(assigns.field.errors, &translate_error(&1)))
 
     {:ok, socket}
   end
@@ -31,7 +31,7 @@ defmodule AuroraGovWeb.OUSelectorComponent do
       <%!-- <label for={@id} class="block text-sm font-medium text-gray-700 mb-1">
         {@label || "Organización"}
       </label> --%>
-      <.label for={@id}>{@label}</.label>
+      <%!-- <.label for={@id}>{@label}</.label> --%>
 
       <%= if @selected_ou do %>
         <div class="flex flex-row border py-2 px-4 rounded-lg items-center bg-gray-100 shadow-md">

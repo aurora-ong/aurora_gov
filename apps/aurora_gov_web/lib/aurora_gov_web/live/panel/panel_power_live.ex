@@ -72,7 +72,7 @@ defmodule AuroraGovWeb.Live.Panel.Power do
     <section class="card w-4/6 flex flex-col h-fit">
       <.async_result :let={ou_power_list} assign={@ou_power_list}>
         <:loading>
-          <.loading_spinner></.loading_spinner>
+          <.loading_spinner size="double_large"></.loading_spinner>
         </:loading>
 
         <:failed :let={_failure}>error loading</:failed>

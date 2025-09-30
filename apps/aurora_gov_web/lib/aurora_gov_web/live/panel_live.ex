@@ -7,6 +7,13 @@ defmodule AuroraGovWeb.Live.Panel do
       Phoenix.PubSub.subscribe(AuroraGov.PubSub, "projector_update")
     end
 
+    socket =
+      assign(socket,
+        side_panel_open: false,
+        side_panel_component: nil,
+        side_panel_assigns: %{}
+      )
+
     {:ok, socket}
   end
 
@@ -68,5 +75,24 @@ defmodule AuroraGovWeb.Live.Panel do
       |> assign(:tree_modal, true)
 
     {:noreply, socket}
+  end
+
+  def handle_event("open_side_panel", %{"component" => component, "assigns" => assigns} = _params, socket) do
+    # Convertir claves de string a átomos
+    atom_assigns = for {k, v} <- assigns, into: %{} do
+      {String.to_atom(k), v}
+    end
+
+    {:noreply,
+     assign(socket,
+       side_panel_open: true,
+       side_panel_component: String.to_existing_atom(component),
+       side_panel_assigns: atom_assigns
+     )}
+  end
+
+  def handle_event("close_side_panel", _params, socket) do
+    {:noreply,
+     assign(socket, side_panel_open: false, side_panel_component: nil, side_panel_assigns: %{})}
   end
 end

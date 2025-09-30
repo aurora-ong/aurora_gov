@@ -30,7 +30,7 @@ defmodule AuroraGov.CommandHandler.PromoteMembershipHandler do
     cond do
       membership_status == :junior -> {:ok, :regular}
       membership_status == :regular -> {:ok, :senior}
-      true -> {:error, :max_state_reached}
+      true -> {:error, :max_statement_reached}
     end
   end
 end

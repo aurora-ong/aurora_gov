@@ -215,7 +215,7 @@
     </section>
   </div>
    <.live_component module={AuroraGovWeb.Live.Panel.Header} id="header" context={@context} />
-  <div class="flex flex-row gap-2">
+  <div class="flex flex-row gap-2 overflow-hidden h-full flex-1">
     <%= case @module do %>
       <% "home" -> %>
         <.live_component module={AuroraGovWeb.Live.Panel.Home} id="panel-home" context={@context} />
@@ -243,17 +243,23 @@
         </div>
     <% end %>
     
-    <section class="w-4/12 flex flex-col h-fit justify-center items-center card">
-      <div class="flex flex-row justify-between content-between items-center w-full">
-        <h2 class="text-lg font-semibold">Panel lateral</h2>
-         <i class="fa-solid fa-xmark h-5 w-5"></i>
-      </div>
-       <hr class="my-5" />
-      <div class="flex flex-row justify-between content-between">
-        <h2 class="text-xl font-semibold block">Detalles</h2>
-         {(@current_person && @current_person.person_id) || "Vacio"}
-      </div>
-    </section>
+    <%= if @side_panel_open do %>
+      <section class="w-4/12 flex flex-col items-center card flex-1 overflow-y-auto">
+        <div class="flex flex-row justify-between content-between items-center w-full">
+          <button phx-click="close_side_panel" class="ml-auto">
+            <i class="fa-solid fa-xmark h-5 w-5"></i>
+          </button>
+        </div>
+         <hr class="my-5" />
+        <%= if @side_panel_component do %>
+          <.live_component
+            module={@side_panel_component}
+            id="side-panel-content"
+            {@side_panel_assigns}
+          />
+        <% end %>
+      </section>
+    <% end %>
   </div>
 </div>
 
@@ -261,7 +267,8 @@
   :if={@tree_modal}
   id="tree-modal"
   show
-  max_width="max-w-4xl"
+  padding="extra_large"
+  size="quadruple_large"
   on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
 >
   <.live_component

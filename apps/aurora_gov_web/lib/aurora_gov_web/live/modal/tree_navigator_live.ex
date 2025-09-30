@@ -71,7 +71,7 @@ defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
     ~H"""
     <!-- Caso: no pertenece a ninguna unidad -->
     <span
-      :if={is_nil(@status)}
+      :if={false}
       class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-0.5 text-[11px] font-semibold text-gray-600"
       title="No perteneces a esta unidad"
     >
@@ -132,7 +132,7 @@ defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
 
       <.async_result :let={ou_tree} assign={@ou_tree}>
         <:loading>
-          <.loading_spinner />
+          <.loading_spinner size="double_large"></.loading_spinner>
         </:loading>
 
         <:failed :let={_failure}>
@@ -163,21 +163,19 @@ defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
                   if @context == ou.ou_id, do: "border-2 border-aurora_orange bg-aurora_orange/10", else: "border-gray-200"
                 }>
                   <div class="flex flex-col flex-grow min-w-0">
+                    <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
+                      <.ou_id_badge size="sm" ou_id={ou.ou_id} />
+                      <%!-- <.chip icon_class="fa-solid fa-calendar-days">
+                        {Timex.lformat!(ou[:created_at], "{relative}", "es", :relative)}
+                      </.chip> --%>
+                      <.membership_badge status={ou[:membership_status]} />
+                    </div>
+
                     <div
                       class="text-aurora_orange font-bold text-base sm:text-lg truncate flex flex-row items-center"
                       title={ou.ou_name}
                     >
-                      <i class="fa-solid fa-sitemap text-xl sm:text-lg rotate-180 mr-1.5 text-aurora_orange">
-                      </i> {ou.ou_name}
-                    </div>
-
-                    <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
-                      <.chip icon_class="fa-solid fa-hashtag">{ou.ou_id}</.chip>
-
-                      <.chip icon_class="fa-solid fa-calendar-days">
-                        {Timex.lformat!(ou[:created_at], "{relative}", "es", :relative)}
-                      </.chip>
-                       <.membership_badge status={ou[:membership_status]} />
+                      {ou.ou_name}
                     </div>
                   </div>
 

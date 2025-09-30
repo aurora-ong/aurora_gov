@@ -108,7 +108,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
       >
         <.async_result :let={ou_tree} assign={@ou_tree}>
           <:loading>
-            <.loading_spinner></.loading_spinner>
+            <.loading_spinner  size="double_large"></.loading_spinner>
           </:loading>
 
           <:failed :let={_failure}>there was an error loading the organization</:failed>
@@ -153,7 +153,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
               <div :if={@step_0_ou_power_detail != nil}>
                 <.async_result :let={ou_power} assign={@step_0_ou_power_detail}>
                   <:loading>
-                    <.loading_spinner></.loading_spinner>
+                    <.loading_spinner  size="double_large"></.loading_spinner>
                   </:loading>
 
                   <.live_component

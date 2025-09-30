@@ -67,6 +67,13 @@ AuroraGov.Context.PersonContext.register_person!(%{
   person_password: "123456"
 })
 
+AuroraGov.Context.PersonContext.register_person!(%{
+  person_id: "333@test.com",
+  person_name: "Maria Arevalo",
+  person_mail: "c.saez@gmail.com",
+  person_password: "123456"
+})
+
 AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
   ou_id: "barrio_vivo",
   person_id: "000@test.com"
@@ -78,8 +85,28 @@ AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
 })
 
 AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
+  ou_id: "barrio_vivo",
+  person_id: "222@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
+  ou_id: "barrio_vivo",
+  person_id: "333@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
   ou_id: "barrio_vivo.cultura_participacion",
   person_id: "000@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
+  ou_id: "barrio_vivo.cultura_participacion",
+  person_id: "111@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
+  ou_id: "barrio_vivo.cultura_participacion",
+  person_id: "222@test.com"
 })
 
 AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
@@ -87,6 +114,11 @@ AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
   person_id: "222@test.com"
 })
 
+AuroraGov.dispatch(%AuroraGov.Command.StartMembership{
+  ou_id: "barrio_vivo.seguridad",
+  person_id: "333@test.com"
+})
+
 AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
   ou_id: "barrio_vivo",
   person_id: "000@test.com"
@@ -95,6 +127,26 @@ AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
 AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
   ou_id: "barrio_vivo",
   person_id: "000@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
+  ou_id: "barrio_vivo",
+  person_id: "111@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
+  ou_id: "barrio_vivo",
+  person_id: "111@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
+  ou_id: "barrio_vivo",
+  person_id: "222@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
+  ou_id: "barrio_vivo",
+  person_id: "333@test.com"
 })
 
 AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
@@ -108,7 +160,7 @@ AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
 })
 
 AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
-  ou_id: "barrio_vivo",
+  ou_id: "barrio_vivo.cultura_participacion",
   person_id: "111@test.com"
 })
 
@@ -134,6 +186,8 @@ proposal_params = %{
   }
 }
 
+AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
+
 proposal_params = %{
   proposal_title: "Propuesta de prueba 2",
   proposal_description: "Se solicita actualizar cierto poder..",
@@ -146,6 +200,22 @@ proposal_params = %{
   }
 }
 
-# AuroraGov.dispatch(proposal)
+AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
+
+proposal_params = %{
+  proposal_title: "Propuesta de prueba 2",
+  proposal_description: "Se solicita actualizar cierto poder..",
+  proposal_ou_origin: "barrio_vivo",
+  proposal_person_id: "000@test.com",
+  proposal_ou_end: "barrio_vivo",
+  proposal_power_id: "org.create",
+  proposal_power_data: %{
+    ou_id: "nuevo"
+  }
+}
 
 AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
+
+# AuroraGov.dispatch(proposal)
+
+AuroraGov.Aggregate.OU.get_ou("barrio_vivo.cultura_participacion")

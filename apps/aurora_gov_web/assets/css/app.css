@@ -73,7 +73,7 @@
   /* } */
   
   .app-container {
-    @apply w-full flex gap-5;
+    @apply w-full flex gap-5 h-screen;
   }
   
   hr {

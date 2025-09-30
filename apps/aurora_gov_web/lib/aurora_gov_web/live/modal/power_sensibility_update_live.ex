@@ -121,7 +121,7 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
 
       <.async_result :let={power_context} assign={@power_update_context}>
         <:loading>
-          <.loading_spinner />
+          <.loading_spinner size="double_large"></.loading_spinner>
         </:loading>
 
         <:failed :let={_failure}>error loading</:failed>
@@ -140,7 +140,7 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
 
           <div class="mt-5 grid grid-cols-1 sm:grid-cols-12 gap-3 text-sm">
 
-              <!-- Card: Unidad organizativa -->
+    <!-- Card: Unidad organizativa -->
             <div class="sm:col-span-6 flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm">
               <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-black/90">
                 <i class="fa-solid fa-sitemap rotate-180 text-white"></i>
@@ -177,8 +177,6 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
                 </div>
               </div>
             </div>
-
-
 
     <!-- Card: Descripción del poder (ocupa 12 columnas) -->
             <div class="sm:col-span-12 rounded-xl border bg-white p-4 sm:px-3 sm:py-3 shadow-sm">
@@ -220,7 +218,6 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
               max="100"
               step="5"
               class="accent-aurora_orange"
-
             />
 
     <!-- leyenda dinámica -->

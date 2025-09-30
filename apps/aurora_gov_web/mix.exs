@@ -52,6 +52,7 @@ defmodule AuroraGovWeb.MixProject do
       {:bandit, "~> 1.5"},
       {:live_debugger, "~> 0.3.0", only: :dev},
       {:timex, "~> 3.7"},
+      {:mishka_chelekom, "~> 0.0.7", only: :dev}
     ]
   end
 
