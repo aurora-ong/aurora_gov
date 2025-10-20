@@ -52,10 +52,16 @@ defmodule AuroraGov.Context.ProposalContext do
         |> Enum.map(& &1.vote_value)
         |> Enum.sum()
 
+        emitted_votes_count =
+          relevant_votes
+          |> Enum.filter(& &1.vote_value)
+          |> length()
+
       Map.put(acc, ou_id, %{
         required_score: required_score,
         current_score: current_score,
-        total_voters: total_voters
+        total_voters: total_voters,
+        current_voters: emitted_votes_count
       })
     end)
   end

@@ -39,6 +39,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
     {:ok, socket}
   end
 
+  @impl true
   def update(assigns, socket) do
     # Inicializa el formulario si no está presente
 
@@ -46,9 +47,13 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
       socket
       |> assign(assigns)
       |> start_async(:load_data, fn ->
-        AuroraGov.Context.OUContext.get_ou_tree_with_membership(
-          assigns[:current_person].person_id
-        )
+        person_id = get_in(assigns, [:current_person, Access.key!(:person_id)])
+
+        if is_nil(person_id) do
+          {:error, :no_person_id}
+        else
+          AuroraGov.Context.OUContext.get_ou_tree_with_membership(person_id)
+        end
       end)
       |> assign_new(:step_0_form_proposal, fn ->
         IO.inspect(assigns[:initial_values], label: "Initial values")
@@ -97,22 +102,51 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
         Utiliza este formulario para proponer una decisión. Reune los votos del resto de los integrantes para promulgarla.
       </h2>
 
-      <.simple_form
-        :if={@step == 0}
-        for={@step_0_form_proposal}
-        id="login_form"
-        phx-submit="step_0_next"
-        phx-change="step_0_validate"
-        phx-target={@myself}
-        class="w-full"
-      >
-        <.async_result :let={ou_tree} assign={@ou_tree}>
-          <:loading>
-            <.loading_spinner  size="double_large"></.loading_spinner>
-          </:loading>
+      <.async_result :let={ou_tree} assign={@ou_tree}>
+        <:loading>
+          <.loading_spinner size="double_large" />
+        </:loading>
 
-          <:failed :let={_failure}>there was an error loading the organization</:failed>
+        <:failed :let={error}>
+          <%= case error do %>
+            <% e when e in [:no_person_id, "no_person_id"] -> %>
+              <div class="w-full p-6 text-center">
+                <i class="fa-solid fa-right-to-bracket text-4xl mb-4"></i>
+                <h3 class="text-xl font-semibold mb-5">Debes ser miembro de la unidad para gobernar</h3>
 
+                <a
+                  href="/persons/log_in"
+                  class="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                Iniciar sesión
+                </a>
+              </div>
+            <% other -> %>
+              <div class="w-full p-6 text-center">
+                <i class="fa-solid fa-exclamation-triangle text-4xl mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">No se pudo cargar</h3>
+
+                <p class="mb-2 text-sm text-gray-600">Código de error: {inspect(other)}</p>
+
+                <a
+                  href="/"
+                  class="inline-block px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                >
+                  Salir
+                </a>
+              </div>
+          <% end %>
+        </:failed>
+
+        <.simple_form
+          :if={@step == 0}
+          for={@step_0_form_proposal}
+          id="proposal_step_1_form"
+          phx-submit="step_0_next"
+          phx-change="step_0_validate"
+          phx-target={@myself}
+          extra_classes={["w-full"]}
+        >
           <div class="flex flex-row gap-4 justify-between items-start flex-nowrap">
             <div class="flex flex-col gap-5 basis-1/2">
               <.live_component
@@ -127,13 +161,6 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
                 current_person_id="p.delgado@gmail.com"
                 description="Debes pertenecer a esta unidad."
                 enabled="false"
-              />
-              <.input
-                field={@step_0_form_proposal[:proposal_power]}
-                type="select"
-                label="Acción"
-                options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
-                description="Esta acción será ejecutada en la unidad destino."
               />
             </div>
              <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
@@ -150,43 +177,48 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
                 current_person_id="p.delgado@gmail.com"
                 description="Unidad donde se ejecutará la acción."
               />
-              <div :if={@step_0_ou_power_detail != nil}>
-                <.async_result :let={ou_power} assign={@step_0_ou_power_detail}>
-                  <:loading>
-                    <.loading_spinner  size="double_large"></.loading_spinner>
-                  </:loading>
-
-                  <.live_component
-                    module={AuroraGovWeb.Components.Power.PowerCardComponent}
-                    id="power-card"
-                    show_actions={false}
-                    power_id={@step_0_form_proposal[:proposal_power].value}
-                    power_info={
-                      AuroraGov.Context.PowerContext.get_power_metadata(
-                        @step_0_form_proposal[:proposal_power].value
-                      )
-                    }
-                    ou_power={ou_power}
-                    parent_target={@myself}
-                  />
-                </.async_result>
-              </div>
             </div>
           </div>
 
-          <div class="flex flex-row gap-4 justify-between items-center flex-nowrap">
-            <div class="flex flex-col gap-5 basis-1/2"></div>
+          <div class="py-6">
+            <.input
+              field={@step_0_form_proposal[:proposal_power]}
+              type="select"
+              label="Acción"
+              options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
+            />
+            <div :if={@step_0_ou_power_detail != nil}>
+              <.async_result :let={ou_power} assign={@step_0_ou_power_detail}>
+                <:loading>
+                  <.loading_spinner size="double_large"></.loading_spinner>
+                </:loading>
 
-            <div class="flex flex-col basis-1/2 gap-5 justify-center px-10"></div>
+                <div class="mt-5"></div>
+
+                <.live_component
+                  module={AuroraGovWeb.Components.Power.PowerCardComponent}
+                  id="power-card"
+                  show_actions={false}
+                  power_id={@step_0_form_proposal[:proposal_power].value}
+                  power_info={
+                    AuroraGov.Context.PowerContext.get_power_metadata(
+                      @step_0_form_proposal[:proposal_power].value
+                    )
+                  }
+                  ou_power={ou_power}
+                  parent_target={@myself}
+                />
+              </.async_result>
+            </div>
           </div>
-        </.async_result>
 
-        <:actions>
-          <.button phx-disable-with="..." class="w-full">
-            Siguiente <span aria-hidden="true">→</span>
-          </.button>
-        </:actions>
-      </.simple_form>
+          <:actions>
+            <.button phx-disable-with="..." class="w-full primary filled">
+              Siguiente <span aria-hidden="true">→</span>
+            </.button>
+          </:actions>
+        </.simple_form>
+      </.async_result>
 
       <.simple_form
         :if={@step == 1}
@@ -468,8 +500,15 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   end
 
   @impl true
-  def handle_async(:load_data, {:ok, ou_tree}, socket) do
+  def handle_async(:load_data, {:ok, result}, socket) do
     %{ou_tree: ou_tree_async} = socket.assigns
-    {:noreply, assign(socket, :ou_tree, AsyncResult.ok(ou_tree_async, ou_tree))}
+
+    case result do
+      {:error, error} ->
+        {:noreply, assign(socket, :ou_tree, AsyncResult.failed(ou_tree_async, error))}
+
+      ou_tree ->
+        {:noreply, assign(socket, :ou_tree, AsyncResult.ok(ou_tree_async, ou_tree))}
+    end
   end
 end

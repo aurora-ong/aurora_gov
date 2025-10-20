@@ -19,11 +19,9 @@ defmodule AuroraGovWeb.Components.AuroraComponents do
   use Phoenix.Component
   use Gettext, backend: AuroraGovWeb.Gettext
 
-  alias Phoenix.LiveView.JS
   import AuroraGovWeb.Components.Tooltip
   import AuroraGovWeb.Components.Clipboard
   import AuroraGovWeb.Components.Spinner
-  import AuroraGovWeb.Components.Button
   import AuroraGovWeb.Components.Progress
 
   attr :ou_id, :string, required: true

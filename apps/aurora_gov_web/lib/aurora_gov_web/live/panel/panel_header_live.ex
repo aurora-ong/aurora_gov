@@ -19,23 +19,24 @@ defmodule AuroraGovWeb.Live.Panel.Header do
 
   def render(assigns) do
     ~H"""
-    <section class="card w-full flex flex-row h-fit justify-center items-center gap-5">
+    <section class="card w-full flex flex-row h-fit justify-center items-center gap-5 px-10 py-6">
       <div class="flex flex-col flex-grow">
         <.ou_id_badge size="lg" ou_id={@ou.ou_id} />
         <h1 class="text-4xl">{@ou.ou_name}</h1>
-
-        <h2>{@ou.ou_goal}</h2>
       </div>
 
       <div class="flex flex-row gap-3 items-center justify-center h-full">
-        <button phx-click="open_gov_modal" class="justify-center items-center text-lg primary">
+        <button
+          phx-click="open_gov_modal"
+          phx-value-proposal_ou_origin={@ou.ou_id}
+          class="text-lg primary outlined"
+        >
           <i class="fa-solid fa-hand text-xl"></i> Gobernar
         </button>
 
-        <button phx-click="open_tree_modal" class="justify-center items-center text-lg primary">
+        <button phx-click="open_tree_modal" class="text-lg primary outlined">
           <i class="fa-solid fa-sitemap text-xl rotate-180"></i> Navegar
         </button>
-
 
         <%!-- <button class="justify-center items-center text-lg primary h-full">
           <i class="fa-solid fa-arrow-up text-xl"></i>

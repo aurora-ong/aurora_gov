@@ -39,24 +39,24 @@ defmodule AuroraGovWeb.Live.Panel.Members do
   @impl true
   def render(assigns) do
     ~H"""
-    <section class="card w-4/6 flex flex-col h-fit justify-center items-center">
-      <div class="flex w-full h-12 flex-row">
-        <div class="flex flex-row w-fit grow">
-          <.filter_button_group
-            options={[
-              %{label: "Todos", value: "all"},
-              %{label: "Activos", value: "active"},
-              %{label: "Inactivos", value: "inactive"}
-            ]}
-            selected={@filter}
-            on_select="update_filter"
-            phx_target={@myself}
-          />
+    <div class="w-full h-full p-6">
+      <div class="flex w-full h-12 flex-row justify-between mb-5">
+        <.filter_button_group
+          options={[
+            %{label: "Todos", value: "all"},
+            %{label: "Activos", value: "active"},
+            %{label: "Inactivos", value: "inactive"}
+          ]}
+          selected={@filter}
+          on_select="update_filter"
+          phx_target={@myself}
+        />
+        <div class="flex flex-row gap-3">
           <form phx-change="search" phx-target={@myself} class="flex items-center gap-2">
             <.search_field name="search" value="" placeholder="Búsqueda rápida" />
           </form>
 
-          <button
+          <%!-- <button
             phx-click="open_gov_modal"
             phx-value-proposal_title="Titulo propuesta"
             phx-value-proposal_description="Descripcion de propuesta en detalle"
@@ -67,35 +67,49 @@ defmodule AuroraGovWeb.Live.Panel.Members do
             class="justify-center items-center text-lg primary"
           >
             <i class="fa-solid fa-hand text-xl"></i> Nuevo miembro
-          </button>
+          </button> --%>
 
           <.dropdown
             id="action-dropdown"
             relative="md:relative"
-            content_width="large"
             size="large"
-            clickable
-            padding="extra_small"
+            padding="extra_big"
           >
-            <:trigger>
-              <.action_button size="md" phx-click="mi_evento" phx-value-id="123"></.action_button>
+            <:trigger class="flex justify-center items-center">
+              <button class="justify-center items-center text-lg primary">
+                <i class="fa-solid fa-hand text-xl"></i>
+              </button>
             </:trigger>
 
             <:content>
               <div class="flex flex-col gap-1">
-                <.action_button class="w-24" size="md" phx-click="mi_evento" phx-value-id="123">
+                <.action_button
+                  size="md"
+                  phx-click="mi_evento"
+                  phx-value-id="123"
+                  phx-target={@myself}
+                >
                   Nuevo miembro
                 </.action_button>
 
-                <.action_button size="md" phx-click="mi_evento" phx-value-id="123">
-                  Nuevo miembro
-                </.action_button>
+                <button
+                  phx-click="open_gov_modal"
+                  phx-value-proposal_title="Titulo propuesta"
+                  phx-value-proposal_description="Descripcion de propuesta en detalle"
+                  phx-value-proposal_ou_origin="raiz"
+                  phx-value-proposal_ou_end="raiz.sub"
+                  phx-value-proposal_power="org.membership.start"
+                  phx-value-person_id="aperson"
+                  class="justify-center items-center text-lg primary"
+                >
+                  <i class="fa-solid fa-hand text-xl"></i> Nuevo miembro
+                </button>
               </div>
             </:content>
           </.dropdown>
         </div>
       </div>
-       <hr class="my-5" />
+
       <div class="relative overflow-x-auto w-full">
         <%= if @loading do %>
           <.loading_spinner size="double_large" />
@@ -113,7 +127,7 @@ defmodule AuroraGovWeb.Live.Panel.Members do
             id="members"
             rows={@streams.member_list}
           >
-            <:header class="w-fit">Id Persona</:header>
+            <:header class="">Id Persona</:header>
 
             <:header class="">Nombre</:header>
 
@@ -129,19 +143,24 @@ defmodule AuroraGovWeb.Live.Panel.Members do
               {membership.person.person_name}
             </:col>
 
-            <:col :let={{_id, membership}}>
+            <:col :let={{_id, membership}} class="text-center">
               <%= case (membership.membership_status) do %>
                 <% "junior" -> %>
-                  <span class="font-semibold">{membership.membership_status}</span>
+                  <.badge size="medium" class="font-semibold" rounded="full">
+                    {membership.membership_status}
+                  </.badge>
                 <% "regular" -> %>
-                  <.badge size="medium" color="#000" rounded="full">Base</.badge>
-                   <span class="font-semibold">{membership.membership_status}</span>
+                  <.badge size="medium" class="font-semibold" rounded="full">
+                    {membership.membership_status}
+                  </.badge>
                 <% "senior" -> %>
-                  <span class="text-red-500 font-semibold">{membership.membership_status}</span>
+                  <.badge size="medium" class="text-red-500 font-semibold" rounded="full">
+                    {membership.membership_status}
+                  </.badge>
               <% end %>
             </:col>
 
-            <:col :let={{_id, membership}}>
+            <:col :let={{_id, membership}} class="text-center">
               {Timex.lformat!(membership.created_at, "{relative}", "es", :relative)}
             </:col>
 
@@ -149,7 +168,7 @@ defmodule AuroraGovWeb.Live.Panel.Members do
           </.table>
         <% end %>
       </div>
-    </section>
+    </div>
     """
   end
 

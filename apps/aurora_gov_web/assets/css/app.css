@@ -68,8 +68,8 @@
   }
   
   /* body { */
-    /* background-image: url("https://images.unsplash.com/photo-1637952112301-6090dca83ccb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"); */
-    /* background-size: cover; */
+  /* background-image: url("https://images.unsplash.com/photo-1637952112301-6090dca83ccb?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"); */
+  /* background-size: cover; */
   /* } */
   
   .app-container {
@@ -85,13 +85,21 @@
   }
   
   .card {
-    @apply py-7 px-10 border-2 rounded-xl border-gray-200;
+    @apply border-2 rounded-xl border-gray-200;
   }
   
   button.primary {
-    @apply hover:bg-aurora_orange hover:text-white flex flex-row gap-3 px-5 py-2 rounded-lg border-aurora_orange border;
+    @apply inline-flex justify-center items-center gap-3 rounded-lg ;
   }
   
+  button.outlined {
+    @apply hover:bg-aurora_orange hover:text-white px-5 py-2 border-aurora_orange border;
+  }
+  
+  button.primary.filled {
+    @apply px-5 py-2 border-aurora_orange border hover:opacity-90 transition bg-aurora_orange text-white;
+  }
+
   /* PANEL MENU */
   
   #panel-menu a.iconbutton {
@@ -102,7 +110,7 @@
     @apply text-2xl;
   }
   
- 
+  
   /* MODULE MENU */
   
   div#module-menu ul > li > a {
@@ -124,8 +132,8 @@
   div#module-menu ul {
     @apply grow my-5 overflow-y-auto px-2.5 gap-y-2 flex flex-col text-lg;
   }
-
-    /* ul.tabs > li {
+  
+  /* ul.tabs > li {
     @apply hover:bg-aurora_orange/75 border-aurora_orange/75 px-10 py-2 rounded-lg cursor-pointer;
   } */
   

@@ -15,10 +15,7 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
 
   @impl true
   def update(assigns, socket) do
-    IO.inspect(assigns, label: "QQ")
     proposal_id = assigns[:proposal_id]
-
-    IO.inspect(proposal_id)
 
     socket =
       socket
@@ -32,8 +29,6 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
 
   @impl true
   def handle_async(:load_proposal, {:ok, {proposal, voting_status}}, socket) do
-    IO.inspect("Loading.. ")
-
     {:noreply,
      socket
      |> assign(:proposal, proposal)
@@ -74,7 +69,7 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
       <% else %>
         <%= if @proposal do %>
           <!-- Header con título y badges -->
-          <div class="border-b border-gray-200 pb-4 mb-4">
+          <div class="mb-2">
             <div class="flex flex-wrap gap-2 mb-3">
               <%= if @proposal.proposal_ou_start_id != @proposal.proposal_ou_end_id do %>
                 <.ou_id_badge
@@ -103,9 +98,6 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
             <h2 class="text-xl font-bold text-gray-900 mb-2">
               {@proposal.proposal_title}
             </h2>
-
-    <!-- Estado de votación simple -->
-            <.voting_progress_simple voting_map={@voting_status} class="w-full" />
           </div>
 
     <!-- Tabs -->
@@ -137,7 +129,7 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                 )
               ]}
             >
-              <i class="fa-solid fa-vote-yea mr-1"></i> Votos
+              <i class="fa-solid fa-vote-yea mr-1"></i> Estado
             </button>
 
             <button
@@ -170,27 +162,27 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                   <div>
                     <h3 class="font-semibold text-gray-900 mb-2">Detalles</h3>
 
-                    <dl class="space-y-2">
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                       <div>
-                        <dt class="text-sm font-medium text-gray-500">Propietario</dt>
+                        <dt class="text-sm font-semibold text-gray-700">Propietario</dt>
 
                         <dd class="text-sm text-gray-900">{@proposal.proposal_owner.person_name}</dd>
                       </div>
 
                       <div>
-                        <dt class="text-sm font-medium text-gray-500">Poder</dt>
+                        <dt class="text-sm font-semibold text-gray-700">Poder</dt>
 
                         <dd class="text-sm text-gray-900">{@proposal.proposal_power_id}</dd>
                       </div>
 
                       <div>
-                        <dt class="text-sm font-medium text-gray-500">Estado</dt>
+                        <dt class="text-sm font-semibold text-gray-700">Estado</dt>
 
                         <dd class="text-sm text-gray-900 capitalize">{@proposal.proposal_status}</dd>
                       </div>
 
                       <div>
-                        <dt class="text-sm font-medium text-gray-500">Creada</dt>
+                        <dt class="text-sm font-semibold text-gray-700">Creada</dt>
 
                         <dd class="text-sm text-gray-900">
                           {Timex.lformat!(@proposal.created_at, "{0D}/{0M}/{YYYY} {h24}:{m}", "es")}
@@ -210,85 +202,77 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                 </div>
               <% "votes" -> %>
                 <div class="space-y-4">
-                  <div>
-                    <h3 class="font-semibold text-gray-900 mb-3">Estado de Votación por OU</h3>
-                     <.voting_progress_full voting_map={@voting_status} class="w-full mb-4" />
-                  </div>
-
-                  <div>
-                    <h3 class="font-semibold text-gray-900 mb-3">
-                      Detalles por Unidad Organizacional
-                    </h3>
-
-                    <div class="space-y-3">
-                      <%= for {ou_id, status} <- @voting_status do %>
-                        <div class="bg-gray-50 p-3 rounded-lg">
-                          <div class="flex items-center justify-between mb-2">
-                            <.ou_id_badge ou_id={ou_id} size="sm" />
-                            <span class="text-sm text-gray-600">
-                              {status[:current_score]} / {status[:required_score]} votos
-                            </span>
-                          </div>
-
-                          <div class="text-xs text-gray-500">
-                            {status[:total_voters]} votantes elegibles
-                          </div>
+                  <div class="space-y-3">
+                    <%= for {ou_id, status} <- @voting_status do %>
+                      <div class="bg-gray-50 p-3 rounded-lg border">
+                        <div class="flex items-center justify-between mb-2">
+                          <.ou_id_badge ou_id={ou_id} size="sm" />
+                          <span class="text-sm text-gray-600">
+                            {status[:current_voters]} / {status[:total_voters]} votos
+                          </span>
                         </div>
-                      <% end %>
-                    </div>
-                  </div>
 
-                  <%= if @proposal.proposal_votes && length(@proposal.proposal_votes) > 0 do %>
-                    <div>
-                      <h3 class="font-semibold text-gray-900 mb-3">Votos Individuales</h3>
-
-                      <div class="space-y-2">
-                        <%= for vote <- @proposal.proposal_votes do %>
-                          <div class="bg-gray-50 p-2 rounded text-sm">
-                            <div class="flex justify-between items-center">
-                              <span class="font-medium">{vote.person_id}</span>
-                              <span class={[
-                                "px-2 py-1 rounded text-xs font-medium",
-                                case vote.vote_value do
-                                  1 -> "bg-green-100 text-green-800"
-                                  0 -> "bg-gray-100 text-gray-800"
-                                  -1 -> "bg-red-100 text-red-800"
-                                  nil -> "bg-yellow-100 text-yellow-800"
-                                end
-                              ]}>
-                                <%= case vote.vote_value do %>
-                                  <% 1 -> %>
-                                    ✓ A favor
-                                  <% 0 -> %>
-                                    ≈ Neutro
-                                  <% -1 -> %>
-                                    ✗ En contra
-                                  <% nil -> %>
-                                    ⏳ Pendiente
-                                <% end %>
-                              </span>
-                            </div>
-
-                            <%= if vote.ou_id && length(vote.ou_id) > 0 do %>
-                              <div class="text-xs text-gray-500 mt-1">
-                                OUs: {Enum.join(vote.ou_id, ", ")}
-                              </div>
-                            <% end %>
-                          </div>
-                        <% end %>
+                        <.progress size="medium">
+                          <.progress_section class="bg-green-600" color="#000000" value={100}>
+                            <:label class="font-bold">
+                              {status[:current_score]} / {status[:required_score]}
+                            </:label>
+                          </.progress_section>
+                        </.progress>
                       </div>
-                    </div>
-                  <% end %>
+                    <% end %>
+                  </div>
                 </div>
               <% "discussion" -> %>
                 <div class="space-y-4">
-                  <div class="text-center py-8">
-                    <i class="fa-solid fa-comments text-4xl text-gray-300 mb-4"></i>
-                    <h3 class="text-lg font-medium text-gray-900 mb-2">Discusión</h3>
-
-                    <p class="text-gray-500">
-                      La funcionalidad de discusión estará disponible próximamente.
-                    </p>
+                  <div class="text-center">
+                    <%= if @proposal.proposal_votes && length(@proposal.proposal_votes) > 0 do %>
+                      <div>
+                        <div class="space-y-2">
+                          <%= for vote <- @proposal.proposal_votes do %>
+                            <div class="bg-gray-50 p-2 rounded text-sm">
+                              <div class="flex justify-between items-center">
+                                <span class="font-medium">{vote.person_id}</span>
+                                <span class={[
+                                  "px-2 py-1 rounded text-xs font-medium",
+                                  case vote.vote_value do
+                                    1 -> "bg-green-100 text-green-800"
+                                    0 -> "bg-gray-100 text-gray-800"
+                                    -1 -> "bg-red-100 text-red-800"
+                                    nil -> "bg-yellow-100 text-yellow-800"
+                                  end
+                                ]}>
+                                  <%= case vote.vote_value do %>
+                                    <% 1 -> %>
+                                      <i class="fa-solid fa-check text-green-600 mr-1"></i> A favor
+                                    <% 0 -> %>
+                                      <i class="fa-solid fa-equals text-gray-600 mr-1"></i> Neutro
+                                    <% -1 -> %>
+                                      <i class="fa-solid fa-times text-red-600 mr-1"></i> En contra
+                                    <% nil -> %>
+                                      <i class="fa-solid fa-hourglass-half text-yellow-600 mr-1"></i>
+                                      Pendiente
+                                  <% end %>
+                                </span>
+                              </div>
+                            </div>
+                          <% end %>
+                        </div>
+                         <hr class="my-5" />
+                        <%= if @proposal.proposal_status == :active do %>
+                          <div class="mb-4 text-center">
+                            <button
+                              phx-click="vote"
+                              phx-value-proposal-id={@proposal.proposal_id}
+                              phx-target={@myself}
+                              class="primary filled w-full"
+                            >
+                              <i class="fa-solid fa-vote-yea"></i> Votar
+                            </button>
+                          </div>
+                        <% end %>
+                      </div>
+                    <% end %>
                   </div>
                 </div>
             <% end %>

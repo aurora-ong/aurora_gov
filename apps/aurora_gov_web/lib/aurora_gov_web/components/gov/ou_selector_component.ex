@@ -1,5 +1,6 @@
 defmodule AuroraGovWeb.OUSelectorComponent do
   use AuroraGovWeb, :live_component
+  use Phoenix.Component
 
   @impl true
   def update(assigns, socket) do
@@ -19,20 +20,21 @@ defmodule AuroraGovWeb.OUSelectorComponent do
           end)
         end
       end)
-      # |> assign(:errors, Enum.map(assigns.field.errors, &translate_error(&1)))
+      |> assign(:errors, Enum.map(assigns.field.errors, &translate_error(&1)))
 
     {:ok, socket}
   end
 
+  attr :description, :string, required: false, default: nil
+  attr :label, :string, required: false, default: nil
   @impl true
   def render(assigns) do
     ~H"""
     <div id={@id} class="relative">
-      <%!-- <label for={@id} class="block text-sm font-medium text-gray-700 mb-1">
+      <label for={@id} class="block text-sm text-gray-700 mb-1 font-semibold">
         {@label || "Organización"}
-      </label> --%>
+      </label>
       <%!-- <.label for={@id}>{@label}</.label> --%>
-
       <%= if @selected_ou do %>
         <div class="flex flex-row border py-2 px-4 rounded-lg items-center bg-gray-100 shadow-md">
           <div class="flex flex-col flex-grow">

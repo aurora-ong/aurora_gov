@@ -71,7 +71,6 @@ defmodule AuroraGovWeb.Components.Badge do
 
   attr :rounded, :string, default: "small", doc: "Determines the border radius"
 
-  attr :color, :string, default: "natural", doc: "Determines color theme"
   attr :border, :string, default: "extra_small", doc: "Determines border style"
 
   attr :font_weight, :string,
@@ -118,7 +117,6 @@ defmodule AuroraGovWeb.Components.Badge do
         default_classes(@rest[:pinging]) ++
           size_class(@size, @rest[:circle]) ++
           [
-            color_variant(@variant, @color),
             border_size(@border, @variant),
             rounded_size(@rounded),
             badge_position(@badge_position),

@@ -215,51 +215,61 @@
     </section>
   </div>
    <.live_component module={AuroraGovWeb.Live.Panel.Header} id="header" context={@context} />
-  <div class="flex flex-row gap-2 overflow-hidden h-full flex-1">
-    <%= case @module do %>
-      <% "home" -> %>
-        <.live_component module={AuroraGovWeb.Live.Panel.Home} id="panel-home" context={@context} />
-      <% "members" -> %>
-        <.live_component
-          module={AuroraGovWeb.Live.Panel.Members}
-          id="panel-members"
-          context={@context}
-        />
-      <% "power" -> %>
-        <.live_component
-          module={AuroraGovWeb.Live.Panel.Power}
-          id="panel-power"
-          context={@context}
-        />
-      <% "proposals" -> %>
-        <.live_component
-          module={AuroraGovWeb.Live.Panel.Proposals}
-          id="panel-proposal"
-          context={@context}
-        />
-      <% _ -> %>
-        <div class="card w-4/6 flex flex-col h-fit justify-center items-center">
-          <h1>En construcción</h1>
-        </div>
-    <% end %>
-    
-    <%= if @side_panel_open do %>
-      <section class="w-4/12 flex flex-col items-center card flex-1 overflow-y-auto">
-        <div class="flex flex-row justify-between content-between items-center w-full">
-          <button phx-click="close_side_panel" class="ml-auto">
-            <i class="fa-solid fa-xmark h-5 w-5"></i>
-          </button>
-        </div>
-         <hr class="my-5" />
-        <%= if @side_panel_component do %>
+  <div class="flex flex-row gap-2 overflow-hidden h-full w-full">
+    <section class={"card flex flex-col items-center bg-white shadow-lg rounded-lg overflow-y-auto " <> if @side_panel_open, do: "w-8/12", else: "flex-1"}>
+      <%= case @module do %>
+        <% "home" -> %>
           <.live_component
-            module={@side_panel_component}
-            id="side-panel-content"
-            {@side_panel_assigns}
+            module={AuroraGovWeb.Live.Panel.Home}
+            id="panel-home"
+            context={@context}
           />
-        <% end %>
-      </section>
-    <% end %>
+        <% "members" -> %>
+          <.live_component
+            module={AuroraGovWeb.Live.Panel.Members}
+            id="panel-members"
+            context={@context}
+          />
+        <% "power" -> %>
+          <.live_component
+            module={AuroraGovWeb.Live.Panel.Power}
+            id="panel-power"
+            context={@context}
+          />
+        <% "proposals" -> %>
+          <.live_component
+            module={AuroraGovWeb.Live.Panel.Proposals}
+            id="panel-proposal"
+            context={@context}
+          />
+        <% _ -> %>
+          <div class="w-full h-full flex flex-col justify-center items-center">
+            <i class="fa-solid fa-person-digging text-6xl text-gray-300 mb-4"></i>
+            <h1 class="font-medium text-3xl text-gray-500 mb-2">En construcción</h1>
+          </div>
+      <% end %>
+    </section>
+    
+    <section
+      :if={@side_panel_open}
+      class="w-4/12 flex flex-col border-2 rounded-xl border-gray-200 flex-1 overflow-y-auto relative"
+    >
+      <button
+        phx-click="close_side_panel"
+        class="absolute top-5 right-5 z-10 rounded-full p-2 hover:bg-gray-100 transition"
+      >
+        <i class="fa-solid fa-xmark h-5 w-5"></i>
+      </button>
+      
+      <div class="flex flex-col flex-1 w-full overflow-y-auto min-h-0 mb-5 py-10 px-10">
+        <.live_component
+          :if={@side_panel_component}
+          module={@side_panel_component}
+          id="side-panel-content"
+          {@side_panel_assigns}
+        />
+      </div>
+    </section>
   </div>
 </div>
 
@@ -285,12 +295,15 @@
   :if={@gov_modal}
   id="gov-modal"
   show
-  max_width="max-w-6xl"
+  size="quadruple_large"
+  rounded="large"
+  content_class="p-6"
+  title="Gobernar"
   on_cancel={JS.patch(~p"/app/#{@module}?context=#{@context}")}
 >
   <.live_component
     module={AuroraGovWeb.Live.Panel.ProposalCreate}
-    id="proposal-create-modal"
+    id="gov-modal-component"
     context={@context}
     app_module={@module}
     current_person={@current_person}

@@ -207,7 +207,7 @@ proposal_params = %{
   proposal_description: "Se solicita actualizar cierto poder..",
   proposal_ou_origin: "barrio_vivo",
   proposal_person_id: "000@test.com",
-  proposal_ou_end: "barrio_vivo",
+  proposal_ou_end: "barrio_vivo.cultura_participacion",
   proposal_power_id: "org.create",
   proposal_power_data: %{
     ou_id: "nuevo"

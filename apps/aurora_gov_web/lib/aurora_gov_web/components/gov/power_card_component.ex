@@ -21,7 +21,7 @@ defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
             phx-click="update_power"
             phx-value-power_id={@power_id}
             phx-target={@parent_target}
-            class="justify-center items-center text-lg primary !px-3"
+            class="justify-center items-center text-lg primary outlined !px-3"
           >
             <i class="fa-solid fa-hand-point-up text-sm"></i>
           </button>

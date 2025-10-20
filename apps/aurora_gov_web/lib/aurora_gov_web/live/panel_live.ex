@@ -62,6 +62,7 @@ defmodule AuroraGovWeb.Live.Panel do
       socket
       |> assign(:gov_modal, true)
       |> assign(:initial_proposal_values, params)
+      # socket = push_event(socket, "show_modal", %{id: "gov-modal"})
 
     {:noreply, socket}
   end

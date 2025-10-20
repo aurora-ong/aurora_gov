@@ -145,7 +145,7 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
   @impl true
   def render(assigns) do
     ~H"""
-    <section class="card w-full max-w-5xl flex flex-col justify-center items-center bg-white shadow-lg rounded-lg p-6 overflow-y-auto">
+    <div class="w-full h-full p-6">
       <div class="flex flex-col md:flex-row w-full justify-between items-center mb-4 gap-2">
         <div class="flex gap-2">
           <.filter_button_group
@@ -165,7 +165,7 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
         </form>
       </div>
 
-      <div class="relative overflow-x-auto w-full rounded-lg border border-gray-200 bg-gray-50 min-h-[200px]">
+      <div class="relative overflow-x-auto w-full rounded-lg border border-gray-200 bg-gray-50 min-h-[220px]">
         <%= if @loading do %>
           <.loading_spinner size="double_large" />
         <% else %>
@@ -185,65 +185,66 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
           >
             <:col :let={{_id, proposal}} label="Título" class="w-10">
               <div class="flex-col flex">
-                <div class="flex-row flex">
-                  <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
-                    <.ou_id_badge
-                      ou_id={proposal.proposal_ou_start_id}
-                      ou_name={proposal.proposal_ou_start.ou_name}
-                    />
-                    <span class="mx-2 text-gray-400 flex items-center">
-                      <i class="fa fa-arrow-right"></i>
-                    </span>
-
-                    <.ou_id_badge
-                      ou_id={proposal.proposal_ou_end_id}
-                      ou_name={proposal.proposal_ou_end.ou_name}
-                    />
-                  <% else %>
-                    <.ou_id_badge
-                      ou_id={proposal.proposal_ou_end_id}
-                      ou_name={proposal.proposal_ou_end.ou_name}
-                    />
+                <div class="flex flex-row items-center">
+                  <%= case proposal.proposal_status do %>
+                    <% :completed -> %>
+                      <div class="mr-5 flex items-center" title="Completada">
+                        <i class="fa fa-check-circle text-green-600 text-3xl"></i>
+                      </div>
+                    <% :active -> %>
+                      <div class="mr-5 flex items-center" title="Activa">
+                        <i class="fa fa-play-circle text-aurora_orange text-3xl"></i>
+                      </div>
+                    <% _ -> %>
                   <% end %>
+
+                  <div class="flex flex-col">
+                    <div class="flex-row flex">
+                      <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
+                        <.ou_id_badge
+                          ou_id={proposal.proposal_ou_start_id}
+                          ou_name={proposal.proposal_ou_start.ou_name}
+                        />
+                        <span class="mx-2 text-gray-400 flex items-center">
+                          <i class="fa fa-arrow-right"></i>
+                        </span>
+
+                        <.ou_id_badge
+                          ou_id={proposal.proposal_ou_end_id}
+                          ou_name={proposal.proposal_ou_end.ou_name}
+                        />
+                      <% else %>
+                        <.ou_id_badge
+                          ou_id={proposal.proposal_ou_end_id}
+                          ou_name={proposal.proposal_ou_end.ou_name}
+                        />
+                      <% end %>
+                    </div>
+
+                    <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
+
+                    <p class="text-md text-gray-600 font-normal">
+                      Hace X días ({Timex.lformat!(
+                        proposal.created_at,
+                        "{0D}/{0M}/{YYYY} {h24}:{m}",
+                        "es"
+                      )})
+                    </p>
+                  </div>
                 </div>
-
-                <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
-
-                <p class="text-md text-gray-600 font-normal">{proposal.proposal_description}</p>
               </div>
             </:col>
 
             <:col :let={{_id, proposal}} label="Estado">
-              {inspect(AuroraGov.Context.ProposalContext.calculate_voting_status(proposal))}
-              <.voting_progress_simple voting_map={
-                AuroraGov.Context.ProposalContext.calculate_voting_status(proposal)
-              } />
-              <%!-- <.voting_progress_full voting_map={
-                AuroraGov.Context.ProposalContext.calculate_voting_status(proposal)
-              } /> --%>
-              <%!-- <.progress class="w-96 h-50">
-                <.progress_section class="bg-orange-600 text-white" value={60}>
-                  <:tooltip label="Images" position="top" class="font-bold">
-                    Tooltip content for Images
-                  </:tooltip>
-                </.progress_section>
+              <div class="flex flex-col gap-2">
+                <.badge icon="fa-user fa-solid" size="small" class="font-semibold" rounded="full">
+                  {proposal.proposal_owner.person_name}
+                </.badge>
 
-                <.progress_section class="bg-red-600" value={10}>
-                  <:tooltip label="15%" position="bottom" class="text-white text-sm bg-black">
-                    Only 5% left
-                  </:tooltip>
-                </.progress_section>
-
-                <.progress_section color="misc" class="bg-blue-600 text-white" value={30}>
-                  <:tooltip label="Other" position="top" clickable={true} class="font-bold">
-                    This section represents other files
-                  </:tooltip>
-                </.progress_section>
-              </.progress> --%> {Timex.lformat!(
-                proposal.created_at,
-                "{0D}/{0M}/{YYYY} {h24}:{m}",
-                "es"
-              )} {proposal.proposal_owner.person_name} {proposal.proposal_power_id} {proposal.proposal_status}
+                <.badge icon="fa-bolt fa-solid" size="small" class="font-semibold" rounded="full">
+                  {proposal.proposal_power_id}
+                </.badge>
+              </div>
             </:col>
           </.table>
 
@@ -252,7 +253,7 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
           <% end %>
         <% end %>
       </div>
-    </section>
+    </div>
     """
   end
 end

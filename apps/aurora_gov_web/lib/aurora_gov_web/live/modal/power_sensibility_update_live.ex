@@ -235,7 +235,7 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
 
     <!-- Última actualización -->
 
-          <.button phx-disable-with="..." class="w-full">
+          <.button phx-disable-with="..." class="w-full primary filled">
             Actualizar
           </.button>
 

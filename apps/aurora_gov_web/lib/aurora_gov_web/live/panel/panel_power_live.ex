@@ -69,7 +69,7 @@ defmodule AuroraGovWeb.Live.Panel.Power do
   @impl true
   def render(assigns) do
     ~H"""
-    <section class="card w-4/6 flex flex-col h-fit">
+    <div class="h-full w-full p-6">
       <.async_result :let={ou_power_list} assign={@ou_power_list}>
         <:loading>
           <.loading_spinner size="double_large"></.loading_spinner>
@@ -96,7 +96,9 @@ defmodule AuroraGovWeb.Live.Panel.Power do
         :if={@power_modal}
         id="power-modal"
         show
-        max_width="max-w-3xl"
+        size="double_large"
+        rounded="large"
+        content_class="p-3"
         on_cancel={JS.push("modal_closed", target: @myself, value: %{modal: "power_update_modal"})}
       >
         <.live_component
@@ -106,7 +108,7 @@ defmodule AuroraGovWeb.Live.Panel.Power do
           power_id={@power_modal_power_id}
         />
       </.modal>
-    </section>
+    </div>
     """
   end
 
