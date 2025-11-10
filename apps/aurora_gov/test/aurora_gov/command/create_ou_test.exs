@@ -1,123 +1,124 @@
 defmodule AuroraGov.Command.CreateOUTest do
-  use ExUnit.Case, async: true
-  use Commanded.Aggregates.TestCase,
-    application: AuroraGov.Application,
-    aggregate: AuroraGov.Aggregate.OU,
-    router: AuroraGov.Router
+  use AuroraGov.DataCase
 
   alias AuroraGov.Command.CreateOU
   alias AuroraGov.Event.OUCreated
 
-  setup do
+  test "should create an ou when data is valid" do
     ou_id = "test_ou"
     ou_name = Faker.StarWars.character()
-    ou_description = Faker.StarWars.quote()
     ou_goal = Faker.StarWars.specie()
+    ou_description = Faker.StarWars.quote()
 
-    %{
-      ou_id: ou_id,
-      ou_name: ou_name,
-      ou_goal: ou_goal,
-      ou_description: ou_description
-    }
-  end
-
-  test "should create an ou when data is valid", %{
-    ou_id: ou_id,
-    ou_name: ou_name,
-    ou_goal: ou_goal,
-    ou_description: ou_description
-  } do
-    assert_dispatch(
-      %CreateOU{
+    :ok =
+      AuroraGov.dispatch(%CreateOU{
         ou_id: ou_id,
         ou_name: ou_name,
         ou_goal: ou_goal,
         ou_description: ou_description
-      },
-      {:ok,
-       %OUCreated{
-         ou_id: ou_id
-       }}
-    )
+      })
+
+    assert_receive_event(AuroraGov, OUCreated, fn event ->
+      assert event.ou_id == ou_id
+    end)
   end
 
-  test "should create a child ou when parent exists", %{
-    ou_name: ou_name,
-    ou_goal: ou_goal,
-    ou_description: ou_description
-  } do
+  test "should create a child ou when parent exists" do
     parent_ou_id = "parent_ou"
+    parent_ou_name = Faker.StarWars.character()
+    parent_ou_goal = Faker.StarWars.specie()
+    parent_ou_description = Faker.StarWars.quote()
 
-    dispatch(%CreateOU{
-      ou_id: parent_ou_id,
-      ou_name: ou_name,
-      ou_goal: ou_goal,
-      ou_description: ou_description
-    })
+    :ok =
+      AuroraGov.dispatch(%CreateOU{
+        ou_id: parent_ou_id,
+        ou_name: parent_ou_name,
+        ou_goal: parent_ou_goal,
+        ou_description: parent_ou_description
+      })
+
+    assert_receive_event(AuroraGov, OUCreated, fn event -> event.ou_id == parent_ou_id end)
 
     child_ou_id = parent_ou_id <> ".child_ou"
+    child_ou_name = Faker.StarWars.character()
+    child_ou_goal = Faker.StarWars.specie()
+    child_ou_description = Faker.StarWars.quote()
 
-    assert_dispatch(
-      %CreateOU{
+    :ok =
+      AuroraGov.dispatch(%CreateOU{
         ou_id: child_ou_id,
-        ou_name: "Child OU",
-        ou_goal: "Child Goal",
-        ou_description: "Child Description"
-      },
-      {:ok, %OUCreated{ou_id: child_ou_id}}
-    )
+        ou_name: child_ou_name,
+        ou_goal: child_ou_goal,
+        ou_description: child_ou_description
+      })
+
+    assert_receive_event(AuroraGov, OUCreated, fn event ->
+      assert event.ou_id == child_ou_id
+    end)
   end
 
-  test "should create a grandchild ou when parent and grandparent exists", %{
-    ou_name: ou_name,
-    ou_goal: ou_goal,
-    ou_description: ou_description
-  } do
+  test "should create a grandchild ou when parent and grandparent exists" do
     parent_ou_id = "parent_ou"
+    parent_ou_name = Faker.StarWars.character()
+    parent_ou_goal = Faker.StarWars.specie()
+    parent_ou_description = Faker.StarWars.quote()
 
-    dispatch(%CreateOU{
-      ou_id: parent_ou_id,
-      ou_name: ou_name,
-      ou_goal: ou_goal,
-      ou_description: ou_description
-    })
+    :ok =
+      AuroraGov.dispatch(%CreateOU{
+        ou_id: parent_ou_id,
+        ou_name: parent_ou_name,
+        ou_goal: parent_ou_goal,
+        ou_description: parent_ou_description
+      })
+
+    assert_receive_event(AuroraGov, OUCreated, fn event -> event.ou_id == parent_ou_id end)
 
     child_ou_id = parent_ou_id <> ".child_ou"
+    child_ou_name = Faker.StarWars.character()
+    child_ou_goal = Faker.StarWars.specie()
+    child_ou_description = Faker.StarWars.quote()
 
-    dispatch(%CreateOU{
-      ou_id: child_ou_id,
-      ou_name: "Child OU",
-      ou_goal: "Child Goal",
-      ou_description: "Child Description"
-    })
+    :ok =
+      AuroraGov.dispatch(%CreateOU{
+        ou_id: child_ou_id,
+        ou_name: child_ou_name,
+        ou_goal: child_ou_goal,
+        ou_description: child_ou_description
+      })
+
+    assert_receive_event(AuroraGov, OUCreated, fn event -> event.ou_id == child_ou_id end)
 
     grandchild_ou_id = child_ou_id <> ".grandchild_ou"
+    grandchild_ou_name = Faker.StarWars.character()
+    grandchild_ou_goal = Faker.StarWars.specie()
+    grandchild_ou_description = Faker.StarWars.quote()
 
-    assert_dispatch(
-      %CreateOU{
+    :ok =
+      AuroraGov.dispatch(%CreateOU{
         ou_id: grandchild_ou_id,
-        ou_name: "Grandchild OU",
-        ou_goal: "Grandchild Goal",
-        ou_description: "Grandchild Description"
-      },
-      {:ok, %OUCreated{ou_id: grandchild_ou_id}}
-    )
+        ou_name: grandchild_ou_name,
+        ou_goal: grandchild_ou_goal,
+        ou_description: grandchild_ou_description
+      })
+
+    assert_receive_event(AuroraGov, OUCreated, fn event ->
+      assert event.ou_id == grandchild_ou_id
+    end)
   end
 
   test "should return error when parent does not exist" do
     parent_ou_id = "non_existent_parent"
     child_ou_id = parent_ou_id <> ".child_ou"
+    child_ou_name = Faker.StarWars.character()
+    child_ou_goal = Faker.StarWars.specie()
+    child_ou_description = Faker.StarWars.quote()
 
-    assert_dispatch(
-      %CreateOU{
-        ou_id: child_ou_id,
-        ou_name: "Child OU",
-        ou_goal: "Child Goal",
-        ou_description: "Child Description"
-      },
-      {:error, :uo_parent_not_exists}
-    )
+    assert {:error, :uo_parent_not_exists} ==
+             AuroraGov.dispatch(%CreateOU{
+               ou_id: child_ou_id,
+               ou_name: child_ou_name,
+               ou_goal: child_ou_goal,
+               ou_description: child_ou_description
+             })
   end
-
 end
