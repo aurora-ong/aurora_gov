@@ -15,7 +15,25 @@ defmodule AuroraGov.Context.ProposalContext do
             {:ok, result}
 
           {:error, reason} ->
-            Logger.info(reason, name: "#{__MODULE__} create_proposal error")
+            Logger.info("#{__MODULE__} create_proposal error #{inspect(reason)}")
+        end
+
+      {:error, invalid_changeset} ->
+        {:error, invalid_changeset}
+    end
+  end
+
+  def consume_proposal(proposal_id) do
+    changeset = AuroraGov.Command.ExecuteProposal.new(%{proposal_id: proposal_id})
+
+    case Ecto.Changeset.apply_action(changeset, :create) do
+      {:ok, command} ->
+        case AuroraGov.dispatch(command, consistency: :strong, returning: :execution_result) do
+          {:ok, result} ->
+            {:ok, result}
+
+          {:error, reason} ->
+            Logger.info("#{__MODULE__} consume_proposal error #{inspect(reason)}")
         end
 
       {:error, invalid_changeset} ->
@@ -64,7 +82,7 @@ defmodule AuroraGov.Context.ProposalContext do
         Enum.filter(votes, fn %Proposal.Vote{vote_ou: ou_ids} -> ou_id in ou_ids end)
 
       total_voters = length(relevant_votes)
-      required_score = sens_value * total_voters
+      required_score = round(sens_value / 100 * total_voters)
 
       # Suma de votos emitidos (solo los que tienen valor distinto de nil)
       current_score =

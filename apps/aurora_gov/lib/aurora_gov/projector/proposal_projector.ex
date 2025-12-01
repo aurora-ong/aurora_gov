@@ -1,7 +1,8 @@
 defmodule AuroraGov.Projector.ProposalProjector do
-  alias AuroraGov.Event.VoteEmited
   alias AuroraGov.Projector.Model.Proposal
-  alias AuroraGov.Event.ProposalCreated
+
+  alias AuroraGov.Event.{ProposalCreated, VoteEmited, ProposalExecuted, ProposalConsumed}
+  import Ecto.Query
 
   def project(
         %ProposalCreated{} = event,
@@ -86,6 +87,57 @@ defmodule AuroraGov.Projector.ProposalProjector do
     |> Ecto.Multi.update_all(:vote_update, query, [])
     |> Ecto.Multi.run(:projector_update, fn _repo, %{vote_update: {1, _}} ->
       {:ok, {:vote_emited, event}}
+    end)
+  end
+
+  def project(
+        %ProposalExecuted{} = event,
+        _metadata,
+        multi
+      ) do
+    import Ecto.Query
+
+    query =
+      from(p in Proposal,
+        where: p.proposal_id == ^event.proposal_id,
+        update: [
+          set: [
+            proposal_status: :executing
+          ]
+        ],
+        select: p
+      )
+
+    multi
+    |> Ecto.Multi.update_all(:proposal_update, query, [])
+    |> Ecto.Multi.run(:projector_update, fn _repo, %{proposal_update: {1, [updated_proposal]}} ->
+      {:ok, {:proposal_updated, updated_proposal}}
+    end)
+  end
+
+  def project(
+        %ProposalConsumed{} = event,
+        metadata,
+        multi
+      ) do
+    query =
+      from(p in Proposal,
+        where: p.proposal_id == ^event.proposal_id,
+        update: [
+          set: [
+            proposal_status: :consumed,
+            proposal_execution_result: ^event.proposal_execution_result,
+            proposal_execution_error: ^event.proposal_execution_error,
+            consumed_at: ^metadata.created_at
+          ]
+        ],
+        select: p
+      )
+
+    multi
+    |> Ecto.Multi.update_all(:proposal_update, query, [])
+    |> Ecto.Multi.run(:projector_update, fn _repo, %{proposal_update: {1, [updated_proposal]}} ->
+      {:ok, {:proposal_updated, updated_proposal}}
     end)
   end
 end

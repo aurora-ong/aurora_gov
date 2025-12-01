@@ -8,7 +8,9 @@ defmodule AuroraGov.Router do
     UpdatePower,
     PromoteMembership,
     CreateProposal,
-    ApplyProposalVote
+    ApplyProposalVote,
+    ConsumeProposal,
+    ExecuteProposal
   }
 
   alias AuroraGov.CommandHandler.{
@@ -18,7 +20,8 @@ defmodule AuroraGov.Router do
     UpdatePowerHandler,
     PromoteMembershipHandler,
     CreateProposalHandler,
-    ApplyProposalVoteHandler
+    ApplyProposalVoteHandler,
+    ConsumeProposalHandler
   }
 
   alias AuroraGov.Aggregate.{Person, OU, Proposal}
@@ -31,5 +34,12 @@ defmodule AuroraGov.Router do
   dispatch(PromoteMembership, to: PromoteMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(UpdatePower, to: UpdatePowerHandler, aggregate: OU, identity: :ou_id)
   dispatch(CreateProposal, to: CreateProposalHandler, aggregate: Proposal, identity: :proposal_id)
-  dispatch(ApplyProposalVote, to: ApplyProposalVoteHandler, aggregate: Proposal, identity: :proposal_id)
+
+  dispatch(ApplyProposalVote,
+    to: ApplyProposalVoteHandler,
+    aggregate: Proposal,
+    identity: :proposal_id
+  )
+
+  dispatch([ExecuteProposal, ConsumeProposal], to: AuroraGov.Aggregate.Proposal, identity: :proposal_id, lifespan: AuroraGov.Aggregate.Proposal.Lifespan)
 end

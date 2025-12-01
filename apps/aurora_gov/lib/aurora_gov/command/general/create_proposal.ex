@@ -36,6 +36,7 @@ defmodule AuroraGov.Command.CreateProposal do
   def handle_validate_create(params) do
     AuroraGov.Command.CreateProposal.new(params)
     |> validate_required([
+      :proposal_person_id,
       :proposal_title,
       :proposal_description,
       :proposal_ou_origin,

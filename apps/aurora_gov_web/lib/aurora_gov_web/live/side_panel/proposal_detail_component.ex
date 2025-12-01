@@ -51,7 +51,8 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
   defp load_context(proposal_id, person_id) do
     :timer.sleep(250)
 
-    with %AuroraGov.Projector.Model.Proposal{} = proposal <- AuroraGov.Context.ProposalContext.get_proposal_by_id(proposal_id),
+    with %AuroraGov.Projector.Model.Proposal{} = proposal <-
+           AuroraGov.Context.ProposalContext.get_proposal_by_id(proposal_id),
          voting_status <- AuroraGov.Context.ProposalContext.calculate_voting_status(proposal),
          current_vote <-
            person_id &&
@@ -262,14 +263,10 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                           {status[:current_voters]} / {status[:total_voters]} votos
                         </span>
                       </div>
-
-                      <.progress size="medium">
-                        <.progress_section class="bg-green-600" color="#000000" value={100}>
-                          <:label class="font-bold">
-                            {status[:current_score]} / {status[:required_score]}
-                          </:label>
-                        </.progress_section>
-                      </.progress>
+                      <.proposal_vote_progress
+                        current_score={status[:current_score]}
+                        required_score={status[:required_score]}
+                      />
                     </div>
                   <% end %>
                 </div>
@@ -325,15 +322,14 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                 </div>
 
                 <%= if context.proposal.proposal_status == :active do %>
-                  <hr class="border-gray-100 border my-2" /> {inspect(context.current_vote)}
+                  <hr class="border-gray-100 border my-2" />
                   <.button
                     disabled={context.current_vote == nil}
-                    icon="fa-vote-yea"
                     display="flex"
                     rounded="extra_large"
-                     phx-click="update_vote"
-                      phx-value-proposal-id={context.proposal.proposal_id}
-                      phx-target={@myself}
+                    phx-click="update_vote"
+                    phx-value-proposal-id={context.proposal.proposal_id}
+                    phx-target={@myself}
                   >
                     <i class="fa-solid fa-vote-yea"></i> {if context.current_vote &&
                                                                context.current_vote.updated_at !=
@@ -342,18 +338,15 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                                                              else: "Votar"}
                   </.button>
 
-                  <div class="text-center">
-                    <button
-
-                      class="primary filled w-full"
-                    >
-                     <i class="fa-solid fa-vote-yea"></i> {if context.current_vote &&
-                                                               context.current_vote.updated_at !=
-                                                                 nil,
-                                                             do: "Actualizar voto",
-                                                             else: "Votar"}
+                  <%!-- <div class="text-center">
+                    <button class="primary filled w-full">
+                      <i class="fa-solid fa-vote-yea"></i> {if context.current_vote &&
+                                                                 context.current_vote.updated_at !=
+                                                                   nil,
+                                                               do: "Actualizar voto",
+                                                               else: "Votar"}
                     </button>
-                  </div>
+                  </div> --%>
                 <% end %>
               </div>
           <% end %>

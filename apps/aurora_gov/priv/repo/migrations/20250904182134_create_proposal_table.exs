@@ -14,6 +14,8 @@ defmodule AuroraGov.Projector.Repo.Migrations.CreateProposalTable do
       add :proposal_status, :string, null: false
       add :proposal_votes, :map
       add :proposal_power_sensibility, :map
+      add :proposal_execution_result, :string
+      add :proposal_execution_error, :string
       add :created_at, :utc_datetime_usec
       add :updated_at, :utc_datetime_usec
       add :consumed_at, :utc_datetime_usec

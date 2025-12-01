@@ -35,12 +35,6 @@ defmodule AuroraGov.Command.CreateOU do
 
   def handle_validate(changeset) do
     changeset
-    # |> put_change(:person_id, Ecto.ShortUUID.generate())
     |> validate_required([:ou_name, :ou_goal, :ou_description])
   end
-
-  # defimpl Phoenix.Param, for: AuroraGov.Projector.Model.Membership do
-#   def to_param(%{membership_id: id}), do: id
-# end
-
 end

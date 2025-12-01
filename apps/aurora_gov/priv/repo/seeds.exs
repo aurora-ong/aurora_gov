@@ -180,56 +180,62 @@ AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
 # AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "g4AFfCqpWtioetCuMbQJtu", power_id: "org.member.add", power_value: 100})
 # AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "g4AFfCqpWtioetCuMbQJtu", power_id: "org.member.add", power_value: 100})
 
+# proposal_params = %{
+#   proposal_title: "Propuesta de prueba",
+#   proposal_description: "Se solicita actualizar cierto poder..",
+#   proposal_ou_origin: "barrio_vivo.seguridad",
+#   proposal_person_id: "222@test.com",
+#   proposal_ou_end: "barrio_vivo.seguridad",
+#   proposal_power_id: "org.create",
+#   proposal_power_data: %{
+#     ou_id: "nuevo"
+#   }
+# }
+
+# AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
+
+# proposal_params = %{
+#   proposal_title: "Propuesta de prueba 2",
+#   proposal_description: "Se solicita actualizar cierto poder..",
+#   proposal_ou_origin: "barrio_vivo.cultura_participacion",
+#   proposal_person_id: "000@test.com",
+#   proposal_ou_end: "barrio_vivo",
+#   proposal_power_id: "org.create",
+#   proposal_power_data: %{
+#     ou_id: "nuevo"
+#   }
+# }
+
+# AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
+
 proposal_params = %{
-  proposal_title: "Propuesta de prueba",
-  proposal_description: "Se solicita actualizar cierto poder..",
-  proposal_ou_origin: "barrio_vivo.seguridad",
-  proposal_person_id: "222@test.com",
-  proposal_ou_end: "barrio_vivo.seguridad",
-  proposal_power_id: "org.create",
-  proposal_power_data: %{
-    ou_id: "nuevo"
-  }
-}
-
-AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
-
-proposal_params = %{
-  proposal_title: "Propuesta de prueba 2",
-  proposal_description: "Se solicita actualizar cierto poder..",
-  proposal_ou_origin: "barrio_vivo.cultura_participacion",
-  proposal_person_id: "000@test.com",
-  proposal_ou_end: "barrio_vivo",
-  proposal_power_id: "org.create",
-  proposal_power_data: %{
-    ou_id: "nuevo"
-  }
-}
-
-AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
-
-proposal_params = %{
-  proposal_title: "Propuesta de prueba 2",
-  proposal_description: "Se solicita actualizar cierto poder..",
+  proposal_title: "Nueva OU",
+  proposal_description: "Se solicita crear nuevo departamento..",
   proposal_ou_origin: "barrio_vivo",
   proposal_person_id: "000@test.com",
-  proposal_ou_end: "barrio_vivo.cultura_participacion",
-  proposal_power_id: "org.create",
+  proposal_ou_end: "barrio_vivo",
+  proposal_power_id: "org.ou.create",
   proposal_power_data: %{
-    ou_id: "nuevo"
+    ou_id: "barrio_vivo.b",
+    ou_name: "Nuevo OU",
+    ou_goal: "Objetivo de la unidad",
+    ou_description: "Descripción de la unidad"
   }
 }
 
 AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
 
-# AuroraGov.dispatch(proposal)
+# # AuroraGov.dispatch(proposal)
 
-AuroraGov.Aggregate.OU.get_ou("barrio_vivo.cultura_participacion")
+# AuroraGov.Aggregate.OU.get_ou("barrio_vivo.cultura_participacion")
 
-vote_params = %{
-  proposal_id: "a82b8be9-db44-48e8-bd50-c8a059deeb8f",
-  person_id: "000@test.com",
-  vote_value: 1,
-  vote_comment: "Hola mundo",
-  vote_type: "direct"
-}
+# vote_params = %{
+#   proposal_id: "a82b8be9-db44-48e8-bd50-c8a059deeb8f",
+#   person_id: "000@test.com",
+#   vote_value: 1,
+#   vote_comment: "Hola mundo",
+#   vote_type: "direct"
+# }
+
+
+AuroraGov.Context.ProposalContext.consume_proposal("1ea9bccf-1dd5-4d73-8242-3f7f496a11a0")

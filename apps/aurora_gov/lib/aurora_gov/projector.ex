@@ -11,7 +11,7 @@ defmodule AuroraGov.Projector do
   alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector}
   alias AuroraGov.Event.PowerUpdated
   alias AuroraGov.Event.MembershipPromoted
-  alias AuroraGov.Event.{PersonRegistered, OUCreated, MembershipStarted, ProposalCreated}
+  alias AuroraGov.Event.{PersonRegistered, OUCreated, MembershipStarted, ProposalCreated, ProposalExecuted, ProposalConsumed}
   alias AuroraGov.Projector.Model.{Person, OU, Membership}
 
   project(
@@ -57,6 +57,10 @@ defmodule AuroraGov.Projector do
   project(%MembershipStarted{} = evt, metadata, &MembershipProjector.project(evt, metadata, &1))
 
   project(%ProposalCreated{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
+
+  project(%ProposalExecuted{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
+
+  project(%ProposalConsumed{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
 
   project(%VoteEmited{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
 

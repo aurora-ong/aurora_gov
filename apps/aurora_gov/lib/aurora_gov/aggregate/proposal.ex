@@ -1,4 +1,6 @@
 defmodule AuroraGov.Aggregate.Proposal do
+  require Logger
+
   defstruct [
     :proposal_id,
     :proposal_ou_end_id,
@@ -13,7 +15,7 @@ defmodule AuroraGov.Aggregate.Proposal do
     :proposal_power_sensibility
   ]
 
-  @type status :: :active | :consumed
+  @type status :: :active | :executing | :consumed
   @type vote_type :: :direct | :represented
 
   defmodule Vote do
@@ -70,6 +72,14 @@ defmodule AuroraGov.Aggregate.Proposal do
     %__MODULE__{proposal | proposal_votes: updated_votes}
   end
 
+  def apply(proposal, %AuroraGov.Event.ProposalExecuted{}) do
+    %__MODULE__{proposal | proposal_status: :executing}
+  end
+
+  def apply(proposal, %AuroraGov.Event.ProposalConsumed{}) do
+    %__MODULE__{proposal | proposal_status: :consumed}
+  end
+
   def calculate_proposal_votes(%AuroraGov.Event.ProposalCreated{proposal_voters: proposal_voters}) do
     Enum.reduce(proposal_voters, %{}, fn {person_id, %{ou_id: ou_ids}}, acc ->
       vote = %Vote{
@@ -113,5 +123,45 @@ defmodule AuroraGov.Aggregate.Proposal do
       %__MODULE__{proposal_id: nil} -> false
       %__MODULE__{} = proposal -> can_vote?(proposal, person_id)
     end
+  end
+
+  def execute(
+        %__MODULE__{proposal_status: :active} = proposal,
+        %AuroraGov.Command.ExecuteProposal{}
+      ) do
+    # 1. Validaciones (mantenemos tu lógica)
+    with :ok <- validate_proposal_score(proposal) do
+      # 2. Retornamos el evento (NO hacemos dispatch aquí)
+      %AuroraGov.Event.ProposalExecuted{
+        proposal_id: proposal.proposal_id,
+        proposal_power_id: proposal.proposal_power_id,
+        proposal_power_data: proposal.proposal_power_data
+      }
+    end
+  end
+
+  def execute(
+        %__MODULE__{proposal_status: :executing} = proposal,
+        %AuroraGov.Command.ConsumeProposal{} = command
+      ) do
+    %AuroraGov.Event.ProposalConsumed{
+      proposal_id: proposal.proposal_id,
+      proposal_execution_result: command.proposal_execution_result,
+      proposal_execution_error: command.proposal_execution_error
+    }
+  end
+
+  # Bloqueamos cualquier intento si ya no es activa
+  def execute(%__MODULE__{}, %AuroraGov.Command.ExecuteProposal{}),
+    do: {:error, :proposal_invalid_status}
+
+  def execute(%__MODULE__{}, %AuroraGov.Command.ConsumeProposal{}),
+    do: {:error, :proposal_invalid_status}
+
+  # Aplicamos el cambio de estado
+
+  defp validate_proposal_score(%__MODULE__{} = proposal) do
+    Logger.debug("[#{__MODULE__}] #{inspect(proposal)}")
+    :ok
   end
 end

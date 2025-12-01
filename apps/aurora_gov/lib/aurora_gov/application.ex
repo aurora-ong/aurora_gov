@@ -18,6 +18,7 @@ defmodule AuroraGov.Application do
 
       AuroraGov,
       AuroraGov.Projector,
+      AuroraGov.ProcessManagers.ProposalExecutor
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: AuroraGov.Supervisor)

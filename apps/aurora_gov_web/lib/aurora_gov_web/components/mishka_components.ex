@@ -171,6 +171,7 @@ defmodule AuroraGovWeb.Components.MishkaComponents do
       import AuroraGovWeb.Components.Video, only: [video: 1]
 
       import AuroraGovWeb.Components.FilterButtonGroup
+      import AuroraGovWeb.Components.ProposalVoteProgress
     end
   end
 end

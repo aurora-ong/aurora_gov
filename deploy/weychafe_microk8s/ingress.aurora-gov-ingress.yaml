@@ -4,7 +4,7 @@ metadata:
   name: aurora-gov-ingress
   namespace: aurora-gov
   annotations:
-    cert-manager.io/cluster-issuer: aurora-gov-letsencrypt
+    cert-manager.io/issuer: aurora-gov-letsencrypt
     nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
 spec:

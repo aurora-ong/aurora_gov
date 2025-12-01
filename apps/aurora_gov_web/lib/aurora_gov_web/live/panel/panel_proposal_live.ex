@@ -23,7 +23,6 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
     filter_type = socket.assigns[:filter_type] || "all"
     filter_search = socket.assigns[:search] || ""
     params = assigns[:params] || %{}
-    IO.inspect(params, label: "Params")
 
     socket =
       socket
@@ -126,9 +125,13 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
               <div class="flex-col flex">
                 <div class="flex flex-row items-center">
                   <%= case proposal.proposal_status do %>
-                    <% :completed -> %>
+                    <% :consumed -> %>
                       <div class="mr-5 flex items-center" title="Completada">
-                        <i class="fa fa-check-circle text-green-600 text-3xl"></i>
+                        <i class={"fa fa-check-circle text-3xl " <> if proposal.proposal_execution_result == :success, do: "text-green-600", else: "text-red-600"}></i>
+                      </div>
+                    <% :executing -> %>
+                      <div class="mr-5 flex items-center" title="Ejecutando">
+                        <i class="fa fa-circle-half-stroke text-blue-500 text-3xl"></i>
                       </div>
                     <% :active -> %>
                       <div class="mr-5 flex items-center" title="Activa">
@@ -242,17 +245,17 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
   def handle_event("paginate", %{"page" => page}, socket) do
     params = %{page: String.to_integer(page)}
 
-    socket =
-      socket
-      |> assign(:loading, true)
-      |> start_async(:load_proposals, fn ->
-        fetch_proposals(
-          socket.assigns.context,
-          socket.assigns.filter_type,
-          socket.assigns.search,
-          params
-        )
-      end)
+    # socket =
+    #   socket
+    #   |> assign(:loading, true)
+    #   |> start_async(:load_proposals, fn ->
+    #     fetch_proposals(
+    #       socket.assigns.context,
+    #       socket.assigns.filter_type,
+    #       socket.assigns.search,
+    #       params
+    #     )
+    #   end)
 
     {:noreply, socket}
   end

@@ -23,9 +23,12 @@ defmodule AuroraGov.Projector.Model.Proposal do
 
     field :proposal_power_id, :string
     field :proposal_power_data, :map
-    field :proposal_status, Ecto.Enum, values: [:active, :consumed]
+    field :proposal_status, Ecto.Enum, values: [:active, :executing, :consumed]
     embeds_many :proposal_votes, AuroraGov.Projector.Model.Proposal.Vote
     field :proposal_power_sensibility, :map
+
+    field :proposal_execution_result, Ecto.Enum, values: [:success, :failed]
+    field :proposal_execution_error, :string
 
     field :created_at, :utc_datetime_usec
     field :updated_at, :utc_datetime_usec

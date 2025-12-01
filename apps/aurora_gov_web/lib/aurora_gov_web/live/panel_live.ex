@@ -114,4 +114,22 @@ defmodule AuroraGovWeb.Live.Panel do
     IO.inspect(panel_id, label: "Cerrando panel")
     {:noreply, assign(socket, app_side_panel: nil)}
   end
+
+  @impl true
+  def handle_event("toggle_activity_panel", _params, socket) do
+    if (socket.assigns.app_side_panel && socket.assigns.app_side_panel.view_id) ==
+         "panel-activity" do
+      {:noreply, assign(socket, app_side_panel: nil)}
+    else
+      app_panel = %AppView{
+        view_id: "panel-activity",
+        view_module: AuroraGovWeb.Live.Panel.Side.LastActivity,
+        view_options: %{},
+        view_params: %{}
+      }
+
+      send(self(), {:open, :app_side_panel, app_panel})
+      {:noreply, socket}
+    end
+  end
 end

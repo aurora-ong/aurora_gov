@@ -2,6 +2,10 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   use AuroraGovWeb, :live_component
   alias Phoenix.LiveView.AsyncResult
 
+  defmodule Context do
+    defstruct current_step: 0, current_vote: nil, form_valid?: false
+  end
+
   @impl true
   def mount(socket) do
     IO.inspect(socket.assigns)
@@ -101,6 +105,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   def render(assigns) do
     ~H"""
     <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
+      {inspect(@step_0_form_proposal)}
       <.async_result :let={ou_tree} assign={@ou_tree}>
         <:loading>
           <.loading_spinner size="double_large" />
@@ -176,7 +181,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
               <.live_component
                 module={AuroraGovWeb.OUSelectorComponent}
                 parent_module={__MODULE__}
-                parent_id="gov-modal-component"
+                parent_id="modal-proposal_create"
                 id="proposal_ou_origin"
                 field={@step_0_form_proposal[:proposal_ou_origin]}
                 label="Unidad Origen"
@@ -185,6 +190,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
                 current_person_id="p.delgado@gmail.com"
                 description="Debes pertenecer a esta unidad."
                 enabled="false"
+                phx-target={@myself}
               />
             </div>
              <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
@@ -192,7 +198,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
               <.live_component
                 module={AuroraGovWeb.OUSelectorComponent}
                 parent_module={__MODULE__}
-                parent_id="gov-modal-component"
+                parent_id="modal-proposal_create"
                 id="proposal_ou_end"
                 field={@step_0_form_proposal[:proposal_ou_end]}
                 label="Unidad Destino"
@@ -205,12 +211,16 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
           </div>
 
           <div class="py-6">
-            <.input
-              field={@step_0_form_proposal[:proposal_power]}
-              type="select"
+            <.combobox
+              searchable
               label="Acción"
+              field={@step_0_form_proposal[:proposal_power_id]}
+              size="extra_large"
               options={[nil] ++ AuroraGov.CommandUtils.all_proposable_modules_select()}
-            />
+              search_placeholder="Buscar poder"
+            >
+            </.combobox>
+
             <div :if={@step_0_ou_power_detail != nil}>
               <.async_result :let={ou_power} assign={@step_0_ou_power_detail}>
                 <:loading>
@@ -258,7 +268,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
           module={AuroraGovWeb.DynamicCommandFormComponent}
           id="proposal-power_form"
           form={@step_1_form_power}
-          command_module={AuroraGov.CommandUtils.find_command_by_id(@proposal_data.proposal_power)}
+          command_module={AuroraGov.CommandUtils.find_command_by_id(@proposal_data.proposal_power_id)}
         />
         <:actions>
           <.button
@@ -396,7 +406,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
           socket
           |> assign(proposal_data: proposal_changeset.changes)
           |> assign_new(:step_1_form_power, fn ->
-            proposal_power = proposal_changeset.changes.proposal_power
+            proposal_power = proposal_changeset.changes.proposal_power_id
             command_module = AuroraGov.CommandUtils.find_command_by_id(proposal_power)
 
             power_changeset = command_module.new(%{})
@@ -424,7 +434,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   @impl true
   def handle_event("step_1_validate", %{"power" => power_params}, socket) do
     command_module =
-      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power)
+      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power_id)
 
     power_changeset =
       power_params
@@ -441,7 +451,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   @impl true
   def handle_event("step_1_next", %{"power" => power_params}, socket) do
     command_module =
-      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power)
+      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power_id)
 
     power_changeset =
       power_params
@@ -510,6 +520,18 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   def handle_event("step_2_submit", _params, socket) do
     IO.inspect(socket.assigns.proposal_data, label: "Proposal Data")
     IO.inspect(socket.assigns.power_data, label: "Power Data")
+    IO.inspect(socket.assigns.app_context.current_person.person_id, label: "AppContext")
+    proposal_person_id = socket.assigns.app_context.current_person.person_id
+
+    proposal_params =
+      socket.assigns.proposal_data
+      |> Map.put(:proposal_power_data, socket.assigns.power_data)
+      |> Map.put(:proposal_person_id, proposal_person_id)
+
+    IO.inspect(proposal_params, label: "Params")
+
+    r = AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
+    IO.inspect(r)
 
     {:noreply, socket}
   end

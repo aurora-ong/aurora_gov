@@ -34,10 +34,10 @@ defmodule AuroraGovWeb.OUSelectorComponent do
       <label for={@id} class="block text-sm text-gray-700 mb-1 font-semibold">
         {@label || "Organización"}
       </label>
-      <%!-- <.label for={@id}>{@label}</.label> --%>
+       <%!-- <.label for={@id}>{@label}</.label> --%>
       <%= if @selected_ou do %>
         <div class="flex flex-row border py-2 px-4 rounded-lg items-center bg-gray-100 shadow-md">
-          <div class="flex flex-col flex-grow">
+          <div class="flex flex-col grow">
             <span class="text-white w-fit bg-black px-2 py-0.5 font-semibold text-sm rounded">
               {@selected_ou.ou_id}
             </span>
@@ -144,6 +144,8 @@ defmodule AuroraGovWeb.OUSelectorComponent do
       Enum.find(socket.assigns.ou_tree, fn ou ->
         ou.ou_id == ou_id
       end)
+
+    send(self(), {:ou_selected, socket.assigns.field.field, ou_id})
 
     Phoenix.LiveView.send_update(
       socket.assigns.parent_module,

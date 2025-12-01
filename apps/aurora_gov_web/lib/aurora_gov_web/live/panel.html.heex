@@ -172,11 +172,14 @@
     </section>
     
     <section id="panel-menu" class="w-auto flex flex-row items-center py-5 px-5 h-fit gap-3">
-      <a href="#" class="iconbutton">
+      <%!-- <a href="#" class="iconbutton">
         <i class="fa-solid fa-list-check"></i>
-      </a>
+      </a> --%>
       
-      <a href="#" class="iconbutton">
+      <a
+        phx-click="toggle_activity_panel"
+        class={"iconbutton #{if (@app_side_panel && @app_side_panel.view_id) == "panel-activity", do: "active", else: ""}"}
+      >
         <i class="fa-solid fa-bell"></i>
       </a>
       

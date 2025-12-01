@@ -27,3 +27,7 @@ defmodule AuroraGov.Command do
     end
   end
 end
+
+defmodule GovCommandField do
+  defstruct command_type: :string, label: nil, description: nil, source: :user, form_type: :text
+end

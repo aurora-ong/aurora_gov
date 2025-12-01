@@ -101,6 +101,10 @@
   #panel-menu a.iconbutton {
     @apply hover:bg-aurora_orange w-14 h-14 rounded-full cursor-pointer flex items-center justify-center hover:text-white text-xl;
   }
+
+    #panel-menu a.iconbutton.active {
+    @apply bg-aurora_orange text-white;
+  }
   
   #panel-menu a.iconbutton i {
     @apply text-2xl;
