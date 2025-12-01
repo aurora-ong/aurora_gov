@@ -85,7 +85,7 @@ defmodule AuroraGovWeb.Components.AuroraComponents do
   def loading_spinner(assigns) do
     ~H"""
     <span class="text-center flex justify-center items-center w-full h-full py-10 px-20">
-      <.spinner color="dawn" size={@size} class={"text-aurora_orange" <> @class} />
+      <.spinner size={@size} class={"text-aurora_orange " <> @class} />
     </span>
     """
   end

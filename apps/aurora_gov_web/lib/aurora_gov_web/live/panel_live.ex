@@ -1,6 +1,22 @@
 defmodule AuroraGovWeb.Live.Panel do
   use AuroraGovWeb, :live_view
 
+  defmodule AppContext do
+    defstruct [:current_ou_id, :current_person, :current_module]
+  end
+
+  defmodule AppView do
+    @enforce_keys [:view_id, :view_module]
+    @type t :: %__MODULE__{
+            view_id: binary(),
+            view_module: atom(),
+            view_options: map(),
+            view_params: map()
+          }
+
+    defstruct view_id: nil, view_module: nil, view_options: %{}, view_params: %{}
+  end
+
   @impl true
   def mount(_params, _session, socket) do
     if connected?(socket) do
@@ -9,91 +25,93 @@ defmodule AuroraGovWeb.Live.Panel do
 
     socket =
       assign(socket,
-        side_panel_open: false,
-        side_panel_component: nil,
-        side_panel_assigns: %{}
+        app_context: %AppContext{current_person: socket.assigns.current_person},
+        app_modal: nil,
+        app_side_panel: nil
       )
 
     {:ok, socket}
   end
 
   @impl true
-  def handle_params(params, uri, socket) do
+  def handle_params(params, _uri, socket) do
+    current_ou_id = get_current_ou_id(params)
+
     socket =
-      socket
-      |> assign_context(params)
-      |> assign(:module, params["module"] || "home")
-      |> assign(:tree_modal, false)
-      |> assign(:gov_modal, false)
-      |> assign(:uri, uri)
+      if current_ou_id != nil do
+        socket
+        |> assign(:app_modal, nil)
+        |> assign(:app_context, %{
+          socket.assigns.app_context
+          | current_module: params["module"] || "home",
+            current_ou_id: current_ou_id
+        })
+      else
+        socket
+        |> push_patch(to: "/install")
+      end
 
     {:noreply, socket}
   end
 
-  defp assign_context(socket, %{"context" => context}) when context != "" do
-    assign(socket, :context, context)
-  end
+  defp get_current_ou_id(%{"context" => context}) when context != "", do: context
 
-  defp assign_context(socket, _params) do
+  defp get_current_ou_id(_params) do
     case (Enum.at(AuroraGov.Context.OUContext.get_ou_tree(), 0) || %{}).ou_id do
       ou_id when is_binary(ou_id) and ou_id != "" ->
-        assign(socket, :context, ou_id)
+        ou_id
 
       _ ->
-        socket
-        |> put_flash(:error, "No se encontró ninguna unidad organizacional")
-        |> push_patch(to: "/")
+        nil
     end
+  end
+
+  @impl true
+  def handle_info({:projector_update, event}, socket) do
+    IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
+    socket = AuroraGovWeb.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:open, view_id, %AppView{} = app_view}, socket) do
+    IO.inspect(app_view, label: "Abriendo #{view_id}")
+
+    socket =
+      socket
+      |> assign(view_id, app_view)
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:close, view_id, id}, socket) do
+    IO.inspect(id, label: "Cerrando #{view_id}")
+
+    socket =
+      socket
+      |> assign(view_id, nil)
+
+    {:noreply, socket}
   end
 
   @impl true
   def handle_info(event, socket) do
-    IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
-    socket = AuroraGovWeb.Panel.EventRouter.handle_event(event, socket)
+    IO.inspect(event, label: "handle_info desconocido")
 
     {:noreply, socket}
   end
 
   @impl true
-  def handle_event("open_gov_modal", params, socket) do
-    IO.inspect(params, label: "Params")
-
-    socket =
-      socket
-      |> assign(:gov_modal, true)
-      |> assign(:initial_proposal_values, params)
-      # socket = push_event(socket, "show_modal", %{id: "gov-modal"})
-
-    {:noreply, socket}
+  def handle_event("app_modal_close", %{"modal" => modal_id}, socket) do
+    IO.inspect(modal_id, label: "Cerrando modal")
+    {:noreply, assign(socket, app_modal: nil)}
   end
 
   @impl true
-  def handle_event("open_tree_modal", params, socket) do
-    IO.inspect(params, label: "Params")
-
-    socket =
-      socket
-      |> assign(:tree_modal, true)
-
-    {:noreply, socket}
-  end
-
-  def handle_event("open_side_panel", %{"component" => component, "assigns" => assigns} = _params, socket) do
-    # Convertir claves de string a átomos
-    atom_assigns = for {k, v} <- assigns, into: %{} do
-      {String.to_atom(k), v}
-    end
-
-    {:noreply,
-     assign(socket,
-       side_panel_open: true,
-       side_panel_component: String.to_existing_atom(component),
-       side_panel_assigns: atom_assigns
-     )}
-  end
-
-  def handle_event("close_side_panel", _params, socket) do
-    {:noreply,
-     assign(socket, side_panel_open: false, side_panel_component: nil, side_panel_assigns: %{})}
+  def handle_event("app_side_panel_close", %{"panel" => panel_id}, socket) do
+    IO.inspect(panel_id, label: "Cerrando panel")
+    {:noreply, assign(socket, app_side_panel: nil)}
   end
 end

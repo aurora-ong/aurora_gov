@@ -72,11 +72,7 @@
   /* background-size: cover; */
   /* } */
   
-  .app-container {
-    @apply w-full flex gap-5 h-screen;
-  }
-  
-  hr {
+   hr {
     @apply w-full h-0.5 mx-auto bg-gray-50/20 border-0 rounded;
   }
   
@@ -88,16 +84,16 @@
     @apply border-2 rounded-xl border-gray-200;
   }
   
-  button.primary {
+  button.primary, a.primary {
     @apply inline-flex justify-center items-center gap-3 rounded-lg ;
   }
   
-  button.outlined {
+  button.outlined, a.outlined {
     @apply hover:bg-aurora_orange hover:text-white px-5 py-2 border-aurora_orange border;
   }
   
-  button.primary.filled {
-    @apply px-5 py-2 border-aurora_orange border hover:opacity-90 transition bg-aurora_orange text-white;
+  button.filled, a.filled {
+    @apply px-5 py-2 border-aurora_orange border transition bg-aurora_orange text-white hover:opacity-90;
   }
 
   /* PANEL MENU */
@@ -113,24 +109,24 @@
   
   /* MODULE MENU */
   
-  div#module-menu ul > li > a {
+  li.menu-item > a {
     @apply w-full h-full py-3 px-5 cursor-pointer hover:bg-gray-200/75 rounded-lg flex flex-row items-center gap-3;
   }
   
-  div#module-menu ul > li > a > i {
+  li.menu-item > a > i {
     @apply text-xl;
   }
   
-  div#module-menu ul li.link {
-    @apply flex flex-row w-full gap-3 border-l-4 border-white;
+  li.menu-item.link {
+    @apply flex flex-row w-full gap-3 border-2 border-white;
   }
   
-  div#module-menu ul li.link.active {
-    @apply border-l-4 border-aurora_orange text-aurora_orange font-semibold;
+  li.menu-item.link.active {
+    @apply border-2 border-aurora_orange text-aurora_orange font-semibold rounded-lg hover:opacity-90;
   }
   
   div#module-menu ul {
-    @apply grow my-5 overflow-y-auto px-2.5 gap-y-2 flex flex-col text-lg;
+    @apply px-2.5 gap-y-2 flex flex-col text-lg;
   }
   
   /* ul.tabs > li {

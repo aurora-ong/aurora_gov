@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Panel.EventRouter do
+defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
   require Logger
   import Phoenix.LiveView
 
@@ -11,8 +11,6 @@ defmodule AuroraGovWeb.Panel.EventRouter do
   end
 
   def handle_event({:power_updated, power} = update, socket) do
-    IO.inspect(power, label: "Handle")
-
     send_update(AuroraGovWeb.Live.Panel.Power,
       id: "panel-power",
       update: update
@@ -22,6 +20,19 @@ defmodule AuroraGovWeb.Panel.EventRouter do
     |> put_flash(
       :info,
       "#{power.power_id} se ha actualizado en (#{power.ou_id})"
+    )
+  end
+
+  def handle_event({:vote_emited, vote} = update, socket) do
+    send_update(AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+      id: "panel-proposal-#{vote.proposal_id}",
+      update: update
+    )
+
+    socket
+    |> put_flash(
+      :info,
+      "Se ha emitido un voto en (#{vote.proposal_id})"
     )
   end
 
@@ -35,22 +46,4 @@ defmodule AuroraGovWeb.Panel.EventRouter do
     socket
   end
 
-  # defp maybe_update_members_panel(socket, membership) do
-  #   send_update(MembersPanelComponent,
-  #     id: "members",
-  #     membership: membership
-  #   )
-
-  #   socket
-  # end
-
-  # defp maybe_update_tree_panel(socket, membership) do
-  #   send_update(TreePanelComponent,
-  #     id: "tree",
-  #     context: membership.ou_id,
-  #     ou_tree: AuroraGov.Projector.OU.get_tree_by_context(membership.ou_id)
-  #   )
-
-  #   socket
-  # end
 end

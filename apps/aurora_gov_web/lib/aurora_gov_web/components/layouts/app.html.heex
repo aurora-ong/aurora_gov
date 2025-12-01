@@ -1,4 +1,10 @@
-<main class="app-container">
-  {@inner_content}
+<main class="w-full flex h-screen flex-col">
+  <div class="w-full flex-1 min-h-0 flex flex-row gap-5">
+    {@inner_content}
+  </div>
+  <footer class="w-full bg-gray-100 py-1.5">
+    <small class="bg-brand/5 text-xs ml-3 rounded-full px-2 font-medium leading-6">
+      AuroraGov v{Application.spec(:aurora_gov, :vsn)} Plataforma en desarrollo, podría contener errores. Under development, may have some errors.
+    </small>
+  </footer>
 </main>
-

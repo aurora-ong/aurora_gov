@@ -1,4 +1,5 @@
 defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
+  alias AuroraGovWeb.Live.Panel.AppView
   use AuroraGovWeb, :live_component
 
   @impl true
@@ -16,12 +17,12 @@ defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
           </p>
         </div>
 
-        <div :if={@show_actions} class="flex flex-row gap-1">
+        <div :if={@show_actions && @app_context.current_person != nil} class="flex flex-row gap-1">
           <button
             phx-click="update_power"
+            phx-target={@myself}
             phx-value-power_id={@power_id}
-            phx-target={@parent_target}
-            class="justify-center items-center text-lg primary outlined !px-3"
+            class="justify-center items-center text-lg primary outlined px-3!"
           >
             <i class="fa-solid fa-hand-point-up text-sm"></i>
           </button>
@@ -31,7 +32,7 @@ defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
             phx-click="update_power"
             phx-value-power_id={@power_id}
             phx-target={@parent_target}
-            class="justify-center items-center text-lg primary !px-3"
+            class="justify-center items-center text-lg primary outlined px-3!"
           >
             <i class="fa-solid fa-eye text-sm"></i>
           </button>
@@ -40,7 +41,7 @@ defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
 
       <div :if={@ou_power != nil} class="mt-3">
         <div class="flex flex-row">
-          <label class="text-sm text-gray-500 flex-grow">
+          <label class="text-sm text-gray-500 grow">
             Requiere <strong>{to_percent(@ou_power.power_average)}%</strong> de aprobación colectiva
           </label>
 
@@ -68,7 +69,7 @@ defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
 
       <div :if={@ou_power == nil} class="mt-3">
         <div class="flex flex-row">
-          <label class="text-sm text-gray-500 flex-grow">
+          <label class="text-sm text-gray-500 grow">
             Sin postura
           </label>
 
@@ -101,5 +102,23 @@ defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
       power_consensus >= 66 -> "bg-red-600"
       true -> "bg-aurora_orange"
     end
+  end
+
+  @impl true
+  def handle_event("update_power", %{"power_id" => power_id}, socket) do
+    app_modal = %AppView{
+      view_id: "power-update_power-#{power_id}",
+      view_module: AuroraGovWeb.Live.Power.SensibilityUpdate,
+      view_options: %{
+        modal_size: "double_large"
+      },
+      view_params: %{
+        power_id: power_id
+      }
+    }
+
+    send(self(), {:open, :app_modal, app_modal})
+
+    {:noreply, socket}
   end
 end

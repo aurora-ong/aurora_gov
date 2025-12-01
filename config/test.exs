@@ -5,13 +5,36 @@ import Config
 # The MIX_TEST_PARTITION environment variable can be used
 # to provide built-in test partitioning in CI environment.
 # Run `mix help test` for more information.
+
+# Configure EventStore Database
+config :aurora_gov, AuroraGov.EventStore,
+  serializer: Commanded.Serialization.JsonSerializer,
+  username: "postgres",
+  password: "aurora_gov",
+  hostname: "localhost",
+  database: "aurora_gov_eventstore_test#{System.get_env("MIX_TEST_PARTITION")}",
+  stacktrace: true,
+  port: 4500,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: System.schedulers_online() * 2
+
 config :aurora_gov, AuroraGov.Projector.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "aurora_gov",
   hostname: "localhost",
-  database: "aurora_gov_test#{System.get_env("MIX_TEST_PARTITION")}",
+  database: "aurora_gov_projector_test#{System.get_env("MIX_TEST_PARTITION")}",
+  stacktrace: true,
   pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: System.schedulers_online() * 2
+  pool_size: 1,
+  port: 4500
+
+config :aurora_gov, consistency: :strong
+
+config :aurora_gov, AuroraGov,
+  event_store: [
+    adapter: Commanded.EventStore.Adapters.InMemory,
+    serializer: Commanded.Serialization.JsonSerializer
+  ]
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.

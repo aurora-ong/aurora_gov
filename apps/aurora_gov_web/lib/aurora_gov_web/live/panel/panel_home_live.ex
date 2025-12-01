@@ -5,9 +5,9 @@ defmodule AuroraGovWeb.Live.Panel.Home do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:context, assigns.context)
+      |> assign(:app_context, assigns.app_context)
       |> assign(:page_title, "Inicio")
-      |> assign(:ou, AuroraGov.Context.OUContext.get_ou_by_id(assigns.context))
+      |> assign(:ou, AuroraGov.Context.OUContext.get_ou_by_id(assigns.app_context.current_ou_id))
 
     {:ok, socket}
   end

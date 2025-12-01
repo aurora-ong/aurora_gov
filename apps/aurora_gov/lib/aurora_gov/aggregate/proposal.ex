@@ -20,23 +20,24 @@ defmodule AuroraGov.Aggregate.Proposal do
     defstruct [
       # [ou_id]
       :ou_id,
+      :vote_id,
       # -1 | 0 | 1
-      :vote_value,
-      # direct, representative
-      :vote_type
+      :vote_value
     ]
   end
 
   # Ejemplo de evento para registrar una propuesta
-  def apply(_proposal, %AuroraGov.Event.ProposalCreated{
-        proposal_id: proposal_id,
-        proposal_ou_start_id: proposal_ou_id,
-        proposal_owner_id: proposal_owner_id,
-        proposal_power_id: proposal_power_id,
-        proposal_power_data: proposal_power_data,
-        proposal_power_sensibility: power_sensibility,
-        proposal_ou_end_id: proposal_ou_end_id,
-      } = event) do
+  def apply(
+        _proposal,
+        %AuroraGov.Event.ProposalCreated{
+          proposal_id: proposal_id,
+          proposal_owner_id: proposal_owner_id,
+          proposal_power_id: proposal_power_id,
+          proposal_power_data: proposal_power_data,
+          proposal_power_sensibility: power_sensibility,
+          proposal_ou_end_id: proposal_ou_end_id
+        } = event
+      ) do
     proposal_votes = calculate_proposal_votes(event)
 
     %__MODULE__{
@@ -51,21 +52,34 @@ defmodule AuroraGov.Aggregate.Proposal do
     }
   end
 
-  # Ejemplo de evento para registrar un voto
-  # def apply(%__MODULE__{votes: votes} = proposal, %AuroraGov.Event.ProposalVoted{
-  #       person_id: person_id,
-  #       ou_ids: ou_ids,
-  #       vote_value: vote_value
-  #     }) do
-  #   updated_votes =
-  #     Map.put(votes, person_id, %Vote{
-  #       person_id: person_id,
-  #       ou_ids: ou_ids,
-  #       vote_value: vote_value
-  #     })
+  def apply(%__MODULE__{proposal_votes: proposal_votes} = proposal, %AuroraGov.Event.VoteEmited{
+        person_id: person_id,
+        vote_id: vote_id,
+        vote_value: vote_value
+      }) do
+    updated_votes =
+      Map.update(
+        proposal_votes || %{},
+        person_id,
+        %Vote{vote_id: vote_id, vote_value: vote_value},
+        fn vote ->
+          %Vote{vote | vote_id: vote_id, vote_value: vote_value}
+        end
+      )
 
-  #   %__MODULE__{proposal | votes: updated_votes}
-  # end
+    %__MODULE__{proposal | proposal_votes: updated_votes}
+  end
+
+  def calculate_proposal_votes(%AuroraGov.Event.ProposalCreated{proposal_voters: proposal_voters}) do
+    Enum.reduce(proposal_voters, %{}, fn {person_id, %{ou_id: ou_ids}}, acc ->
+      vote = %Vote{
+        vote_id: Ecto.ShortUUID.generate(),
+        ou_id: ou_ids
+      }
+
+      Map.put(acc, person_id, vote)
+    end)
+  end
 
   # # Evento para consumir la propuesta
   # def apply(proposal, %AuroraGov.Event.ProposalConsumed{}) do
@@ -79,14 +93,25 @@ defmodule AuroraGov.Aggregate.Proposal do
     end
   end
 
-  def calculate_proposal_votes(%AuroraGov.Event.ProposalCreated{proposal_voters: proposal_voters}) do
-    Enum.reduce(proposal_voters, %{}, fn {person_id, %{ou_id: ou_ids}}, acc ->
-      vote = %Vote{
-        ou_id: ou_ids,
-        vote_value: nil,
-        vote_type: nil
-      }
-      Map.put(acc, person_id, vote)
-    end)
+  # Comprueba si un person_id puede votar en la propuesta:
+  # - la propuesta debe estar activa
+  # - debe existir una entrada en proposal_votes para person_id
+  # - el vote_value debe ser nil (pendiente)
+  @spec can_vote?(t :: %__MODULE__{}, person_id :: any()) :: boolean()
+  def can_vote?(%__MODULE__{proposal_status: :active, proposal_votes: votes}, person_id) do
+    case Map.get(votes || %{}, person_id) do
+      %Vote{vote_value: nil} -> true
+      _ -> false
+    end
+  end
+
+  def can_vote?(%__MODULE__{}, _person_id), do: false
+
+  @spec can_vote?(proposal_id :: any(), person_id :: any()) :: boolean()
+  def can_vote?(proposal_id, person_id) do
+    case AuroraGov.aggregate_state(__MODULE__, proposal_id) do
+      %__MODULE__{proposal_id: nil} -> false
+      %__MODULE__{} = proposal -> can_vote?(proposal, person_id)
+    end
   end
 end

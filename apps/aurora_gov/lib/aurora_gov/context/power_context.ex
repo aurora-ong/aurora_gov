@@ -40,23 +40,8 @@ defmodule AuroraGov.Context.PowerContext do
           {:ok, result} ->
             {:ok, result}
 
-          {:error, :person_already_exists} ->
-            changeset =
-              Ecto.Changeset.add_error(
-                changeset,
-                :person_id,
-                "ya existe una cuenta con este id"
-              )
-
-            {:error, changeset}
-
           {:error, reason} ->
-            {:error,
-             Ecto.Changeset.add_error(
-               changeset,
-               :person_id,
-               "Error inesperado: #{inspect(reason)}"
-             )}
+            {:error, reason}
         end
 
       {:error, invalid_changeset} ->

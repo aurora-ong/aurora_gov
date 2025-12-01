@@ -23,6 +23,27 @@ defmodule AuroraGov.Context.ProposalContext do
     end
   end
 
+  def apply_proposal_vote(vote_attrs) do
+    changeset = AuroraGov.Command.ApplyProposalVote.new(vote_attrs)
+
+    IO.inspect(vote_attrs)
+
+    case Ecto.Changeset.apply_action(changeset, :create) do
+      {:ok, command} ->
+        case AuroraGov.dispatch(command, consistency: :strong, returning: :execution_result) do
+          {:ok, result} ->
+            {:ok, result}
+
+          {:error, reason} ->
+            Logger.info(reason, name: "#{__MODULE__} apply_proposal_vote error")
+            {:error, reason}
+        end
+
+      {:error, invalid_changeset} ->
+        {:error, invalid_changeset}
+    end
+  end
+
   def list_proposals(params \\ %{}) do
     q =
       Proposal
@@ -52,10 +73,10 @@ defmodule AuroraGov.Context.ProposalContext do
         |> Enum.map(& &1.vote_value)
         |> Enum.sum()
 
-        emitted_votes_count =
-          relevant_votes
-          |> Enum.filter(& &1.vote_value)
-          |> length()
+      emitted_votes_count =
+        relevant_votes
+        |> Enum.filter(& &1.vote_value)
+        |> length()
 
       Map.put(acc, ou_id, %{
         required_score: required_score,
@@ -67,13 +88,14 @@ defmodule AuroraGov.Context.ProposalContext do
   end
 
   def get_proposal_by_id(proposal_id) do
-    case Repo.one(
-           Proposal
-           |> where([p], p.proposal_id == ^proposal_id)
-           |> preload([:proposal_ou_start, :proposal_ou_end, :proposal_owner])
-         ) do
-      nil -> {:error, :not_found}
-      proposal -> {:ok, proposal}
-    end
+    Repo.one(
+      Proposal
+      |> where([p], p.proposal_id == ^proposal_id)
+      |> preload([:proposal_ou_start, :proposal_ou_end, :proposal_owner])
+    )
+  end
+
+  def get_person_vote_from_proposal(%Proposal{proposal_votes: votes}, person_id) do
+    Enum.find(votes, fn vote -> vote.person_id == person_id end)
   end
 end

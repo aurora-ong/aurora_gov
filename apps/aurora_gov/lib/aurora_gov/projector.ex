@@ -7,6 +7,7 @@ defmodule AuroraGov.Projector do
 
   require Logger
 
+  alias AuroraGov.Event.VoteEmited
   alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector}
   alias AuroraGov.Event.PowerUpdated
   alias AuroraGov.Event.MembershipPromoted
@@ -57,6 +58,8 @@ defmodule AuroraGov.Projector do
 
   project(%ProposalCreated{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
 
+  project(%VoteEmited{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
+
   project(
     %MembershipPromoted{
       person_id: person_id,
@@ -93,8 +96,8 @@ defmodule AuroraGov.Projector do
 
   @impl Commanded.Projections.Ecto
   def after_update(_event, _metadata, %{projector_update: projector_update}) do
-    IO.inspect(projector_update, label: "Notificando (projector_update)")
-    Phoenix.PubSub.broadcast(AuroraGov.PubSub, "projector_update", projector_update)
+    Logger.debug("Notificando (projector_update) #{inspect(projector_update)}")
+    Phoenix.PubSub.broadcast(AuroraGov.PubSub, "projector_update", {:projector_update, projector_update})
     :ok
   end
 

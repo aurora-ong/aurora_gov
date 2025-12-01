@@ -40,6 +40,7 @@ config :aurora_gov_web, AuroraGovWeb.Endpoint,
   pubsub_server: AuroraGov.PubSub,
   live_view: [signing_salt: "TeWw1T6y"]
 
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",

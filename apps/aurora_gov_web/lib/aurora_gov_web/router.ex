@@ -26,6 +26,7 @@ defmodule AuroraGovWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/install", PageController, :install
   end
 
   ## Authentication routes
@@ -42,7 +43,7 @@ defmodule AuroraGovWeb.Router do
     post "/persons/log_in", PersonSessionController, :create
   end
 
-  scope "/", AuroraGovWeb do
+  scope "/app", AuroraGovWeb do
     pipe_through [:browser, :require_authenticated_person]
   end
 

@@ -16,11 +16,11 @@ defmodule AuroraGovWeb.Live.Panel.Members do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:context, assigns.context)
+      |> assign(:app_context, assigns.app_context)
       |> assign(loading: true)
       |> start_async(:load_data, fn ->
         :timer.sleep(100)
-        AuroraGov.Context.MembershipContext.get_all_membership_by_uo(assigns.context)
+        AuroraGov.Context.MembershipContext.get_all_membership_by_uo(assigns.app_context.current_ou_id)
       end)
 
     {:ok, socket}
@@ -76,7 +76,7 @@ defmodule AuroraGovWeb.Live.Panel.Members do
             padding="extra_big"
           >
             <:trigger class="flex justify-center items-center">
-              <button class="justify-center items-center text-lg primary">
+              <button class="justify-center items-center text-lg primary outlined">
                 <i class="fa-solid fa-hand text-xl"></i>
               </button>
             </:trigger>
@@ -131,7 +131,7 @@ defmodule AuroraGovWeb.Live.Panel.Members do
 
             <:header class="">Nombre</:header>
 
-            <:header class="text-center">Estamento</:header>
+            <:header class="text-center">Rango</:header>
 
             <:header class="text-center">Miembro desde</:header>
 

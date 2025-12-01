@@ -1,4 +1,5 @@
 defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
+  alias AuroraGov.Context.MembershipContext
   alias AuroraGov.Context.PowerContext
   alias AuroraGov.Context.OUContext
   use AuroraGovWeb, :live_component
@@ -22,10 +23,9 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
 
   @impl true
   def mount(socket) do
-    IO.inspect(socket.assigns)
-
     socket =
       socket
+      |> assign(:page_title, "Actualizar Postura")
       |> assign(:power_update_context, AsyncResult.loading())
 
     {:ok, socket}
@@ -35,7 +35,7 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:context, assigns.context)
+      |> assign(:app_context, assigns.app_context)
       |> assign(:power_id, assigns.power_id)
       |> assign(
         form:
@@ -45,7 +45,11 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
           )
       )
       |> start_async(:load_data, fn ->
-        load_data(assigns.context, "000@test.com", assigns.power_id)
+        load_data(
+          assigns.app_context.current_ou_id,
+          assigns.app_context.current_person.person_id,
+          assigns.power_id
+        )
       end)
 
     {:ok, socket}
@@ -58,7 +62,8 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
       Task.async(fn -> PowerContext.get_power(ou_id, person_id, power_id) end),
       Task.async(fn -> PowerContext.get_ou_power(ou_id, power_id) end),
       Task.async(fn -> OUContext.get_ou_by_id(ou_id) end),
-      Task.async(fn -> PowerContext.get_power_metadata(power_id) end)
+      Task.async(fn -> PowerContext.get_power_metadata(power_id) end),
+      Task.async(fn -> MembershipContext.get_membership(ou_id, person_id) end)
     ]
 
     Task.await_many(tasks)
@@ -67,64 +72,126 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
   @impl true
   def handle_async(
         :load_data,
-        {:ok, [result_power, result_ou_power, result_ou, result_power_metadata] = r},
+        {:ok, [result_power, result_ou_power, result_ou, result_power_metadata, membership] = r},
         socket
       ) do
     IO.inspect(r)
 
     socket =
-      socket
-      |> assign(
-        :power_update_context,
-        AsyncResult.ok(%{
-          ou: %{
-            ou_id: result_ou.ou_id,
-            ou_name: result_ou.ou_name
-          },
-          power: %{
-            power_id: result_power_metadata.id,
-            power_name: result_power_metadata.name,
-            power_description: result_power_metadata.description
-          },
-          last_updated: result_power && Map.get(result_power, :updated_at),
-          collective_value:
-            case result_ou_power && result_ou_power.power_average do
-              %Decimal{} = dec -> Decimal.to_integer(dec)
-              _ -> "-"
-            end
-        })
-      )
-      |> then(fn socket ->
-        if result_power != nil do
-          assign(socket,
-            form:
-              to_form(
-                AuroraGov.Command.UpdatePower.new(%{power_value: result_power.power_value}),
-                as: "power_update_form"
-              )
+      cond do
+        is_nil(membership) ->
+          assign(
+            socket,
+            :power_update_context,
+            AsyncResult.failed(socket.assigns.power_update_context, :no_membership)
           )
-        else
+
+        membership.membership_status == "junior" ->
+          assign(
+            socket,
+            :power_update_context,
+            AsyncResult.failed(socket.assigns.power_update_context, :insufficient_membership)
+          )
+
+        true ->
           socket
-        end
-      end)
+          |> assign(
+            :power_update_context,
+            build_power_context(result_power, result_ou_power, result_ou, result_power_metadata)
+          )
+          |> maybe_update_form(result_power)
+      end
 
     {:noreply, socket}
+  end
+
+  defp build_power_context(result_power, result_ou_power, result_ou, result_power_metadata) do
+    AsyncResult.ok(%{
+      ou: %{
+        ou_id: result_ou.ou_id,
+        ou_name: result_ou.ou_name
+      },
+      power: %{
+        power_id: result_power_metadata.id,
+        power_name: result_power_metadata.name,
+        power_description: result_power_metadata.description
+      },
+      last_updated: result_power && result_power.updated_at,
+      collective_value: calculate_collective_value(result_ou_power)
+    })
+  end
+
+  defp calculate_collective_value(%{power_average: %Decimal{} = dec}),
+    do: Decimal.to_integer(dec)
+
+  defp calculate_collective_value(_), do: "-"
+
+  defp maybe_update_form(socket, nil), do: socket
+
+  defp maybe_update_form(socket, result_power) do
+    assign(
+      socket,
+      :form,
+      to_form(
+        AuroraGov.Command.UpdatePower.new(%{power_value: result_power.power_value}),
+        as: "power_update_form"
+      )
+    )
   end
 
   @impl true
   def render(assigns) do
     ~H"""
     <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
-      <h2 class="text-2xl font-semibold flex items-center gap-2">
-        <i class="fa-solid fa-hand text-2xl"></i> Actualizar postura
-      </h2>
-
       <.async_result :let={power_context} assign={@power_update_context}>
         <:loading>
-          <.loading_spinner size="double_large"></.loading_spinner>
+          <.loading_spinner size="double_large" />
         </:loading>
 
-        <:failed :let={_failure}>error loading</:failed>
+        <:failed :let={error}>
+          <div class="w-full flex flex-col items-center justify-center gap-4 p-6">
+            <div class="text-4xl">
+              <i class={"fa-solid text-4xl " <>
+          (case error do
+             :no_membership -> "fa-user-slash text-red-500"
+             :insufficient_membership -> "fa-user-lock text-aurora_orange"
+             _ -> "fa-circle-exclamation text-gray-500"
+           end)}>
+              </i>
+            </div>
+
+            <div class="text-center">
+              <h3 class="text-lg font-semibold">
+                {case error do
+                  :no_membership -> "No eres miembro de esta unidad organizativa"
+                  :insufficient_membership -> "Membresía insuficiente"
+                  _ -> "Error al cargar"
+                end}
+              </h3>
+
+              <p class="mt-2 text-sm text-gray-600">
+                {case error do
+                  :no_membership ->
+                    "Debes tener una membresía para manifestar tu postura."
+
+                  :insufficient_membership ->
+                    "Tu nivel de membresía no permite manifestar posturas."
+
+                  _ ->
+                    "Ocurrió un error al cargar los datos. Intenta de nuevo más tarde."
+                end}
+              </p>
+            </div>
+
+            <.button phx-click="app_modal_close" phx-value-modal="power-sensibility-modal" class="primary filled mt-5">
+              Aceptar
+            </.button>
+          </div>
+        </:failed>
+
+        <h2 class="text-2xl font-semibold flex items-center gap-2">
+          <i class="fa-solid fa-hand text-2xl"></i> Actualizar postura
+        </h2>
 
         <.simple_form
           for={@form}
@@ -224,7 +291,7 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
 
             <% {label, icon, label_class, description} =
               posture_meta(current) %>
-            <div class="mt-3 flex items-center gap-2 text-sm">
+            <div class="mt-3 flex items-center gap-2 text-sm select-none">
               <i class={"fa-solid #{icon} #{label_class}"}></i>
               <span class={"font-semibold #{label_class}"}>{label}</span>
               <span class="text-gray-500">
@@ -286,23 +353,19 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
   def handle_event("update", %{"power_update_form" => params}, socket) do
     update_params =
       params
-      |> Map.put("person_id", "000@test.com")
-      |> Map.put("ou_id", socket.assigns.context)
+      |> Map.put("person_id", socket.assigns.app_context.current_person.person_id)
+      |> Map.put("ou_id", socket.assigns.app_context.current_ou_id)
       |> Map.put("power_id", socket.assigns.power_id)
 
     socket =
       case AuroraGov.Context.PowerContext.update_person_power!(update_params) do
         {:ok, _result} ->
-          send_update(AuroraGovWeb.Live.Panel.Power,
-            id: "panel-power",
-            close_modal: "update_power_modal"
-          )
+          send(self(), {:close, :app_modal, "power_update_modal"})
 
           socket
           |> put_flash(:info, "Actualizado")
-          |> push_event("close_modal", %{modal: "power_update_modal"})
 
-        {:error, changeset} ->
+        {:error, %Ecto.Changeset{} = changeset} ->
           socket
           |> assign(
             form:
@@ -312,6 +375,12 @@ defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
               )
           )
           |> put_flash(:error, "No se pudo actualizar")
+
+        {:error, reason} ->
+          send(self(), {:close, :app_modal, "power_update_modal"})
+
+          socket
+          |> put_flash(:info, "No se pudo actualizar #{reason}")
       end
 
     {:noreply, socket}

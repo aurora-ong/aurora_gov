@@ -3,6 +3,7 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
   alias AuroraGov.Aggregate.{OU, Person, Proposal}
   alias AuroraGov.Command.CreateProposal
   alias AuroraGov.Event.ProposalCreated
+  require Logger
 
   def handle(
         %Proposal{proposal_id: nil},
@@ -17,8 +18,6 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
           proposal_power_data: power_data
         }
       ) do
-    {:ou, ou_origin_agg} = OU.get_ou(ou_origin)
-    IO.inspect(OU.get_membership(ou_origin_agg, person_id))
     # Validar OU de origen
     with {:ou, ou_origin_agg} <- OU.get_ou(ou_origin),
          :active <- ou_origin_agg.ou_status || :inactive,
@@ -33,8 +32,9 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
       proposal_power = calculate_ou_tree_avg_power(ou_end, power_id)
 
       proposal_voters = calculate_proposal_voters(ou_end)
-      # proposal_votes =
-      IO.inspect(proposal_power, label: "Proposal Power")
+      Logger.debug("Proposal voters #{inspect(proposal_voters)}")
+
+
 
       %ProposalCreated{
         proposal_id: proposal_id,

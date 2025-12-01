@@ -711,7 +711,7 @@ defmodule AuroraGovWeb.Components.Button do
 
   defp color_variant("base", _, indicator) do
     [
-      "bg-white text-[#09090b] border-[#e4e4e7] hover:bg-[#F8F9FA]",
+      "bg-aurora_orange text-white border-[#e4e4e7] hover:opacity-90",
       "dark:bg-[#18181B] dark:text-[#FAFAFA] dark:border-[#27272a] dark:hover:bg-[#242424]",
       "disabled:bg-[#f1f3f5] disabled:text-[#adb5bd] dark:disabled:bg-[#2e2e2e] dark:disabled:text-[#696969]",
       "disabled:border-[#dee2e6] dark:disabled:border-[#424242]",

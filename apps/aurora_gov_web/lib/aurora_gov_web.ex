@@ -62,6 +62,8 @@ defmodule AuroraGovWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
+      alias AuroraGovWeb.Live.Panel.AppModal
+      alias AuroraGovWeb.Live.Panel.AppView
 
       unquote(html_helpers())
     end
@@ -88,7 +90,7 @@ defmodule AuroraGovWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-       #import AuroraGovWeb.CoreComponents
+      # import AuroraGovWeb.CoreComponents
       use AuroraGovWeb.Components.MishkaComponents
       import AuroraGovWeb.Components.AuroraComponents
 

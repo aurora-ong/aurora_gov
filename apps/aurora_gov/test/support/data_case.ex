@@ -27,8 +27,15 @@ defmodule AuroraGov.DataCase do
     end
   end
 
-  setup tags do
-    AuroraGov.DataCase.setup_sandbox(tags)
+  setup do
+    {:ok, _} = Application.ensure_all_started(:aurora_gov)
+
+    on_exit(fn ->
+      :ok = Application.stop(:aurora_gov)
+
+      AuroraGov.Storage.reset!()
+    end)
+
     :ok
   end
 

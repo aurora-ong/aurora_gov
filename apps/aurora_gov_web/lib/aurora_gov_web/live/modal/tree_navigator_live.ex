@@ -17,12 +17,11 @@ defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:context, assigns.context)
-      |> assign(:module, assigns.app_module)
+      |> assign(:app_context, assigns.app_context)
       |> start_async(:load_data, fn ->
-        if assigns[:current_person] != nil do
+        if assigns.app_context.current_person != nil do
           AuroraGov.Context.OUContext.get_ou_tree_with_membership(
-            assigns[:current_person].person_id
+            assigns.app_context.current_person.person_id
           )
         else
           AuroraGov.Context.OUContext.get_ou_tree()
@@ -132,7 +131,7 @@ defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
 
       <.async_result :let={ou_tree} assign={@ou_tree}>
         <:loading>
-          <.loading_spinner size="double_large"></.loading_spinner>
+          <.loading_spinner size="double_large" />
         </:loading>
 
         <:failed :let={_failure}>
@@ -143,7 +142,7 @@ defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
 
         <.ou_visual_tree ou_tree={ou_tree}>
           <:ou_item :let={ou}>
-            <.link patch={~p"/app/#{@module}?context=#{ou.ou_id}"} replace>
+            <.link patch={~p"/app/#{@app_context.current_module}?context=#{ou.ou_id}"} replace>
               <div class="relative">
                 <!-- Líneas guía jerárquicas (md+) -->
                 <span
@@ -160,9 +159,9 @@ defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
     <!-- Tarjeta OU -->
                 <div class={
                   "cursor-pointer hover:bg-gray-50 px-4 sm:px-5 py-3 rounded-lg my-1 flex flex-row items-center border transition " <>
-                  if @context == ou.ou_id, do: "border-2 border-aurora_orange bg-aurora_orange/10", else: "border-gray-200"
+                  if @app_context.current_ou_id == ou.ou_id, do: "border-2 border-aurora_orange bg-aurora_orange/10", else: "border-gray-200"
                 }>
-                  <div class="flex flex-col flex-grow min-w-0">
+                  <div class="flex flex-col grow min-w-0">
                     <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
                       <.ou_id_badge size="sm" ou_id={ou.ou_id} />
                       <%!-- <.chip icon_class="fa-solid fa-calendar-days">

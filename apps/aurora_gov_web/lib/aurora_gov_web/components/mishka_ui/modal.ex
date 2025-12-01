@@ -66,6 +66,10 @@ defmodule AuroraGovWeb.Components.Modal do
 
   attr :class, :string, default: nil, doc: "Custom CSS class for additional styling"
 
+  attr :title_icon, :string,
+    default: "",
+    doc: "Title Icon for Modal"
+
   attr :title_class, :string,
     default: "text-base md:text-lg xl:text-2xl",
     doc: "Custom CSS class for additional styling to title"
@@ -141,17 +145,14 @@ defmodule AuroraGovWeb.Components.Modal do
                 @focus_wrap_class
               ]}
             >
-              <div class="flex items-center justify-between mb-4">
-                <div :if={@title} id={"#{@id}-title"} class={["font-semibold", @title_class]}>
-                  {@title}
-                </div>
+              <div class="flex items-center justify-end">
                 <button
                   phx-click={JS.exec("data-cancel", to: "##{@id}")}
                   type="button"
                   class={["p-2 hover:opacity-60", @close_class]}
                   aria-label={gettext("close")}
                 >
-                  <.icon name="hero-x-mark-solid" class={@icon_class} />
+                  <.icon name="fa-solid fa-close" class={@icon_class} />
                 </button>
               </div>
 

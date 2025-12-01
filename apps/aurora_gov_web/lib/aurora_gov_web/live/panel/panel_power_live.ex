@@ -5,7 +5,7 @@ defmodule AuroraGovWeb.Live.Panel.Power do
   @impl true
   def update(%{update: {:power_updated, %{ou_id: ou_id}}}, socket) do
     socket =
-      if ou_id == socket.assigns.context do
+      if ou_id == socket.assigns.app_context.current_ou_id do
         socket
         |> assign(:ou_power_list, AsyncResult.loading())
         |> start_async(:load_data, fn ->
@@ -29,13 +29,12 @@ defmodule AuroraGovWeb.Live.Panel.Power do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:context, assigns.context)
+      |> assign(:app_context, assigns.app_context)
       |> assign(:ou_power_list, AsyncResult.loading())
       |> assign(power_modal: false)
       |> assign(power_modal_power_id: nil)
       |> start_async(:load_data, fn ->
-        :timer.sleep(1000)
-        AuroraGov.Context.PowerContext.get_ou_power_list(assigns.context)
+        AuroraGov.Context.PowerContext.get_ou_power_list(assigns.app_context.current_ou_id)
       end)
 
     {:ok, socket}
@@ -72,12 +71,12 @@ defmodule AuroraGovWeb.Live.Panel.Power do
     <div class="h-full w-full p-6">
       <.async_result :let={ou_power_list} assign={@ou_power_list}>
         <:loading>
-          <.loading_spinner size="double_large"></.loading_spinner>
+          <.loading_spinner size="double_large" />
         </:loading>
 
         <:failed :let={_failure}>error loading</:failed>
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-3 gap-4">
           <%= for power <- ou_power_list do %>
             <.live_component
               module={AuroraGovWeb.Components.Power.PowerCardComponent}
@@ -85,6 +84,7 @@ defmodule AuroraGovWeb.Live.Panel.Power do
               power_id={power.id}
               show_actions={true}
               power_info={power.power_info}
+              app_context={@app_context}
               ou_power={power.ou_power}
               parent_target={@myself}
             />
@@ -92,41 +92,8 @@ defmodule AuroraGovWeb.Live.Panel.Power do
         </div>
       </.async_result>
 
-      <.modal
-        :if={@power_modal}
-        id="power-modal"
-        show
-        size="double_large"
-        rounded="large"
-        content_class="p-3"
-        on_cancel={JS.push("modal_closed", target: @myself, value: %{modal: "power_update_modal"})}
-      >
-        <.live_component
-          module={AuroraGovWeb.Live.Power.SensibilityUpdate}
-          id={"power-modal-#{@power_modal_power_id}"}
-          context={@context}
-          power_id={@power_modal_power_id}
-        />
-      </.modal>
     </div>
     """
   end
 
-  @impl true
-  def handle_event("update_power", %{"power_id" => power_id}, socket) do
-    IO.inspect(power_id, label: "update_power")
-
-    socket =
-      socket
-      |> assign(power_modal_power_id: power_id)
-      |> assign(power_modal: true)
-
-    {:noreply, socket}
-  end
-
-  @impl true
-  def handle_event("modal_closed", %{"modal" => "power_update_modal"}, socket) do
-    IO.inspect("Cerrando modal power_update_modal")
-    {:noreply, assign(socket, power_modal: false)}
-  end
 end

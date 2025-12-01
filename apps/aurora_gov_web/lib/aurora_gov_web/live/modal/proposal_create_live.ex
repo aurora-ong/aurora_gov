@@ -41,18 +41,23 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
 
   @impl true
   def update(assigns, socket) do
-    # Inicializa el formulario si no está presente
-
     socket =
       socket
-      |> assign(assigns)
-      |> start_async(:load_data, fn ->
-        person_id = get_in(assigns, [:current_person, Access.key!(:person_id)])
+      |> assign(:app_context, assigns.app_context)
+      |> then(fn socket ->
+        case socket.assigns.app_context.current_person &&
+               socket.assigns.app_context.current_person.person_id do
+          nil ->
+            assign(
+              socket,
+              :ou_tree,
+              AsyncResult.failed(socket.assigns.ou_tree, :no_auth)
+            )
 
-        if is_nil(person_id) do
-          {:error, :no_person_id}
-        else
-          AuroraGov.Context.OUContext.get_ou_tree_with_membership(person_id)
+          person_id ->
+            start_async(socket, :load_data, fn ->
+              AuroraGov.Context.OUContext.get_ou_tree_with_membership(person_id)
+            end)
         end
       end)
       |> assign_new(:step_0_form_proposal, fn ->
@@ -96,47 +101,66 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   def render(assigns) do
     ~H"""
     <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
-      <h1 class="text-4xl text-black mb-5"><i class="fa-solid fa-hand text-3xl mr-3"></i>Gobernar</h1>
-
-      <h2 class="text-xl mb-10">
-        Utiliza este formulario para proponer una decisión. Reune los votos del resto de los integrantes para promulgarla.
-      </h2>
-
       <.async_result :let={ou_tree} assign={@ou_tree}>
         <:loading>
           <.loading_spinner size="double_large" />
         </:loading>
 
         <:failed :let={error}>
-          <%= case error do %>
-            <% e when e in [:no_person_id, "no_person_id"] -> %>
-              <div class="w-full p-6 text-center">
-                <i class="fa-solid fa-right-to-bracket text-4xl mb-4"></i>
-                <h3 class="text-xl font-semibold mb-5">Debes ser miembro de la unidad para gobernar</h3>
+          <div class="w-full flex flex-col items-center justify-center gap-4 p-6">
+            <div class="mb-3">
+              <i class={"fa-solid text-5xl text-aurora_orange " <>
+          (case error do
+          :no_auth -> "fa-user-slash"
 
-                <a
-                  href="/persons/log_in"
-                  class="inline-block px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                >
-                Iniciar sesión
+             _ -> "fa-circle-exclamation text-gray-500"
+           end)}>
+              </i>
+            </div>
+
+            <div class="text-center">
+              <h3 class="text-xl font-semibold">
+                {case error do
+                  :no_auth -> "Inicia sesión para continuar"
+                  _ -> "Error al cargar"
+                end}
+              </h3>
+
+              <p class="mt-2 text-sm text-gray-600">
+                {case error do
+                  :no_auth ->
+                    ""
+
+                  error ->
+                    "Intenta de nuevo más tarde. Código del error #{inspect(error)}"
+                end}
+              </p>
+            </div>
+
+            <%= case error do %>
+              <% :no_auth -> %>
+                <a href="/persons/log_in" class="primary filled mt-5">
+                  Iniciar sesión
                 </a>
-              </div>
-            <% other -> %>
-              <div class="w-full p-6 text-center">
-                <i class="fa-solid fa-exclamation-triangle text-4xl mb-4"></i>
-                <h3 class="text-xl font-semibold mb-2">No se pudo cargar</h3>
-
-                <p class="mb-2 text-sm text-gray-600">Código de error: {inspect(other)}</p>
-
-                <a
-                  href="/"
-                  class="inline-block px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+              <% _ -> %>
+                <.button
+                  phx-click="app_modal_close"
+                  phx-value-modal="power-sensibility-modal"
+                  class="primary filled mt-5"
                 >
-                  Salir
-                </a>
-              </div>
-          <% end %>
+                  Aceptar
+                </.button>
+            <% end %>
+          </div>
         </:failed>
+
+        <h1 class="text-4xl text-black mb-5">
+          <i class="fa-solid fa-hand text-3xl mr-3"></i>Gobernar
+        </h1>
+
+        <h2 class="text-xl mb-10">
+          Utiliza este formulario para proponer una decisión. Reune los votos del resto de los integrantes para promulgarla.
+        </h2>
 
         <.simple_form
           :if={@step == 0}

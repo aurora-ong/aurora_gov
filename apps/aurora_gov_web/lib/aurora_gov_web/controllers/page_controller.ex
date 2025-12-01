@@ -2,8 +2,10 @@ defmodule AuroraGovWeb.PageController do
   use AuroraGovWeb, :controller
 
   def home(conn, _params) do
-    # The home page is often custom made,
-    # so skip the default app layout.
-    render(conn, :home, layout: false)
+    redirect(conn, to: "/app")
+  end
+
+  def install(conn, _params) do
+    render(conn, :install, layout: false)
   end
 end

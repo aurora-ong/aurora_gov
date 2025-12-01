@@ -1,4 +1,5 @@
 defmodule AuroraGov.Projector.ProposalProjector do
+  alias AuroraGov.Event.VoteEmited
   alias AuroraGov.Projector.Model.Proposal
   alias AuroraGov.Event.ProposalCreated
 
@@ -37,6 +38,54 @@ defmodule AuroraGov.Projector.ProposalProjector do
     })
     |> Ecto.Multi.run(:projector_update, fn _repo, %{proposal_insert: proposal} ->
       {:ok, {:proposal_created, proposal}}
+    end)
+  end
+
+  def project(
+        %VoteEmited{} = event,
+        _metadata,
+        multi
+      ) do
+    import Ecto.Query
+
+    # Construye el JSON con los campos actualizados del voto
+    updated_vote_fields = %{
+      "vote_value" => event.vote_value,
+      "vote_type" => event.vote_type,
+      "updated_at" => DateTime.utc_now()
+    }
+
+    # Query para actualizar el voto dentro del array JSONB
+    query =
+      from(p in Proposal,
+        where: p.proposal_id == ^event.proposal_id,
+        update: [
+          set: [
+            proposal_votes:
+              fragment(
+                """
+                (
+                  SELECT jsonb_agg(
+                    CASE
+                      WHEN (elem->>'person_id')::text = ? THEN elem || ?::jsonb
+                      ELSE elem
+                    END
+                  )
+                  FROM jsonb_array_elements(proposal_votes) AS elem
+                )
+                """,
+                ^event.person_id,
+                ^updated_vote_fields
+              ),
+            updated_at: ^DateTime.utc_now()
+          ]
+        ]
+      )
+
+    multi
+    |> Ecto.Multi.update_all(:vote_update, query, [])
+    |> Ecto.Multi.run(:projector_update, fn _repo, %{vote_update: {1, _}} ->
+      {:ok, {:vote_emited, event}}
     end)
   end
 end
