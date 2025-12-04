@@ -5,6 +5,34 @@ defmodule AuroraGovWeb.Release do
   """
   @app :aurora_gov_web
 
+  def drop do
+    load_app()
+
+    config = AuroraGov.EventStore.config()
+    :ok = EventStore.Tasks.Drop.exec(config, [])
+
+    for repo <- repos() do
+      :ok = repo.__adapter__.storage_down(repo.config())
+      :ok = repo.__adapter__.storage_up(repo.config())
+    end
+
+    :ok
+  end
+
+  def seed do
+    load_app()
+
+    seeds_file =
+      [:code.priv_dir(@app), "repo", "seeds.exs"]
+      |> Path.join()
+
+    if File.exists?(seeds_file) do
+      Code.eval_file(seeds_file)
+    end
+
+    :ok
+  end
+
   def migrate do
     load_app()
 
@@ -14,9 +42,6 @@ defmodule AuroraGovWeb.Release do
   end
 
   def db_eventstore_init do
-    {:ok, _} = Application.ensure_all_started(:postgrex)
-    {:ok, _} = Application.ensure_all_started(:ssl)
-
     load_app()
 
     config = AuroraGov.EventStore.config()
@@ -36,5 +61,7 @@ defmodule AuroraGovWeb.Release do
 
   defp load_app do
     Application.load(@app)
+    {:ok, _} = Application.ensure_all_started(:postgrex)
+    {:ok, _} = Application.ensure_all_started(:ssl)
   end
 end

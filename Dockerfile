@@ -28,8 +28,7 @@ RUN apt-get update -y && apt-get install -y build-essential git \
 WORKDIR /app
 
 # install hex + rebar
-RUN mix local.hex --force && \
-    mix local.rebar --force
+RUN mix local.hex --force && mix local.rebar --force
 
 # set build ENV
 ENV MIX_ENV="prod"
@@ -48,17 +47,8 @@ COPY config/config.exs config/${MIX_ENV}.exs config/
 RUN mix deps.compile
 
 # CORE
-COPY apps/aurora_gov/priv apps/aurora_gov/priv
-COPY apps/aurora_gov/lib apps/aurora_gov/lib
+COPY . .
 
-# WEB
-
-COPY apps/aurora_gov_web/priv apps/aurora_gov_web/priv
-COPY apps/aurora_gov_web/lib apps/aurora_gov_web/lib
-
-
-# ASSETS
-COPY apps/aurora_gov_web/assets apps/aurora_gov_web/assets
 # RUN cd apps/aurora_gov_web/assets && npm install
 RUN cd apps/aurora_gov_web/ && mix assets.deploy
 
