@@ -1,5 +1,0 @@
-#!/bin/sh
-set -eu
-
-cd -P -- "$(dirname -- "$0")"
-exec ./aurora_gov_web eval AuroraGovWeb.Release.db_eventstore_init
