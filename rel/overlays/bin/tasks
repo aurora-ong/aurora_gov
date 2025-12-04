@@ -3,6 +3,8 @@ set -eu
 
 cd -P -- "$(dirname -- "$0")"
 
-exec ./aurora_gov_web eval AuroraGovWeb.Release.drop
-exec ./aurora_gov_web eval AuroraGovWeb.Release.migrate
-exec ./aurora_gov_web eval AuroraGovWeb.Release.seed general
+seed_file="seeds"
+
+./aurora_gov_web eval AuroraGov.Release.reset
+./aurora_gov_web eval AuroraGov.Release.migrate
+./aurora_gov_web eval "AuroraGov.Release.seed(\"$seed_file\")"
