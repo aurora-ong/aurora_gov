@@ -5,6 +5,6 @@ cd -P -- "$(dirname -- "$0")"
 
 seed_file="seeds"
 
-./aurora_gov_web eval AuroraGov.Release.reset
-./aurora_gov_web eval AuroraGov.Release.migrate
-./aurora_gov_web eval "AuroraGov.Release.seed(\"$seed_file\")"
+./aurora_gov_web eval AuroraGov.Release.db_reset
+./aurora_gov_web eval AuroraGov.Release.db_migrate
+./aurora_gov_web eval "AuroraGov.Release.db_seed(\"$seed_file\")"
