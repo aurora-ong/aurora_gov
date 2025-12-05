@@ -8,21 +8,23 @@ defmodule AuroraGov.Release do
   @app :aurora_gov
 
   def db_reset do
+    Logger.info("DB Reset...")
     db_drop()
     db_create()
     db_migrate()
+    Logger.info("DB Reset completado")
 
     :ok
   end
 
   def db_seed(seed_name) do
-    load_app()
+    {:ok, _} = Application.ensure_all_started(:aurora_gov)
 
     Logger.info("DB Seeds.")
 
     filename = if String.ends_with?(seed_name, ".exs"), do: seed_name, else: "#{seed_name}.exs"
 
-    Logger.info("DB Seeds. Filename: #{filename}")
+    Logger.info("Cargando seeds, filename: #{filename}")
 
     seeds_file = Path.join([:code.priv_dir(@app), "repo", filename])
 
@@ -37,8 +39,8 @@ defmodule AuroraGov.Release do
   end
 
   def db_migrate do
-    load_app()
-    Logger.info("DB Drop...")
+    Logger.info("DB Migrate...")
+    {:ok, _} = Application.ensure_all_started(:aurora_gov)
 
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
@@ -50,7 +52,7 @@ defmodule AuroraGov.Release do
     Logger.info("DB Drop...")
 
     for repo <- repos() do
-      case repo.__adapter__.storage_down(repo.config) do
+      case repo.__adapter__().storage_down(repo.config()) do
         :ok ->
           Logger.info("Base de datos eliminada para #{inspect(repo)}")
 
@@ -72,7 +74,7 @@ defmodule AuroraGov.Release do
     Logger.info("DB Create...")
 
     for repo <- repos() do
-      case repo.__adapter__.storage_up(repo.config) do
+      case repo.__adapter__().storage_up(repo.config()) do
         :ok ->
           Logger.info("Base de datos creada para #{inspect(repo)}")
 
