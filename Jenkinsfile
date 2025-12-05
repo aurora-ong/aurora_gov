@@ -1,28 +1,40 @@
 pipeline {
     environment {
-        DOCKER_REGISTRY = "registry.weychafe.nicher.cl"
-        IMAGE_NAME = "aurora_gov"
+        DOCKER_REGISTRY = 'registry.weychafe.nicher.cl'
+        IMAGE_NAME = 'aurora_gov'
     }
     agent {
         kubernetes {
-            yaml """
+            yaml '''
 apiVersion: v1
 kind: Pod
+metadata:
+  labels:
+    app: jenkins-builder
 spec:
   containers:
   - name: docker
-    image: docker:24
+    image: docker:24-cli
     tty: true
-    command:
-    - cat
+    command: ["cat"]
+    securityContext:
+      runAsUser: 0
     volumeMounts:
     - name: docker-sock
       mountPath: /var/run/docker.sock
+
+  - name: kubectl
+    image: bitnami/kubectl:latest
+    tty: true
+    command: ["cat"]
+    securityContext:
+      runAsUser: 0
+
   volumes:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-"""
+            '''
         }
     }
     stages {
@@ -34,8 +46,8 @@ spec:
                             branches: [[name: '*/master']],
                             extensions: [],
                             userRemoteConfigs: [[
-                                credentialsId: 'github-aurora',
-                                url: 'https://github.com/aurora-ong/aurora_gov.git'
+                                credentialsId: 'github-aurora_gov-deploy-key',
+                                url: 'git@github.com:aurora-ong/aurora_gov.git'
                             ]]
                         )
                         withCredentials([usernamePassword(credentialsId: 'weychafe-registry', usernameVariable: 'USER', passwordVariable: 'PASS')]) {
@@ -49,11 +61,14 @@ spec:
                 }
             }
         }
+
         stage('Deploy') {
             steps {
-                sshagent(['weychafe_jenkins_deployer']) {
-                    sh "ssh -o StrictHostKeyChecking=no jenkins-deployer@weychafe.nicher.cl 'set image deployment.apps/aurora-gov-deployment aurora-gov=$DOCKER_REGISTRY/$IMAGE_NAME:${env.BUILD_ID} -n aurora-gov'"
-                    sh "ssh -o StrictHostKeyChecking=no jenkins-deployer@weychafe.nicher.cl 'rollout status deployment/aurora-gov-deployment -n aurora-gov'"                    
+                container('kubectl') {
+                    withKubeConfig([credentialsId: 'weychafe-k8s-deployer']) {
+                            sh "kubectl set image deployment/aurora-gov-deployment aurora-gov=$DOCKER_REGISTRY/$IMAGE_NAME:${env.BUILD_ID} -n aurora-gov"
+                            sh 'kubectl rollout status deployment/aurora-gov-deployment -n aurora-gov'
+                    }
                 }
             }
         }
