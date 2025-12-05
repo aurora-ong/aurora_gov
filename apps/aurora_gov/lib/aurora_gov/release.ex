@@ -1,53 +1,88 @@
 defmodule AuroraGov.Release do
+  require Logger
+
   @moduledoc """
   Used for executing DB release tasks when run in production without Mix
   installed.
   """
   @app :aurora_gov
 
-  def reset do
-    load_app()
-    IO.inspect("RESET DB")
-
-    # config = AuroraGov.EventStore.config()
-    # :ok = EventStore.Tasks.Drop.exec(config, [])
-
-    # for repo <- repos() do
-    #   :ok = repo.__adapter__.storage_down(repo.config())
-    #   :ok = repo.__adapter__.storage_up(repo.config())
-    # end
+  def db_reset do
+    db_drop()
+    db_create()
+    db_migrate()
 
     :ok
   end
 
-  def seed(seed_name) do
+  def db_seed(seed_name) do
     load_app()
 
-    IO.inspect("SEED DB, seed_name: #{seed_name}.exs")
+    Logger.info("DB Seeds.")
 
-    # seeds_file =
-    #   [:code.priv_dir(@app), "repo", "seeds.exs"]
-    #   |> Path.join()
+    filename = if String.ends_with?(seed_name, ".exs"), do: seed_name, else: "#{seed_name}.exs"
 
-    # if File.exists?(seeds_file) do
-    #   Code.eval_file(seeds_file)
-    # end
+    Logger.info("DB Seeds. Filename: #{filename}")
+
+    seeds_file = Path.join([:code.priv_dir(@app), "repo", filename])
+
+    if File.exists?(seeds_file) do
+      Code.eval_file(seeds_file)
+      Logger.info("Seed ejecutado correctamente.")
+    else
+      Logger.error("Archivo de seed no encontrado: #{seeds_file}")
+    end
 
     :ok
   end
 
-  def migrate do
+  def db_migrate do
     load_app()
+    Logger.info("DB Drop...")
 
-    IO.inspect("MIGRATE DB")
-
-    # for repo <- repos() do
-    #   {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
-    # end
+    for repo <- repos() do
+      {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+    end
   end
 
-  defp db_eventstore_init do
+  defp db_drop do
     load_app()
+    Logger.info("DB Drop...")
+
+    for repo <- repos() do
+      case repo.__adapter__.storage_down(repo.config) do
+        :ok ->
+          Logger.info("Base de datos eliminada para #{inspect(repo)}")
+
+        {:error, :already_down} ->
+          Logger.info("La base de datos para #{inspect(repo)} ya estaba eliminada")
+
+        {:error, term} ->
+          Logger.error("Error eliminando base de datos para #{inspect(repo)}: #{inspect(term)}")
+      end
+    end
+
+    config = AuroraGov.EventStore.config()
+    :ok = EventStore.Tasks.Drop.exec(config, [])
+  end
+
+  defp db_create do
+    load_app()
+
+    Logger.info("DB Create...")
+
+    for repo <- repos() do
+      case repo.__adapter__.storage_up(repo.config) do
+        :ok ->
+          Logger.info("Base de datos creada para #{inspect(repo)}")
+
+        {:error, :already_up} ->
+          Logger.info("La base de datos para #{inspect(repo)} ya existe")
+
+        {:error, term} ->
+          Logger.error("Error creando base de datos para #{inspect(repo)}: #{inspect(term)}")
+      end
+    end
 
     config = AuroraGov.EventStore.config()
 
