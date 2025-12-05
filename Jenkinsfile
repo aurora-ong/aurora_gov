@@ -67,8 +67,7 @@ spec:
                 container('kubectl') {
                     withKubeConfig([credentialsId: 'weychafe-k8s-deployer']) {
                             sh "kubectl set image deployment/aurora-gov-deployment aurora-gov=$DOCKER_REGISTRY/$IMAGE_NAME:${env.BUILD_ID} -n aurora-gov"
-                            sh "kubectl rollout status deployment/aurora-gov-deployment -n aurora-gov"
-                        }
+                            sh 'kubectl rollout status deployment/aurora-gov-deployment -n aurora-gov'
                     }
                 }
             }
