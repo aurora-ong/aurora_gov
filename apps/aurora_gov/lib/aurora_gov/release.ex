@@ -45,7 +45,7 @@ defmodule AuroraGov.Release do
     end
   end
 
-  defp db_drop do
+  def db_drop do
     load_app()
     Logger.info("DB Drop...")
 
@@ -66,7 +66,7 @@ defmodule AuroraGov.Release do
     :ok = EventStore.Tasks.Drop.exec(config, [])
   end
 
-  defp db_create do
+  def db_create do
     load_app()
 
     Logger.info("DB Create...")
