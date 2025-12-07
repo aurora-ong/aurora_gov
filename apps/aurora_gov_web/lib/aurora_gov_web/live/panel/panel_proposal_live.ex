@@ -127,11 +127,12 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
                   <%= case proposal.proposal_status do %>
                     <% :consumed -> %>
                       <div class="mr-5 flex items-center" title="Completada">
-                        <i class={"fa fa-check-circle text-3xl " <> if proposal.proposal_execution_result == :success, do: "text-green-600", else: "text-red-600"}></i>
+                        <i class={"fa fa-check-circle text-3xl " <> if proposal.proposal_execution_result == :success, do: "text-green-600", else: "text-red-600"}>
+                        </i>
                       </div>
                     <% :executing -> %>
                       <div class="mr-5 flex items-center" title="Ejecutando">
-                        <i class="fa fa-circle-half-stroke text-blue-500 text-3xl"></i>
+                        <i class="fa-regular fa-circle text-blue-500 text-3xl animate-pulse"></i>
                       </div>
                     <% :active -> %>
                       <div class="mr-5 flex items-center" title="Activa">

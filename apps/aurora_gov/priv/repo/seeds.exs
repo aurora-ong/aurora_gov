@@ -167,7 +167,7 @@ AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
 AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{
   ou_id: "barrio_vivo",
   person_id: "000@test.com",
-  power_id: "org.member.add",
+  power_id: "org.membership.start",
   power_value: 100
 })
 
@@ -175,7 +175,6 @@ AuroraGov.dispatch(%AuroraGov.Command.PromoteMembership{
   ou_id: "barrio_vivo.seguridad",
   person_id: "222@test.com"
 })
-
 
 # AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "g4AFfCqpWtioetCuMbQJtu", power_id: "org.member.add", power_value: 100})
 # AuroraGov.dispatch(%AuroraGov.Command.UpdatePower{ou_id: "barrio_vivo", membership_id: "g4AFfCqpWtioetCuMbQJtu", power_id: "org.member.add", power_value: 100})
@@ -213,10 +212,10 @@ proposal_params = %{
   proposal_description: "Se solicita crear nuevo departamento..",
   proposal_ou_origin: "barrio_vivo",
   proposal_person_id: "000@test.com",
-  proposal_ou_end: "barrio_vivo",
+  proposal_ou_end: "barrio_vivo.cultura_participacion",
   proposal_power_id: "org.ou.create",
   proposal_power_data: %{
-    ou_id: "barrio_vivo.b",
+    ou_id: "barrio_vivo.d",
     ou_name: "Nuevo OU",
     ou_goal: "Objetivo de la unidad",
     ou_description: "Descripción de la unidad"
@@ -236,6 +235,5 @@ AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
 #   vote_comment: "Hola mundo",
 #   vote_type: "direct"
 # }
-
 
 AuroraGov.Context.ProposalContext.consume_proposal("1ea9bccf-1dd5-4d73-8242-3f7f496a11a0")

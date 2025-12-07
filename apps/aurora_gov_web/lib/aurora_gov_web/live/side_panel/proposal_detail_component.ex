@@ -20,6 +20,20 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
 
   @impl true
   def update(%{update: {:vote_emited, %{proposal_id: proposal_id}}}, socket) do
+    refresh_proposal(proposal_id, socket)
+  end
+
+  @impl true
+  def update(%{update: {:proposal_executing, %{proposal_id: proposal_id}}}, socket) do
+    refresh_proposal(proposal_id, socket)
+  end
+
+  @impl true
+  def update(%{update: {:proposal_consumed, %{proposal_id: proposal_id}}}, socket) do
+    refresh_proposal(proposal_id, socket)
+  end
+
+  defp refresh_proposal(proposal_id, socket) do
     socket =
       if proposal_id == socket.assigns.proposal_id do
         person_id =
@@ -263,6 +277,7 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                           {status[:current_voters]} / {status[:total_voters]} votos
                         </span>
                       </div>
+
                       <.proposal_vote_progress
                         current_score={status[:current_score]}
                         required_score={status[:required_score]}
@@ -271,11 +286,11 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                   <% end %>
                 </div>
 
-                <%= if @app_context && @app_context.current_person && @app_context.current_person.person_id == context.proposal.proposal_owner_id do %>
+                <%= if @app_context && @app_context.current_person && @app_context.current_person.person_id == context.proposal.proposal_owner_id && context.proposal.proposal_status == :active do %>
                   <hr class="my-5" />
                   <div class="text-center">
                     <button
-                      phx-click="update_vote"
+                      phx-click="execute_proposal"
                       phx-value-proposal-id={context.proposal.proposal_id}
                       phx-target={@myself}
                       class="primary filled w-full"
@@ -298,10 +313,19 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                         <span class={[
                           "px-2 py-1 rounded text-xs font-medium",
                           case vote.vote_value do
-                            1 -> "bg-green-100 text-green-800"
-                            0 -> "bg-gray-100 text-gray-800"
-                            -1 -> "bg-red-100 text-red-800"
-                            nil -> "bg-yellow-100 text-yellow-800"
+                            1 ->
+                              "bg-green-100 text-green-800"
+
+                            0 ->
+                              "bg-gray-100 text-gray-800"
+
+                            -1 ->
+                              "bg-red-100 text-red-800"
+
+                            nil ->
+                              if context.proposal.proposal_status == :active,
+                                do: "bg-yellow-100 text-yellow-800",
+                                else: "bg-gray-100 text-gray-800"
                           end
                         ]}>
                           <%= case vote.vote_value do %>
@@ -312,8 +336,12 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
                             <% -1 -> %>
                               <i class="fa-solid fa-times text-red-600 mr-1"></i> En contra
                             <% nil -> %>
-                              <i class="fa-solid fa-hourglass-half text-yellow-600 mr-1"></i>
-                              Pendiente
+                              <%= if context.proposal.proposal_status == :active do %>
+                                <i class="fa-solid fa-hourglass-half text-yellow-600 mr-1"></i>
+                                Pendiente
+                              <% else %>
+                                <i class="text-gray-600 mr-1"></i> No votó
+                              <% end %>
                           <% end %>
                         </span>
                       </div>
@@ -368,6 +396,26 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
     app_view = %AppView{
       view_id: "modal-proposal_vote",
       view_module: AuroraGovWeb.Live.Proposal.VoteModal,
+      view_options: %{
+        modal_size: "double_large"
+      },
+      view_params: %{
+        proposal_id: proposal_id
+      }
+    }
+
+    send(self(), {:open, :app_modal, app_view})
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("execute_proposal", %{"proposal-id" => proposal_id}, socket) do
+    IO.inspect(proposal_id, label: "execute_vote")
+
+    app_view = %AppView{
+      view_id: "modal-execute_proposal",
+      view_module: AuroraGovWeb.Live.Proposal.ExecuteModal,
       view_options: %{
         modal_size: "double_large"
       },

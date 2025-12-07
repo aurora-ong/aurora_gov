@@ -1,7 +1,8 @@
 defmodule AuroraGov.ProcessManagers.ProposalExecutor do
   use Commanded.ProcessManagers.ProcessManager,
     name: "ProposalExecutor",
-    application: AuroraGov
+    application: AuroraGov,
+    consistency: :strong
 
   alias AuroraGov.Event.ProposalExecuted
   alias AuroraGov.Event.ProposalConsumed
@@ -21,7 +22,6 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
 
   # Manejamos el evento y retornamos el comando a despachar
   def handle(_state, %ProposalExecuted{} = event) do
-    IO.inspect("Manejando")
     # Tu lógica de construcción de comando se mueve aquí
     case build_proposal_command(event) do
       {:ok, proposal_command} ->

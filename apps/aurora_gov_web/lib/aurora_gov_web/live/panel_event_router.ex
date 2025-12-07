@@ -36,6 +36,32 @@ defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
     )
   end
 
+  def handle_event({:proposal_executing, proposal} = update, socket) do
+    send_update(AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+      id: "panel-proposal-#{proposal.proposal_id}",
+      update: update
+    )
+
+    socket
+    |> put_flash(
+      :info,
+      "Se está promulgando (#{proposal.proposal_title} #{proposal.proposal_id})"
+    )
+  end
+
+  def handle_event({:proposal_consumed, proposal} = update, socket) do
+    send_update(AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+      id: "panel-proposal-#{proposal.proposal_id}",
+      update: update
+    )
+
+    socket
+    |> put_flash(
+      :info,
+      "Se ha promulgando (#{proposal.proposal_title} #{proposal.proposal_id})"
+    )
+  end
+
   def handle_event({event, _data}, socket) do
     Logger.info("No se encontró ruta para #{event}")
     socket
@@ -45,5 +71,4 @@ defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
     Logger.warning("No se encontró ruta para #{inspect(data)}")
     socket
   end
-
 end

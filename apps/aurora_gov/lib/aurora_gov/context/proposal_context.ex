@@ -28,7 +28,12 @@ defmodule AuroraGov.Context.ProposalContext do
 
     case Ecto.Changeset.apply_action(changeset, :create) do
       {:ok, command} ->
-        case AuroraGov.dispatch(command, consistency: :strong, returning: :execution_result) do
+        case AuroraGov.dispatch(command,
+               consistency: :strong,
+               returning: :execution_result,
+               wait_for: [AuroraGov.ProcessManagers.ProposalExecutor],
+               timeout: 30_000
+             ) do
           {:ok, result} ->
             {:ok, result}
 
@@ -48,7 +53,10 @@ defmodule AuroraGov.Context.ProposalContext do
 
     case Ecto.Changeset.apply_action(changeset, :create) do
       {:ok, command} ->
-        case AuroraGov.dispatch(command, consistency: :strong, returning: :execution_result) do
+        case AuroraGov.dispatch(command,
+               consistency: :strong,
+               returning: :execution_result
+             ) do
           {:ok, result} ->
             {:ok, result}
 
@@ -115,5 +123,12 @@ defmodule AuroraGov.Context.ProposalContext do
 
   def get_person_vote_from_proposal(%Proposal{proposal_votes: votes}, person_id) do
     Enum.find(votes, fn vote -> vote.person_id == person_id end)
+  end
+
+  def can_proposal_execute?(proposal_id) do
+    Logger.debug("[#{__MODULE__}] #{inspect(proposal_id)}")
+    {:proposal, proposal} = AuroraGov.Aggregate.Proposal.get_proposal(proposal_id)
+
+    AuroraGov.Aggregate.Proposal.validate_proposal_score(proposal)
   end
 end

@@ -1,4 +1,3 @@
-
 defmodule AuroraGovWeb.Components.AuroraComponents do
   @moduledoc """
   Provides core UI components.
@@ -81,16 +80,18 @@ defmodule AuroraGovWeb.Components.AuroraComponents do
   """
   attr :size, :string, default: "medium", doc: "Tamaño: small | medium | large | quadruple_large"
   attr :class, :string, default: "", doc: "Clases CSS adicionales"
+  attr :text, :string, default: "Cargando", doc: "Texto"
 
   def loading_spinner(assigns) do
     ~H"""
-    <span class="text-center flex justify-center items-center w-full h-full py-10 px-20">
+    <span class="text-center flex justify-center items-center w-full h-full py-10 px-20 gap-3">
       <.spinner size={@size} class={"text-aurora_orange " <> @class} />
+      <div :if={@text != ""}>
+        <h3 class="text-xl font-semibold">{@text}</h3>
+      </div>
     </span>
     """
   end
-
-
 
   @doc """
   Translates an error message using gettext.
@@ -266,6 +267,4 @@ defmodule AuroraGovWeb.Components.AuroraComponents do
     </.progress>
     """
   end
-
-
 end

@@ -111,7 +111,7 @@ defmodule AuroraGov.Projector.ProposalProjector do
     multi
     |> Ecto.Multi.update_all(:proposal_update, query, [])
     |> Ecto.Multi.run(:projector_update, fn _repo, %{proposal_update: {1, [updated_proposal]}} ->
-      {:ok, {:proposal_updated, updated_proposal}}
+      {:ok, {:proposal_executing, updated_proposal}}
     end)
   end
 
@@ -137,7 +137,7 @@ defmodule AuroraGov.Projector.ProposalProjector do
     multi
     |> Ecto.Multi.update_all(:proposal_update, query, [])
     |> Ecto.Multi.run(:projector_update, fn _repo, %{proposal_update: {1, [updated_proposal]}} ->
-      {:ok, {:proposal_updated, updated_proposal}}
+      {:ok, {:proposal_consumed, updated_proposal}}
     end)
   end
 end

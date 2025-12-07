@@ -7,11 +7,8 @@ defmodule AuroraGov.Aggregate.Proposal do
     :proposal_owner_id,
     :proposal_power_id,
     :proposal_power_data,
-    # :active | :consumed
     :proposal_status,
-    # %{person_id => %Vote{}}
     :proposal_votes,
-    # %{ou_id => sensibility_value}
     :proposal_power_sensibility
   ]
 
@@ -129,9 +126,7 @@ defmodule AuroraGov.Aggregate.Proposal do
         %__MODULE__{proposal_status: :active} = proposal,
         %AuroraGov.Command.ExecuteProposal{}
       ) do
-    # 1. Validaciones (mantenemos tu lógica)
-    with :ok <- validate_proposal_score(proposal) do
-      # 2. Retornamos el evento (NO hacemos dispatch aquí)
+    with true <- validate_proposal_score(proposal) do
       %AuroraGov.Event.ProposalExecuted{
         proposal_id: proposal.proposal_id,
         proposal_power_id: proposal.proposal_power_id,
@@ -158,10 +153,30 @@ defmodule AuroraGov.Aggregate.Proposal do
   def execute(%__MODULE__{}, %AuroraGov.Command.ConsumeProposal{}),
     do: {:error, :proposal_invalid_status}
 
-  # Aplicamos el cambio de estado
+  def validate_proposal_score(%__MODULE__{} = proposal) do
+    all_votes = Map.values(proposal.proposal_votes)
 
-  defp validate_proposal_score(%__MODULE__{} = proposal) do
-    Logger.debug("[#{__MODULE__}] #{inspect(proposal)}")
-    :ok
+    Enum.all?(proposal.proposal_power_sensibility, fn {ou_id, sens_value} ->
+      # Filtra los votos que pertenecen a la OU actual
+      relevant_votes =
+        Enum.filter(all_votes, fn vote ->
+          ou_id in (vote.ou_id || [])
+        end)
+
+      total_voters = length(relevant_votes)
+      # Si no hay votantes para esta OU, se considera aprobada.
+      if total_voters == 0 do
+        true
+      else
+        required_score = round(sens_value / 100 * total_voters)
+
+        current_score =
+          relevant_votes
+          |> Enum.map(&(&1.vote_value || 0))
+          |> Enum.sum()
+
+        current_score >= required_score
+      end
+    end)
   end
 end
