@@ -96,22 +96,23 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
               %{label: "Salientes", value: :out}
             ]}
             selected={:all}
-            on_select="filter_changed"
+            on_select="update_filter"
           />
         </div>
 
         <form phx-change="search" phx-target={@myself} class="flex items-center gap-2">
-          <.search_field name="search" value={@search} placeholder="Búsqueda rápida" />
+          <.search_field search_button name="search" value={@search} placeholder="Búsqueda rápida" class="bg-amber-200" />
         </form>
       </div>
 
-      <div class="relative overflow-x-auto w-full rounded-lg border border-gray-200 bg-gray-50 min-h-[220px]">
+      <div class="w-full min-h-[220px]">
         <%= if @loading do %>
           <.loading_spinner size="double_large" />
         <% else %>
           <.table
             id="proposals"
             rows={@streams.proposal_list}
+            rounded="medium"
             row_click={
               fn {_id, proposal} ->
                 JS.push("proposal_row_click",
@@ -170,11 +171,7 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
                     <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
 
                     <p class="text-md text-gray-600 font-normal">
-                      Hace X días ({Timex.lformat!(
-                        proposal.created_at,
-                        "{0D}/{0M}/{YYYY} {h24}:{m}",
-                        "es"
-                      )})
+                      {Timex.lformat!(proposal.created_at, "{relative}", "es", :relative)}
                     </p>
                   </div>
                 </div>
@@ -235,9 +232,9 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
       socket
       |> assign(:search, search)
       |> assign(:loading, true)
-      |> start_async(:load_proposals, fn ->
-        fetch_proposals(socket.assigns.context, socket.assigns.filter_type, search, %{})
-      end)
+      # |> start_async(:load_proposals, fn ->
+      #   fetch_proposals(socket.assigns.context, socket.assigns.filter_type, search, %{})
+      # end)
 
     {:noreply, socket}
   end
@@ -263,7 +260,6 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
 
   @impl true
   def handle_event("proposal_row_click", %{"id" => proposal_id}, socket) do
-    IO.inspect(proposal_id, label: "Fila clickeada")
 
     app_panel = %AppView{
       view_id: "panel-proposal-#{proposal_id}",

@@ -162,7 +162,7 @@ defmodule AuroraGovWeb.Components.Table do
             ]}
             {@rest}
           >
-            <thead class={@thead_class}>
+            <thead :if={!Enum.empty?(@header)} class={@thead_class}>
               <.tr>
                 <.th
                   :for={{header, index} <- Enum.with_index(@header, 1)}

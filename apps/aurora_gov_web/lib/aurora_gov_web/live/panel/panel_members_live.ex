@@ -110,7 +110,7 @@ defmodule AuroraGovWeb.Live.Panel.Members do
         </div>
       </div>
 
-      <div class="relative overflow-x-auto w-full">
+      <div class="w-full">
         <%= if @loading do %>
           <.loading_spinner size="double_large" />
         <% else %>
@@ -123,6 +123,7 @@ defmodule AuroraGovWeb.Live.Panel.Members do
           <% end %> --%>
           <.table
             thead_class="bg-gray-50 w-full"
+            rounded="medium"
             text_size="medium"
             id="members"
             rows={@streams.member_list}
@@ -164,7 +165,10 @@ defmodule AuroraGovWeb.Live.Panel.Members do
               {Timex.lformat!(membership.created_at, "{relative}", "es", :relative)}
             </:col>
 
-            <:footer class="text-sm w-100 bg-gray-50">Total 4 miembros</:footer>
+            <:footer class="text-sm w-100 bg-gray-50">Total 4 miembros
+
+
+            </:footer>
           </.table>
         <% end %>
       </div>

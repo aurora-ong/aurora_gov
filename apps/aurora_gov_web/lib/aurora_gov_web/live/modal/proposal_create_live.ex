@@ -105,7 +105,6 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
   def render(assigns) do
     ~H"""
     <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
-      {inspect(@step_0_form_proposal)}
       <.async_result :let={ou_tree} assign={@ou_tree}>
         <:loading>
           <.loading_spinner size="double_large" />

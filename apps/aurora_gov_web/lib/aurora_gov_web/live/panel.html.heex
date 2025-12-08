@@ -175,7 +175,6 @@
       <%!-- <a href="#" class="iconbutton">
         <i class="fa-solid fa-list-check"></i>
       </a> --%>
-      
       <a
         phx-click="toggle_activity_panel"
         class={"iconbutton #{if (@app_side_panel && @app_side_panel.view_id) == "panel-activity", do: "active", else: ""}"}
@@ -213,9 +212,7 @@
     </section>
   </div>
   
-  <.live_component module={AuroraGovWeb.Live.Panel.Header} id="header" app_context={@app_context} /> {inspect(
-    @app_context
-  )}
+  <.live_component module={AuroraGovWeb.Live.Panel.Header} id="header" app_context={@app_context} />
   <div class="flex flex-row gap-2 overflow-hidden h-full w-full">
     <section class="card flex flex-col items-center bg-white shadow-lg rounded-lg overflow-y-auto flex-1">
       <%= case @app_context.current_module do %>

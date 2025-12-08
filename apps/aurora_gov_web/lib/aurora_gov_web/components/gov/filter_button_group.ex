@@ -35,8 +35,8 @@ defmodule AuroraGovWeb.Components.FilterButtonGroup do
           class={
             "transition-colors duration-150 font-semibold px-4 py-2 focus:z-10 focus:outline-none border-0 " <>
             if(@selected == opt.value,
-              do: " !bg-aurora_orange text-white",
-              else: "bg-gray-200 text-black hover:bg-gray-500 hover:text-white"
+              do: " bg-aurora_orange! text-white",
+              else: "bg-gray-400 text-black hover:bg-gray-500 hover:text-white"
             )
           }
           phx-click={@on_select}
