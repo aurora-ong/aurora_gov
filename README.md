@@ -6,6 +6,18 @@ More info https://aurora.ong
 
 To contribute in this projects contact with Pavel Delgado (p.delgado@aurora.ong)
 
+## ⚖️ License
+
+AuroraGov is distributed under the **Elastic License 2.0 (ELv2)**.
+
+This is a **Source Available** model that guarantees:
+
+* ✅ **Freedom of Use:** You can download, modify, and run AuroraGov for your own organization (self-hosting) completely free of charge.
+* ✅ **Transparency:** The code is 100% auditable and open.
+* ❌ **Commercial Protection:** You are not allowed to offer AuroraGov as a managed service (SaaS) to third parties. In other words, you cannot commercially sell "AuroraGov Hosting" without a prior agreement with us.
+
+For commercial licenses or Enterprise use, please contact us at: contacto@aurora.ong
+
 ## Requeriments
 
 * Docker
