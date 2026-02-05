@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Footer do
+defmodule AuroraGov.Web.Components.Footer do
   @moduledoc """
-  The `AuroraGovWeb.Components.Footer` module provides a customizable footer component for Phoenix applications,
+  The `AuroraGov.Web.Components.Footer` module provides a customizable footer component for Phoenix applications,
   allowing for various styles, colors, and layout options. It supports different design variants
   such as default, outline, transparent, shadow, and unbordered.
 

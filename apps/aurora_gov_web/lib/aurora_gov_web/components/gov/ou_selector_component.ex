@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.OUSelectorComponent do
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.OUSelectorComponent do
+  use AuroraGov.Web, :live_component
   use Phoenix.Component
 
   @impl true

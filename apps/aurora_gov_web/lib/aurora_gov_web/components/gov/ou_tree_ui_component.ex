@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.OUVisualTreeComponent do
+defmodule AuroraGov.Web.OUVisualTreeComponent do
   use Phoenix.Component
 
   attr :ou_tree, :list, required: true

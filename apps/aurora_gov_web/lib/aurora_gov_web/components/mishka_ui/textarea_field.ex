@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.TextareaField do
+defmodule AuroraGov.Web.Components.TextareaField do
   @moduledoc """
-  The `AuroraGovWeb.Components.TextareaField` module provides a versatile and customizable textarea field component
+  The `AuroraGov.Web.Components.TextareaField` module provides a versatile and customizable textarea field component
   for Phoenix LiveView applications. It supports a range of styles, themes, and functional attributes
   to enhance the user experience when working with large text inputs.
 
@@ -23,7 +23,7 @@ defmodule AuroraGovWeb.Components.TextareaField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `textarea_field` component provides a customizable text area input with various styling options,
@@ -1013,9 +1013,9 @@ defmodule AuroraGovWeb.Components.TextareaField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

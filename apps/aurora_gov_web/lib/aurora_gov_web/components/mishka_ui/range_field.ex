@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.RangeField do
+defmodule AuroraGov.Web.Components.RangeField do
   @moduledoc """
-  The `AuroraGovWeb.Components.RangeField` module provides a comprehensive range input field
+  The `AuroraGov.Web.Components.RangeField` module provides a comprehensive range input field
   component for Phoenix LiveView applications. This component is designed with flexibility and
   customization in mind, allowing developers to configure various aspects such as size, color, and
   styling options.
@@ -16,7 +16,7 @@ defmodule AuroraGovWeb.Components.RangeField do
   high level of customization and control.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `range_field`, which allows users to select a numeric value from a defined range.
@@ -434,9 +434,9 @@ defmodule AuroraGovWeb.Components.RangeField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

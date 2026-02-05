@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.DynamicCommandFormComponent do
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.DynamicCommandFormComponent do
+  use AuroraGov.Web, :live_component
 
   @impl true
   def update(assigns, socket) do

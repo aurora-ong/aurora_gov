@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.DateTimeField do
+defmodule AuroraGov.Web.Components.DateTimeField do
   @moduledoc """
-  The `AuroraGovWeb.Components.DateTimeField` module provides a reusable component for rendering
+  The `AuroraGov.Web.Components.DateTimeField` module provides a reusable component for rendering
   various types of date and time inputs in Phoenix applications.
 
   It includes options for customization, validation, and styling, supporting different
@@ -15,7 +15,7 @@ defmodule AuroraGovWeb.Components.DateTimeField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `date_time_field` component is used to create a customizable date, time, or datetime input field with various options such as `type`, `color`, and `size`. It supports floating labels, descriptions, and error messages, making it suitable for form validation and enhanced UX.
@@ -1093,9 +1093,9 @@ defmodule AuroraGovWeb.Components.DateTimeField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

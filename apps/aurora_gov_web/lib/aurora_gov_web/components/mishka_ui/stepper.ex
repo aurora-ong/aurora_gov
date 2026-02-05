@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Stepper do
+defmodule AuroraGov.Web.Components.Stepper do
   @moduledoc """
-  The `AuroraGovWeb.Components.Stepper` module provides a flexible and interactive stepper component
+  The `AuroraGov.Web.Components.Stepper` module provides a flexible and interactive stepper component
   for Phoenix LiveView applications. It supports both horizontal and vertical layouts,
   making it ideal for displaying multi-step processes, such as onboarding, forms, or any
   workflow that requires users to follow a sequence of steps.
@@ -10,13 +10,13 @@ defmodule AuroraGovWeb.Components.Stepper do
   The component also offers various step states like `current`, `loading`, `completed`, and `canceled`,
   enabling a visual indication of the user's progress.
 
-  The `AuroraGovWeb.Components.Stepper` enhances user experience by providing a clear and concise representation
+  The `AuroraGov.Web.Components.Stepper` enhances user experience by providing a clear and concise representation
   of step-by-step workflows, ensuring users can easily track their position and progress within the application.
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
-  use Gettext, backend: AuroraGovWeb.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   Renders a customizable `stepper` component that visually represents a multi-step process.

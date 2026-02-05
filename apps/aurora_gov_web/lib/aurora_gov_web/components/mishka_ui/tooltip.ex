@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Tooltip do
+defmodule AuroraGov.Web.Components.Tooltip do
   @moduledoc """
-  A Tooltip AuroraGovWeb.Components.Tooltip module for use in Phoenix applications.
+  A Tooltip AuroraGov.Web.Components.Tooltip module for use in Phoenix applications.
 
   This component allows you to display informative text when the user hovers over or focuses on an element.
   It supports various customization options, including position, color themes, and sizes, allowing for

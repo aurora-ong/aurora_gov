@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.EmailField do
+defmodule AuroraGov.Web.Components.EmailField do
   @moduledoc """
-  The `AuroraGovWeb.Components.EmailField` module provides a customizable email input field
+  The `AuroraGov.Web.Components.EmailField` module provides a customizable email input field
   component built using Phoenix LiveView. It offers extensive styling options and behavior
   customizations for email input fields, such as:
 
@@ -16,7 +16,7 @@ defmodule AuroraGovWeb.Components.EmailField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `email_field` with options for styling, floating labels, and additional
@@ -1049,9 +1049,9 @@ defmodule AuroraGovWeb.Components.EmailField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

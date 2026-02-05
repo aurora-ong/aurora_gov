@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Breadcrumb do
+defmodule AuroraGov.Web.Components.Breadcrumb do
   @moduledoc """
-  Provides a flexible and customizable `AuroraGovWeb.Components.Breadcrumb` component for displaying
+  Provides a flexible and customizable `AuroraGov.Web.Components.Breadcrumb` component for displaying
   breadcrumb navigation in your Phoenix LiveView applications.
 
   ## Features
@@ -14,7 +14,7 @@ defmodule AuroraGovWeb.Components.Breadcrumb do
   behavior and appearance.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `breadcrumb` component is used to display a navigational path with customizable

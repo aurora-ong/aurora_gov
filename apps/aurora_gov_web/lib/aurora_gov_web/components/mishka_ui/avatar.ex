@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Avatar do
+defmodule AuroraGov.Web.Components.Avatar do
   @moduledoc """
-  The `AuroraGovWeb.Components.Avatar` module provides a set of components for creating and
+  The `AuroraGov.Web.Components.Avatar` module provides a set of components for creating and
   managing avatar elements in your **Phoenix LiveView** applications.
 
   It supports various avatar types, including standard avatars, placeholders, and placeholder icons.
@@ -20,7 +20,7 @@ defmodule AuroraGovWeb.Components.Avatar do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `avatar` component is used to display user avatars with various customization options,

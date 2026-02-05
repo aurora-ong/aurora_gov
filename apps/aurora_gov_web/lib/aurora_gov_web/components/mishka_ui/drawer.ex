@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Drawer do
+defmodule AuroraGov.Web.Components.Drawer do
   @moduledoc """
-  The `AuroraGovWeb.Components.Drawer` module provides a flexible and customizable drawer component
+  The `AuroraGov.Web.Components.Drawer` module provides a flexible and customizable drawer component
   for use in Phoenix LiveView applications.
 
   ## Features:
@@ -18,8 +18,8 @@ defmodule AuroraGovWeb.Components.Drawer do
   """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  use Gettext, backend: AuroraGovWeb.Gettext
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   A `drawer` component for displaying content in a sliding panel. It can be positioned on the left or

@@ -2,7 +2,7 @@
 <div class="w-1/6 h-full flex flex-col py-5 px-5">
   <div class="py-5 flex flex-col justify-center items-center">
     <img
-      src={~p"/images/brand/logotipo_fondo_naranjo.png"}
+      src={~p"/images/brand/logotipo_fondo.webp"}
       alt="Aurora Logo"
       class="w-16 mb-5 rounded-full"
     />
@@ -212,31 +212,31 @@
     </section>
   </div>
   
-  <.live_component module={AuroraGovWeb.Live.Panel.Header} id="header" app_context={@app_context} />
+  <.live_component module={AuroraGov.Web.Live.Panel.Header} id="header" app_context={@app_context} />
   <div class="flex flex-row gap-2 overflow-hidden h-full w-full">
     <section class="card flex flex-col items-center bg-white shadow-lg rounded-lg overflow-y-auto flex-1">
       <%= case @app_context.current_module do %>
         <% "home" -> %>
           <.live_component
-            module={AuroraGovWeb.Live.Panel.Home}
+            module={AuroraGov.Web.Live.Panel.Home}
             id="panel-home"
             app_context={@app_context}
           />
         <% "members" -> %>
           <.live_component
-            module={AuroraGovWeb.Live.Panel.Members}
+            module={AuroraGov.Web.Live.Panel.Members}
             id="panel-members"
             app_context={@app_context}
           />
         <% "power" -> %>
           <.live_component
-            module={AuroraGovWeb.Live.Panel.Power}
+            module={AuroraGov.Web.Live.Panel.Power}
             id="panel-power"
             app_context={@app_context}
           />
         <% "proposals" -> %>
           <.live_component
-            module={AuroraGovWeb.Live.Panel.Proposals}
+            module={AuroraGov.Web.Live.Panel.Proposals}
             id="panel-proposal"
             context={@app_context.current_ou_id}
           />

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Clipboard do
+defmodule AuroraGov.Web.Components.Clipboard do
   @moduledoc """
-  The `AuroraGovWeb.Components.Clipboard` is a Phoenix LiveView component module for creating customizable clipboard functionality.
+  The `AuroraGov.Web.Components.Clipboard` is a Phoenix LiveView component module for creating customizable clipboard functionality.
 
   This module provides components to facilitate copying text to the clipboard, with customizable options for feedback, styling, and accessibility. The main component, `clipboard/1`, can copy provided text or content from a specified DOM element.
 
@@ -12,7 +12,7 @@ defmodule AuroraGovWeb.Components.Clipboard do
   - Flexible content rendering through slots
   """
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
   import Phoenix.LiveView.Utils, only: [random_id: 0]
 
   @doc """

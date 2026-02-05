@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.Auth do
-  use AuroraGovWeb, :verified_routes
+defmodule AuroraGov.Web.Auth do
+  use AuroraGov.Web, :verified_routes
 
   import Plug.Conn
   import Phoenix.Controller
@@ -77,7 +77,7 @@ defmodule AuroraGovWeb.Auth do
     person_token && PersonContext.delete_person_session_token(person_token)
 
     if live_socket_id = get_session(conn, :live_socket_id) do
-      AuroraGovWeb.Endpoint.broadcast(live_socket_id, "disconnect", %{})
+      AuroraGov.Web.Endpoint.broadcast(live_socket_id, "disconnect", %{})
     end
 
     conn
@@ -132,16 +132,16 @@ defmodule AuroraGovWeb.Auth do
   Use the `on_mount` lifecycle macro in LiveViews to mount or authenticate
   the current_person:
 
-      defmodule AuroraGovWeb.PageLive do
-        use AuroraGovWeb, :live_view
+      defmodule AuroraGov.Web.PageLive do
+        use AuroraGov.Web, :live_view
 
-        on_mount {AuroraGovWeb.PersonAuth, :mount_current_person}
+        on_mount {AuroraGov.Web.PersonAuth, :mount_current_person}
         ...
       end
 
   Or use the `live_session` of your router to invoke the on_mount callback:
 
-      live_session :authenticated, on_mount: [{AuroraGovWeb.PersonAuth, :ensure_authenticated}] do
+      live_session :authenticated, on_mount: [{AuroraGov.Web.PersonAuth, :ensure_authenticated}] do
         live "/profile", ProfileLive, :index
       end
   """

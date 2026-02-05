@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.PersonRegisterLive do
-  use AuroraGovWeb, :live_view
+defmodule AuroraGov.Web.PersonRegisterLive do
+  use AuroraGov.Web, :live_view
 
   def render(assigns) do
     ~H"""

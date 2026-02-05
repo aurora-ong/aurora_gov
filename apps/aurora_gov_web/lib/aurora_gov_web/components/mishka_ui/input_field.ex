@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.InputField do
+defmodule AuroraGov.Web.Components.InputField do
   @moduledoc """
-  The `AuroraGovWeb.Components.InputField` module provides a customizable input field component that
+  The `AuroraGov.Web.Components.InputField` module provides a customizable input field component that
   integrates with Phoenix forms.
 
   This component supports a variety of input types, including text, email, password,
@@ -24,7 +24,7 @@ defmodule AuroraGovWeb.Components.InputField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders an `input` with label and error messages.
@@ -220,9 +220,9 @@ defmodule AuroraGovWeb.Components.InputField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

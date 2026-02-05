@@ -30,11 +30,11 @@ config :aurora_gov_web,
   generators: [context_app: :aurora_gov]
 
 # Configures the endpoint
-config :aurora_gov_web, AuroraGovWeb.Endpoint,
+config :aurora_gov_web, AuroraGov.Web.Endpoint,
   url: [host: "localhost"],
   adapter: Bandit.PhoenixAdapter,
   render_errors: [
-    formats: [html: AuroraGovWeb.ErrorHTML, json: AuroraGovWeb.ErrorJSON],
+    formats: [html: AuroraGov.Web.ErrorHTML, json: AuroraGov.Web.ErrorJSON],
     layout: false
   ],
   pubsub_server: AuroraGov.PubSub,

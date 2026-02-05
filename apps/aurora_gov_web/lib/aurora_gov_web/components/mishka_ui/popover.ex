@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Popover do
+defmodule AuroraGov.Web.Components.Popover do
   @moduledoc """
-  The `AuroraGovWeb.Components.Popover` module provides a versatile popover component for Phoenix LiveView
+  The `AuroraGov.Web.Components.Popover` module provides a versatile popover component for Phoenix LiveView
   applications. It allows developers to create interactive and visually appealing popover elements
   with various customization options.
 

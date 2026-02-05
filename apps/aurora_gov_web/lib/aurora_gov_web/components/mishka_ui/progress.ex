@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Progress do
+defmodule AuroraGov.Web.Components.Progress do
   @moduledoc """
-  The `AuroraGovWeb.Components.Progress` module provides a customizable progress bar component for
+  The `AuroraGov.Web.Components.Progress` module provides a customizable progress bar component for
   Phoenix LiveView applications.
 
   It offers a range of styling options, including different sizes, colors, and variants,

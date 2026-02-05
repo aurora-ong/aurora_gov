@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Telemetry do
+defmodule AuroraGov.Web.Telemetry do
   use Supervisor
   import Telemetry.Metrics
 
@@ -87,7 +87,7 @@ defmodule AuroraGovWeb.Telemetry do
     [
       # A module, function and arguments to be invoked periodically.
       # This function must call :telemetry.execute/3 and a metric must be added above.
-      # {AuroraGovWeb, :count_users, []}
+      # {AuroraGov.Web, :count_users, []}
     ]
   end
 end

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.SpeedDial do
+defmodule AuroraGov.Web.Components.SpeedDial do
   @moduledoc """
-  The `AuroraGovWeb.Components.SpeedDial` module provides a versatile speed dial component for Phoenix
+  The `AuroraGov.Web.Components.SpeedDial` module provides a versatile speed dial component for Phoenix
   LiveView applications. This component enhances user interactions by offering a dynamic
   menu of actions that can be triggered from a single button. The speed dial is
   especially useful for applications that need to offer quick access to multiple
@@ -28,9 +28,9 @@ defmodule AuroraGovWeb.Components.SpeedDial do
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `speed_dial` component that provides quick access to multiple actions.

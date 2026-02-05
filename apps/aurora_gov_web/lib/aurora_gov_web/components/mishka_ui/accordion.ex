@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Accordion do
+defmodule AuroraGov.Web.Components.Accordion do
   @moduledoc """
-  The `AuroraGovWeb.Components.Accordion` module provides a flexible and customizable accordion
+  The `AuroraGov.Web.Components.Accordion` module provides a flexible and customizable accordion
   component for Phoenix LiveView applications.
 
   It supports a variety of configuration options including size, variant, color, padding,
@@ -25,7 +25,7 @@ defmodule AuroraGovWeb.Components.Accordion do
 
   alias Phoenix.LiveView.JS
 
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `accordion` component provides a collapsible structure with various styling options,

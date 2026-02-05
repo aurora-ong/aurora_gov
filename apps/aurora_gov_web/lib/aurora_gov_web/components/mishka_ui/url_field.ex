@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.UrlField do
+defmodule AuroraGov.Web.Components.UrlField do
   @moduledoc """
-  AuroraGovWeb.Components.UrlField, A component for rendering a URL input field in a Phoenix application.
+  AuroraGov.Web.Components.UrlField, A component for rendering a URL input field in a Phoenix application.
 
   This module provides a customizable URL input field with various options
   for styling and layout, including the ability to display errors, descriptions,
@@ -14,7 +14,7 @@ defmodule AuroraGovWeb.Components.UrlField do
   to enhance usability and accessibility.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `url_field` component is used to create an input field for URLs.
@@ -1041,9 +1041,9 @@ defmodule AuroraGovWeb.Components.UrlField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

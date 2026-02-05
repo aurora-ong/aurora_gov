@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Live.Panel.Home do
+defmodule AuroraGov.Web.Live.Panel.Home do
   # In Phoenix apps, the line is typically: use MyAppWeb, :live_component
-  use AuroraGovWeb, :live_component
+  use AuroraGov.Web, :live_component
 
   def update(assigns, socket) do
     socket =
@@ -17,7 +17,7 @@ defmodule AuroraGovWeb.Live.Panel.Home do
   defp show_activity_panel() do
     app_panel = %AppView{
       view_id: "panel-activity",
-      view_module: AuroraGovWeb.Live.Panel.Side.LastActivity,
+      view_module: AuroraGov.Web.Live.Panel.Side.LastActivity,
       view_options: %{},
       view_params: %{}
     }

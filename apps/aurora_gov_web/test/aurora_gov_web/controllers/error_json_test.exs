@@ -1,12 +1,12 @@
-defmodule AuroraGovWeb.ErrorJSONTest do
-  use AuroraGovWeb.ConnCase, async: true
+defmodule AuroraGov.Web.ErrorJSONTest do
+  use AuroraGov.Web.ConnCase, async: true
 
   test "renders 404" do
-    assert AuroraGovWeb.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
+    assert AuroraGov.Web.ErrorJSON.render("404.json", %{}) == %{errors: %{detail: "Not Found"}}
   end
 
   test "renders 500" do
-    assert AuroraGovWeb.ErrorJSON.render("500.json", %{}) ==
+    assert AuroraGov.Web.ErrorJSON.render("500.json", %{}) ==
              %{errors: %{detail: "Internal Server Error"}}
   end
 end

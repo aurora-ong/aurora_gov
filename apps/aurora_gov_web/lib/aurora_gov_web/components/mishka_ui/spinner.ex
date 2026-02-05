@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Spinner do
+defmodule AuroraGov.Web.Components.Spinner do
   @moduledoc """
-  The `AuroraGovWeb.Components.Spinner` module provides a dynamic and customizable loading spinner
+  The `AuroraGov.Web.Components.Spinner` module provides a dynamic and customizable loading spinner
   component for Phoenix LiveView applications. It supports various animation styles and
   configurations to visually indicate ongoing processes or loading states within an application.
 
@@ -9,13 +9,13 @@ defmodule AuroraGovWeb.Components.Spinner do
   It also allows extensive customization, including color themes and size variations,
   making it adaptable to different UI designs and user interfaces.
 
-  With its flexible design, the `AuroraGovWeb.Components.Spinner` module enables developers to provide
+  With its flexible design, the `AuroraGov.Web.Components.Spinner` module enables developers to provide
   visual feedback for asynchronous operations, enhancing user experience and maintaining engagement
   during content loading or background processes.
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @spinner_types [
     "default",

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.DeviceMockup do
+defmodule AuroraGov.Web.Components.DeviceMockup do
   @moduledoc """
-  The `AuroraGovWeb.Components.DeviceMockup` module provides a customizable component for displaying
+  The `AuroraGov.Web.Components.DeviceMockup` module provides a customizable component for displaying
   various device mockups such as iPhone, Android, Watch, Laptop, iPad, and iMac.
 
   It supports different color themes and includes options for adding images or custom
@@ -14,7 +14,7 @@ defmodule AuroraGovWeb.Components.DeviceMockup do
   application previews.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Image, only: [image: 1]
+  import AuroraGov.Web.Components.Image, only: [image: 1]
 
   @doc """
   The `device_mockup` component renders a responsive device mockup for various devices like

@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.PersonLoginLive do
-  use AuroraGovWeb, :live_view
+defmodule AuroraGov.Web.PersonLoginLive do
+  use AuroraGov.Web, :live_view
 
   def render(assigns) do
     ~H"""

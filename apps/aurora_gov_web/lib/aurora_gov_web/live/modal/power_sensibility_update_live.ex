@@ -1,8 +1,8 @@
-defmodule AuroraGovWeb.Live.Power.SensibilityUpdate do
+defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
   alias AuroraGov.Context.MembershipContext
   alias AuroraGov.Context.PowerContext
   alias AuroraGov.Context.OUContext
-  use AuroraGovWeb, :live_component
+  use AuroraGov.Web, :live_component
   alias Phoenix.LiveView.AsyncResult
 
   defp posture_meta(v) when is_integer(v) do

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.MegaMenu do
+defmodule AuroraGov.Web.Components.MegaMenu do
   @moduledoc """
-  The `AuroraGovWeb.Components.MegaMenu` module provides a customizable and interactive mega menu component
+  The `AuroraGov.Web.Components.MegaMenu` module provides a customizable and interactive mega menu component
   for building sophisticated navigation systems in Phoenix LiveView applications.
 
   This component can be used to create multi-level navigation menus with various styling and
@@ -20,7 +20,7 @@ defmodule AuroraGovWeb.Components.MegaMenu do
 
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `mega_menu` component that can display various sections of content.

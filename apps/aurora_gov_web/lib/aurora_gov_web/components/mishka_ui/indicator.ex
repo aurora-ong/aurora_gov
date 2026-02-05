@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Indicator do
+defmodule AuroraGov.Web.Components.Indicator do
   @moduledoc """
-  The `AuroraGovWeb.Components.Indicator` module provides a versatile component for visually highlighting
+  The `AuroraGov.Web.Components.Indicator` module provides a versatile component for visually highlighting
   specific areas or elements in your Phoenix application.
 
   It is designed to display small, circular indicators that can be used for notifications,

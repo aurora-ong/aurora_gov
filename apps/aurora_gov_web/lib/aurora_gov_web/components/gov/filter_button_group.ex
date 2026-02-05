@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.FilterButtonGroup do
+defmodule AuroraGov.Web.Components.FilterButtonGroup do
   use Phoenix.Component
-  import AuroraGovWeb.Components.Button
+  import AuroraGov.Web.Components.Button
 
   @doc """
   Renderiza un grupo de botones para filtros de tabla, usando los colores aurora_orange, negro y gris.

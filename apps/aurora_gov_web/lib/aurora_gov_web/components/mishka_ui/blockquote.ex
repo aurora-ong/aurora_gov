@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Blockquote do
+defmodule AuroraGov.Web.Components.Blockquote do
   @moduledoc """
-  This module provides a versatile `AuroraGovWeb.Components.Blockquote` component for creating
+  This module provides a versatile `AuroraGov.Web.Components.Blockquote` component for creating
   stylish and customizable blockquotes in your Phoenix LiveView application.
 
   ## Features
@@ -23,8 +23,8 @@ defmodule AuroraGovWeb.Components.Blockquote do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
-  use Gettext, backend: AuroraGovWeb.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   The `blockquote` component is used to display stylized quotations with customizable attributes

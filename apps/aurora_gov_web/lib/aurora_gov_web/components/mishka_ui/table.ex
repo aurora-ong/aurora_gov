@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Table do
+defmodule AuroraGov.Web.Components.Table do
   @moduledoc """
-  `AuroraGovWeb.Components.Table` is a versatile component for creating customizable tables in a
+  `AuroraGov.Web.Components.Table` is a versatile component for creating customizable tables in a
   Phoenix LiveView application. This module offers a wide range of configurations to tailor table
   presentations, including options for styling, borders, text alignment, padding, and various visual variants.
 
@@ -13,8 +13,8 @@ defmodule AuroraGovWeb.Components.Table do
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `table` component that supports custom styling for rows, columns,

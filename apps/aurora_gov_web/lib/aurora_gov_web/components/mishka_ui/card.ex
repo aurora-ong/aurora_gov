@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Card do
+defmodule AuroraGov.Web.Components.Card do
   @moduledoc """
-  Provides a set of card components for the `AuroraGovWeb.Components.Card` project. These components
+  Provides a set of card components for the `AuroraGov.Web.Components.Card` project. These components
   allow for flexible and customizable card layouts, including features such as card titles,
   media, content sections, and footers.
 
@@ -26,7 +26,7 @@ defmodule AuroraGovWeb.Components.Card do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @positions [
     "start",

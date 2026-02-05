@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.ToggleField do
+defmodule AuroraGov.Web.Components.ToggleField do
   @moduledoc """
-  AuroraGovWeb.Components.ToggleField component renders a toggle field with customizable options.
+  AuroraGov.Web.Components.ToggleField component renders a toggle field with customizable options.
 
   This module provides functionality for creating a toggle switch UI element
   that can be integrated into forms. It supports various attributes to tailor
@@ -12,7 +12,7 @@ defmodule AuroraGovWeb.Components.ToggleField do
   """
   use Phoenix.Component
   alias Phoenix.HTML.Form
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `toggle_field` component is a customizable toggle switch input, often used for binary on/off
@@ -323,9 +323,9 @@ defmodule AuroraGovWeb.Components.ToggleField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

@@ -38,7 +38,7 @@ config :aurora_gov, AuroraGov,
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :aurora_gov_web, AuroraGovWeb.Endpoint,
+config :aurora_gov_web, AuroraGov.Web.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "laY/5uB5lN9Y6qW4LM9RfAop/M5g+P4tI0oG4XEgh5VF7RCG0yqLOJNF1APSvniO",
   server: false

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Chat do
+defmodule AuroraGov.Web.Components.Chat do
   @moduledoc """
-  `AuroraGovWeb.Components.Chat` is a Phoenix LiveView component module for creating customizable chat interfaces.
+  `AuroraGov.Web.Components.Chat` is a Phoenix LiveView component module for creating customizable chat interfaces.
 
   This module provides components to display chat messages with various styles, colors,
   sizes, and configurations. The main component, `chat/1`, acts as a container for chat
@@ -8,7 +8,7 @@ defmodule AuroraGovWeb.Components.Chat do
   metadata and status information.
   """
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   The `chat` component is used to create a chat message container with customizable attributes such

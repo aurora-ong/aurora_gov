@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Components.Toast do
+defmodule AuroraGov.Web.Components.Toast do
   @moduledoc """
   A module for creating toast notifications in a Phoenix application.
 
@@ -18,8 +18,8 @@ defmodule AuroraGovWeb.Components.Toast do
   """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  use Gettext, backend: AuroraGovWeb.Gettext
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `toast` component displays temporary notifications or messages, usually at the top

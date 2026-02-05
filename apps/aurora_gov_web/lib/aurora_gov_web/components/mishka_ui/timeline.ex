@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Timeline do
+defmodule AuroraGov.Web.Components.Timeline do
   @moduledoc """
-  The `AuroraGovWeb.Components.Timeline` module is a versatile and customizable component
+  The `AuroraGov.Web.Components.Timeline` module is a versatile and customizable component
   designed for displaying timeline-style content in Phoenix LiveView applications.
 
   It allows users to present chronological or sequential events in both horizontal and vertical formats.
@@ -26,7 +26,7 @@ defmodule AuroraGovWeb.Components.Timeline do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `timeline` component provides a structured layout to display a sequence of events or actions,

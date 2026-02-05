@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Icon do
+defmodule AuroraGov.Web.Components.Icon do
   @moduledoc """
-  The `AuroraGovWeb.Components.Icon` module provides a flexible and reusable icon
+  The `AuroraGov.Web.Components.Icon` module provides a flexible and reusable icon
   component for rendering various types of icons in a Phoenix LiveView application.
 
   ## Features:

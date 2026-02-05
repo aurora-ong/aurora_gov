@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.FormWrapper do
+defmodule AuroraGov.Web.Components.FormWrapper do
   @moduledoc """
-  The `AuroraGovWeb.Components.FormWrapper` module provides a flexible and customizable form
+  The `AuroraGov.Web.Components.FormWrapper` module provides a flexible and customizable form
   wrapper component for Phoenix applications. It offers various options for styling,
   size, and layout to suit different form designs and requirements.
 

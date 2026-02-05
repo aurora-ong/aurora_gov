@@ -1,7 +1,7 @@
-defmodule AuroraGovWeb.Live.Panel.Proposals do
-  alias AuroraGovWeb.Live.Panel.AppView
-  alias AuroraGovWeb.Live.Panel.AppPanel
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Live.Panel.Proposals do
+  alias AuroraGov.Web.Live.Panel.AppView
+  alias AuroraGov.Web.Live.Panel.AppPanel
+  use AuroraGov.Web, :live_component
   import Flop.Phoenix, only: [pagination_links: 2]
 
   @impl true
@@ -263,7 +263,7 @@ defmodule AuroraGovWeb.Live.Panel.Proposals do
 
     app_panel = %AppView{
       view_id: "panel-proposal-#{proposal_id}",
-      view_module: AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+      view_module: AuroraGov.Web.Live.Panel.Side.ProposalDetail,
       view_options: %{},
       view_params: %{
         proposal_id: proposal_id

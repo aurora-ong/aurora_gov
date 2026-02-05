@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Alert do
+defmodule AuroraGov.Web.Components.Alert do
   @moduledoc """
-  AuroraGovWeb.Components.Alert module provides collection of alert components and helper functions for managing and displaying alerts
+  AuroraGov.Web.Components.Alert module provides collection of alert components and helper functions for managing and displaying alerts
   in a **Phoenix LiveView** application.
 
   This module provides a set of customizable components for rendering various types of alerts,
@@ -26,9 +26,9 @@ defmodule AuroraGovWeb.Components.Alert do
   flexibility in rendering custom content within alerts.
   """
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
   import Phoenix.LiveView.Utils, only: [random_id: 0]
 
   @doc type: :component
