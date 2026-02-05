@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.ColorField do
+defmodule AuroraGov.Web.Components.ColorField do
   @moduledoc """
-  The `AuroraGovWeb.Components.ColorField` module provides a reusable and customizable color
+  The `AuroraGov.Web.Components.ColorField` module provides a reusable and customizable color
   input component for Phoenix applications. This component supports various styling options,
   error handling, and additional customization through attributes and slots.
 
@@ -13,7 +13,7 @@ defmodule AuroraGovWeb.Components.ColorField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `color_field` component is used to create a customizable color input field with various
@@ -345,9 +345,9 @@ defmodule AuroraGovWeb.Components.ColorField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

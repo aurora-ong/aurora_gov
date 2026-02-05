@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
+  use AuroraGov.Web, :live_component
   alias Phoenix.LiveView.AsyncResult
 
   defmodule Context do
@@ -178,7 +178,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
           <div class="flex flex-row gap-4 justify-between items-start flex-nowrap">
             <div class="flex flex-col gap-5 basis-1/2">
               <.live_component
-                module={AuroraGovWeb.OUSelectorComponent}
+                module={AuroraGov.Web.OUSelectorComponent}
                 parent_module={__MODULE__}
                 parent_id="modal-proposal_create"
                 id="proposal_ou_origin"
@@ -195,7 +195,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
              <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
             <div class="flex flex-col basis-1/2 gap-5 justify-center">
               <.live_component
-                module={AuroraGovWeb.OUSelectorComponent}
+                module={AuroraGov.Web.OUSelectorComponent}
                 parent_module={__MODULE__}
                 parent_id="modal-proposal_create"
                 id="proposal_ou_end"
@@ -229,7 +229,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
                 <div class="mt-5"></div>
 
                 <.live_component
-                  module={AuroraGovWeb.Components.Power.PowerCardComponent}
+                  module={AuroraGov.Web.Components.Power.PowerCardComponent}
                   id="power-card"
                   show_actions={false}
                   power_id={@step_0_form_proposal[:proposal_power].value}
@@ -264,7 +264,7 @@ defmodule AuroraGovWeb.Live.Panel.ProposalCreate do
       >
         {inspect(@proposal_data)} <br /> {inspect(@step_1_form_power)}
         <.live_component
-          module={AuroraGovWeb.DynamicCommandFormComponent}
+          module={AuroraGov.Web.DynamicCommandFormComponent}
           id="proposal-power_form"
           form={@step_1_form_power}
           command_module={AuroraGov.CommandUtils.find_command_by_id(@proposal_data.proposal_power_id)}

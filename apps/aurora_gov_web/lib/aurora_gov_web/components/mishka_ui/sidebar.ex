@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Sidebar do
+defmodule AuroraGov.Web.Components.Sidebar do
   @moduledoc """
-  The `AuroraGovWeb.Components.Sidebar` module provides a versatile and customizable sidebar
+  The `AuroraGov.Web.Components.Sidebar` module provides a versatile and customizable sidebar
   component for Phoenix LiveView applications. This component is designed to create a
   navigation or information panel that can be toggled in and out of view, enhancing the user
   experience by offering easy access to additional content or navigation links.
@@ -15,9 +15,9 @@ defmodule AuroraGovWeb.Components.Sidebar do
   for a cohesive and interactive application experience.
   """
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
   import Phoenix.LiveView.Utils, only: [random_id: 0]
 
   @doc """

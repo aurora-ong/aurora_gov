@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Carousel do
+defmodule AuroraGov.Web.Components.Carousel do
   @moduledoc """
-  Provides a versatile and customizable carousel component for the `AuroraGovWeb.Components.Carousel`
+  Provides a versatile and customizable carousel component for the `AuroraGov.Web.Components.Carousel`
   project.
 
   This component enables the creation of image carousels with various features such as
@@ -21,10 +21,10 @@ defmodule AuroraGovWeb.Components.Carousel do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Image, only: [image: 1]
+  import AuroraGov.Web.Components.Image, only: [image: 1]
   import Phoenix.LiveView.Utils, only: [random_id: 0]
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
-  use Gettext, backend: AuroraGovWeb.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   The `carousel` component is used to create interactive image carousels with customizable attributes

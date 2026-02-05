@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.Live.Panel do
-  use AuroraGovWeb, :live_view
+defmodule AuroraGov.Web.Live.Panel do
+  use AuroraGov.Web, :live_view
 
   defmodule AppContext do
     defstruct [:current_ou_id, :current_person, :current_module]
@@ -69,7 +69,7 @@ defmodule AuroraGovWeb.Live.Panel do
   @impl true
   def handle_info({:projector_update, event}, socket) do
     IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
-    socket = AuroraGovWeb.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
+    socket = AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
 
     {:noreply, socket}
   end
@@ -123,7 +123,7 @@ defmodule AuroraGovWeb.Live.Panel do
     else
       app_panel = %AppView{
         view_id: "panel-activity",
-        view_module: AuroraGovWeb.Live.Panel.Side.LastActivity,
+        view_module: AuroraGov.Web.Live.Panel.Side.LastActivity,
         view_options: %{},
         view_params: %{}
       }

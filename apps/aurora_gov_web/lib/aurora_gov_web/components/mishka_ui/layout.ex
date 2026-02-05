@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Layout do
+defmodule AuroraGov.Web.Components.Layout do
   @moduledoc """
-  The `AuroraGovWeb.Components.Layout` module provides powerful and customizable layout components
+  The `AuroraGov.Web.Components.Layout` module provides powerful and customizable layout components
   for building responsive user interfaces using Tailwind CSS utilities.
 
   It includes two core components: `flex` and `grid`, which abstract common layout patterns in a

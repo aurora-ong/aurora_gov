@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Banner do
+defmodule AuroraGov.Web.Components.Banner do
   @moduledoc """
-  AuroraGovWeb.Components.Banner module provides components for rendering customizable banners in your **Phoenix LiveView**
+  AuroraGov.Web.Components.Banner module provides components for rendering customizable banners in your **Phoenix LiveView**
   application.
 
   ## Features
@@ -28,8 +28,8 @@ defmodule AuroraGovWeb.Components.Banner do
 
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  use Gettext, backend: AuroraGovWeb.Gettext
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @positions ["top_left", "top_right", "bottom_left", "bottom_right", "center", "full"]
 

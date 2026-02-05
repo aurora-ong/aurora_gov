@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Button do
+defmodule AuroraGov.Web.Components.Button do
   @moduledoc """
-  Provides a comprehensive set of button components for the `AuroraGovWeb.Components.Button` project.
+  Provides a comprehensive set of button components for the `AuroraGov.Web.Components.Button` project.
   These components are highly customizable, allowing various styles, sizes, colors,
   and configurations, including buttons with icons, gradients, and different indicator positions.
 
@@ -23,7 +23,7 @@ defmodule AuroraGovWeb.Components.Button do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @indicator_positions [
     "indicator",

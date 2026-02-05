@@ -1,10 +1,10 @@
-defmodule AuroraGovWeb.ErrorHTML do
+defmodule AuroraGov.Web.ErrorHTML do
   @moduledoc """
   This module is invoked by your endpoint in case of errors on HTML requests.
 
   See config/config.exs.
   """
-  use AuroraGovWeb, :html
+  use AuroraGov.Web, :html
 
   # If you want to customize your error pages,
   # uncomment the embed_templates/1 call below

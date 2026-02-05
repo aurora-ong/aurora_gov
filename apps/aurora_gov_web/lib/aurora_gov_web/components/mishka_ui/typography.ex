@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Typography do
+defmodule AuroraGov.Web.Components.Typography do
   @moduledoc """
-  The `AuroraGovWeb.Components.Typography` module provides components for rendering
+  The `AuroraGov.Web.Components.Typography` module provides components for rendering
   typographic elements in a Phoenix application.
 
   This module offers various components such as headings (h1 to h6), paragraphs, and other

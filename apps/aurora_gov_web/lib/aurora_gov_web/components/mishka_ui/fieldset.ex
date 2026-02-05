@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Fieldset do
+defmodule AuroraGov.Web.Components.Fieldset do
   @moduledoc """
-  The `AuroraGovWeb.Components.Fieldset` module provides a reusable and customizable
+  The `AuroraGov.Web.Components.Fieldset` module provides a reusable and customizable
   component for creating styled fieldsets in Phoenix LiveView applications.
 
   It offers various options for styling, layout, and interaction, including:
@@ -14,7 +14,7 @@ defmodule AuroraGovWeb.Components.Fieldset do
   and visually appealing fieldsets that can be easily integrated into any LiveView application.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a `fieldset` component that groups related form elements visually and semantically.

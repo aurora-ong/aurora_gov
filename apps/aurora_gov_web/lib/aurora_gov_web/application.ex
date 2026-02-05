@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Application do
+defmodule AuroraGov.Web.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   @moduledoc false
@@ -8,16 +8,16 @@ defmodule AuroraGovWeb.Application do
   @impl true
   def start(_type, _args) do
     children = [
-      AuroraGovWeb.Telemetry,
-      # Start a worker by calling: AuroraGovWeb.Worker.start_link(arg)
-      # {AuroraGovWeb.Worker, arg},
+      AuroraGov.Web.Telemetry,
+      # Start a worker by calling: AuroraGov.Web.Worker.start_link(arg)
+      # {AuroraGov.Web.Worker, arg},
       # Start to serve requests, typically the last entry
-      AuroraGovWeb.Endpoint
+      AuroraGov.Web.Endpoint
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
-    opts = [strategy: :one_for_one, name: AuroraGovWeb.Supervisor]
+    opts = [strategy: :one_for_one, name: AuroraGov.Web.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
@@ -25,7 +25,7 @@ defmodule AuroraGovWeb.Application do
   # whenever the application is updated.
   @impl true
   def config_change(changed, _new, removed) do
-    AuroraGovWeb.Endpoint.config_change(changed, removed)
+    AuroraGov.Web.Endpoint.config_change(changed, removed)
     :ok
   end
 end

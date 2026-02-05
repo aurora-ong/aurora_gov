@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Image do
+defmodule AuroraGov.Web.Components.Image do
   @moduledoc """
-  The `AuroraGovWeb.Components.Image` module provides a component for rendering images in a Phoenix application.
+  The `AuroraGov.Web.Components.Image` module provides a component for rendering images in a Phoenix application.
   It supports various attributes to control the display, loading behavior, and styling of the image.
 
   This module simplifies the use of images with various configurations and styling

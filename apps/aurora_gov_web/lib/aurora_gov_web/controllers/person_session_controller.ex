@@ -1,8 +1,8 @@
-defmodule AuroraGovWeb.PersonSessionController do
-  use AuroraGovWeb, :controller
+defmodule AuroraGov.Web.PersonSessionController do
+  use AuroraGov.Web, :controller
 
   alias AuroraGov.Context.PersonContext
-  alias AuroraGovWeb.Auth
+  alias AuroraGov.Web.Auth
 
   def create(conn, params) do
     create(conn, params, "Welcome back!")

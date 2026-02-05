@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Gallery do
+defmodule AuroraGov.Web.Components.Gallery do
   @moduledoc """
-  The `AuroraGovWeb.Components.Gallery` module provides a customizable gallery component for displaying
+  The `AuroraGov.Web.Components.Gallery` module provides a customizable gallery component for displaying
   media content in a structured and visually appealing layout.
 
   It supports various styles, including default, masonry, and featured galleries,
@@ -18,7 +18,7 @@ defmodule AuroraGovWeb.Components.Gallery do
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   import Phoenix.LiveView.Utils, only: [random_id: 0]
 

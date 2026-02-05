@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.PasswordField do
+defmodule AuroraGov.Web.Components.PasswordField do
   @moduledoc """
-  The `AuroraGovWeb.Components.PasswordField` module is a Phoenix component designed to render a customizable
+  The `AuroraGov.Web.Components.PasswordField` module is a Phoenix component designed to render a customizable
   password input field within LiveView applications. It provides a flexible and highly configurable
   way to integrate password inputs with various visual styles, handling for error messages, and
   toggle functionality for showing or hiding password text.
@@ -17,7 +17,7 @@ defmodule AuroraGovWeb.Components.PasswordField do
   use Phoenix.Component
   alias Phoenix.LiveView.JS
   import Phoenix.LiveView.Utils, only: [random_id: 0]
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `password_field` with options for size, color, label, and validation errors.
@@ -1082,9 +1082,9 @@ defmodule AuroraGovWeb.Components.PasswordField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Components.PasswordField.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Components.PasswordField.Gettext, "errors", msg, opts)
     end
   end
 end

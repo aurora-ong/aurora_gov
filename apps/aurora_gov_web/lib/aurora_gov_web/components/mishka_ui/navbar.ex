@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Navbar do
+defmodule AuroraGov.Web.Components.Navbar do
   @moduledoc """
-  The `AuroraGovWeb.Components.Navbar` module provides a flexible and customizable navigation
+  The `AuroraGov.Web.Components.Navbar` module provides a flexible and customizable navigation
   bar component for Phoenix LiveView applications. It allows for a variety of styles,
   colors, and configurations to fit different design needs, including border styles,
   content alignment, and text positioning.
@@ -14,8 +14,8 @@ defmodule AuroraGovWeb.Components.Navbar do
   visually appealing and interactive navigation bars that enhance the user experience.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
-  use Gettext, backend: AuroraGovWeb.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   Renders a customizable navigation bar (`navbar` component) that can include links,

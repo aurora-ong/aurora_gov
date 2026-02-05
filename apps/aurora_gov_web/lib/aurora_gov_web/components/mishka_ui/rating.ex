@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Rating do
+defmodule AuroraGov.Web.Components.Rating do
   @moduledoc """
-  The `AuroraGovWeb.Components.Rating` module provides a versatile rating component for Phoenix LiveView
+  The `AuroraGov.Web.Components.Rating` module provides a versatile rating component for Phoenix LiveView
   applications. This component is designed to display a configurable number of rating stars with
   customizable colors, sizes, and interactive capabilities.
 
@@ -15,7 +15,7 @@ defmodule AuroraGovWeb.Components.Rating do
   """
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   Renders a `rating` component using stars to represent a score or rating value.

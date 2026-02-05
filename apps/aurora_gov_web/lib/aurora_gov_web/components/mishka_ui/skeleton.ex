@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Skeleton do
+defmodule AuroraGov.Web.Components.Skeleton do
   @moduledoc """
-  The `AuroraGovWeb.Components.Skeleton` module provides a reusable component for displaying skeleton
+  The `AuroraGov.Web.Components.Skeleton` module provides a reusable component for displaying skeleton
   loaders in a Phoenix LiveView application. Skeleton loaders serve as placeholders to indicate
   that content is currently loading or being processed, improving the user experience by offering
   a visual cue in place of the final content.
@@ -24,7 +24,7 @@ defmodule AuroraGovWeb.Components.Skeleton do
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   Renders a `skeleton` loader component to indicate loading state in your application.

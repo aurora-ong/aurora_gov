@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
-  alias AuroraGovWeb.Live.Panel.AppView
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
+  alias AuroraGov.Web.Live.Panel.AppView
+  use AuroraGov.Web, :live_component
 
   @impl true
   def render(assigns) do
@@ -108,7 +108,7 @@ defmodule AuroraGovWeb.Components.Power.PowerCardComponent do
   def handle_event("update_power", %{"power_id" => power_id}, socket) do
     app_modal = %AppView{
       view_id: "power-update_power-#{power_id}",
-      view_module: AuroraGovWeb.Live.Power.SensibilityUpdate,
+      view_module: AuroraGov.Web.Live.Power.SensibilityUpdate,
       view_options: %{
         modal_size: "double_large"
       },

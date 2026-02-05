@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Combobox do
+defmodule AuroraGov.Web.Components.Combobox do
   @moduledoc """
-  The `AuroraGovWeb.Components.Combobox` is a Phoenix LiveView component module for creating customizable combobox elements.
+  The `AuroraGov.Web.Components.Combobox` is a Phoenix LiveView component module for creating customizable combobox elements.
 
   This module provides components to display combobox/select inputs with various styles, colors,
   sizes, and configurations. The main component, `combobox/1`, acts as a container for select options,
@@ -15,10 +15,10 @@ defmodule AuroraGovWeb.Components.Combobox do
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
-  import AuroraGovWeb.Components.ScrollArea, only: [scroll_area: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
+  import AuroraGov.Web.Components.ScrollArea, only: [scroll_area: 1]
   import Phoenix.LiveView.Utils, only: [random_id: 0]
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `combobox` component is a customizable select/dropdown element with advanced features
@@ -1037,9 +1037,9 @@ defmodule AuroraGovWeb.Components.Combobox do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

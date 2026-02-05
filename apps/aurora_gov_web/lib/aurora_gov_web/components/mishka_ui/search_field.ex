@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.SearchField do
+defmodule AuroraGov.Web.Components.SearchField do
   @moduledoc """
-  The `AuroraGovWeb.Components.SearchField` module provides a highly customizable search input
+  The `AuroraGov.Web.Components.SearchField` module provides a highly customizable search input
   component for Phoenix LiveView applications. This component is designed to offer advanced
   search functionality with support for custom styles, layouts, and interactions.
 
@@ -13,7 +13,7 @@ defmodule AuroraGovWeb.Components.SearchField do
   integration make it a powerful tool for enhancing user experiences in Phoenix LiveView applications.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a `search_field` component that allows users to input search queries.
@@ -1067,9 +1067,9 @@ defmodule AuroraGovWeb.Components.SearchField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.CheckboxField do
+defmodule AuroraGov.Web.Components.CheckboxField do
   @moduledoc """
-  AuroraGovWeb.Components.CheckboxField Module Provides a customizable checkbox component for use in Phoenix LiveView forms.
+  AuroraGov.Web.Components.CheckboxField Module Provides a customizable checkbox component for use in Phoenix LiveView forms.
 
   This module includes individual checkbox fields as well as grouped
   checkbox fields, each with configurable options such as colors, borders,
@@ -17,7 +17,7 @@ defmodule AuroraGovWeb.Components.CheckboxField do
   use Phoenix.Component
   alias Phoenix.LiveView.Utils
   alias Phoenix.HTML.Form
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `checkbox_field` component is used to create customizable checkbox input elements with various
@@ -517,9 +517,9 @@ defmodule AuroraGovWeb.Components.CheckboxField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Component.DevMessage do
+defmodule AuroraGov.Web.Component.DevMessage do
   use Phoenix.Component
-  use AuroraGovWeb, :verified_routes
+  use AuroraGov.Web, :verified_routes
 
   def dev_panel(assigns) do
     ~H"""

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.ProposalVoteProgress do
+defmodule AuroraGov.Web.Components.ProposalVoteProgress do
   use Phoenix.Component
-  import AuroraGovWeb.Components.Progress
+  import AuroraGov.Web.Components.Progress
 
   @doc """
   Renderiza un grupo de botones para filtros de tabla, usando los colores aurora_orange, negro y gris.

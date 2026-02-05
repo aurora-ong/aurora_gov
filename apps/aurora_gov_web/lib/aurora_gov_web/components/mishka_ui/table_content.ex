@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.TableContent do
+defmodule AuroraGov.Web.Components.TableContent do
   @moduledoc """
-  `AuroraGovWeb.Components.TableContent` is a component module designed to create flexible and dynamic
+  `AuroraGov.Web.Components.TableContent` is a component module designed to create flexible and dynamic
   content within a table. This module allows for a variety of customizations, including styles,
   colors, borders, padding, and animations. It is composed of several subcomponents such as
   `table_content/1`, `content_wrapper/1`, and `content_item/1`, each providing specific
@@ -15,7 +15,7 @@ defmodule AuroraGovWeb.Components.TableContent do
 
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `table_content` component is used to display organized content with customizable styling

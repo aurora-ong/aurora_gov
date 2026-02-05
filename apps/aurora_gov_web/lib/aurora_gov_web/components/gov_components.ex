@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Components.AuroraComponents do
+defmodule AuroraGov.Web.Components.AuroraComponents do
   @moduledoc """
   Provides core UI components.
 
@@ -16,12 +16,12 @@ defmodule AuroraGovWeb.Components.AuroraComponents do
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
 
-  import AuroraGovWeb.Components.Tooltip
-  import AuroraGovWeb.Components.Clipboard
-  import AuroraGovWeb.Components.Spinner
-  import AuroraGovWeb.Components.Progress
+  import AuroraGov.Web.Components.Tooltip
+  import AuroraGov.Web.Components.Clipboard
+  import AuroraGov.Web.Components.Spinner
+  import AuroraGov.Web.Components.Progress
 
   attr :ou_id, :string, required: true
   attr :size, :string, default: "md"
@@ -108,9 +108,9 @@ defmodule AuroraGovWeb.Components.AuroraComponents do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 

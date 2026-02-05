@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Live.Panel.Header do
-  alias AuroraGovWeb.Live.Panel.AppView
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Live.Panel.Header do
+  alias AuroraGov.Web.Live.Panel.AppView
+  use AuroraGov.Web, :live_component
   alias Phoenix.LiveView.JS
 
   @impl true
@@ -67,7 +67,7 @@ defmodule AuroraGovWeb.Live.Panel.Header do
       ) do
     app_view = %AppView{
       view_id: "modal-proposal_create",
-      view_module: AuroraGovWeb.Live.Panel.ProposalCreate,
+      view_module: AuroraGov.Web.Live.Panel.ProposalCreate,
       view_options: %{
         modal_size: "quadruple_large"
       },
@@ -87,7 +87,7 @@ defmodule AuroraGovWeb.Live.Panel.Header do
   def handle_event("open_tree_navigator_modal", _params, socket) do
     app_view = %AppView{
       view_id: "modal-tree_navigator",
-      view_module: AuroraGovWeb.Live.Panel.TreeNavigator,
+      view_module: AuroraGov.Web.Live.Panel.TreeNavigator,
       view_options: %{
         modal_size: "quadruple_large"
       }

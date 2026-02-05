@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.MixProject do
+defmodule AuroraGov.Web.MixProject do
   use Mix.Project
 
   def project do
@@ -22,7 +22,7 @@ defmodule AuroraGovWeb.MixProject do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {AuroraGovWeb.Application, []},
+      mod: {AuroraGov.Web.Application, []},
       extra_applications: [:logger, :runtime_tools]
     ]
   end

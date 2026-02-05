@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Pagination do
+defmodule AuroraGov.Web.Components.Pagination do
   @moduledoc """
-  The `AuroraGovWeb.Components.Pagination` module provides a comprehensive and highly customizable
+  The `AuroraGov.Web.Components.Pagination` module provides a comprehensive and highly customizable
   pagination component for Phoenix LiveView applications.
 
   It is designed to handle complex pagination scenarios, supporting various styles,
@@ -18,8 +18,8 @@ defmodule AuroraGovWeb.Components.Pagination do
 
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
-  use Gettext, backend: AuroraGovWeb.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   Renders a `pagination` component that allows users to navigate through pages.

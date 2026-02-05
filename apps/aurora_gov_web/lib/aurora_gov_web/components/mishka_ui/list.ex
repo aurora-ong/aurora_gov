@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.List do
+defmodule AuroraGov.Web.Components.List do
   @moduledoc """
-  The `AuroraGovWeb.Components.List` module provides a versatile and customizable list
+  The `AuroraGov.Web.Components.List` module provides a versatile and customizable list
   component for building both ordered and unordered lists, as well as a list
   group component for more structured content. This module is designed to cater to
   various styles and use cases, such as navigation menus, data presentations, or simple item listings.
@@ -21,7 +21,7 @@ defmodule AuroraGovWeb.Components.List do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a `list` component that supports both ordered and unordered lists with customizable styles,

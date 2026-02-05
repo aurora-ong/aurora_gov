@@ -9,7 +9,7 @@ import Config
 
 if config_env() == :prod do
   if System.get_env("PHX_SERVER") do
-    config :aurora_gov_web, AuroraGovWeb.Endpoint, server: true
+    config :aurora_gov_web, AuroraGov.Web.Endpoint, server: true
   end
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
@@ -57,7 +57,7 @@ if config_env() == :prod do
 
   host = System.get_env("PHX_HOST") || "example.com"
 
-  config :aurora_gov_web, AuroraGovWeb.Endpoint,
+  config :aurora_gov_web, AuroraGov.Web.Endpoint,
     url: [host: host, port: 443],
     http: [
       # Enable IPv6 and bind on all interfaces.
@@ -72,7 +72,7 @@ if config_env() == :prod do
   # If you are doing OTP releases, you need to instruct Phoenix
   # to start each relevant endpoint:
   #
-  #     config :aurora_gov_web, AuroraGovWeb.Endpoint, server: true
+  #     config :aurora_gov_web, AuroraGov.Web.Endpoint, server: true
   #
   # Then you can assemble a release by calling `mix release`.
   # See `mix help release` for more information.
@@ -82,7 +82,7 @@ if config_env() == :prod do
   # To get SSL working, you will need to add the `https` key
   # to your endpoint configuration:
   #
-  #     config :aurora_gov_web, AuroraGovWeb.Endpoint,
+  #     config :aurora_gov_web, AuroraGov.Web.Endpoint,
   #       https: [
   #         ...,
   #         port: 443,
@@ -104,7 +104,7 @@ if config_env() == :prod do
   # We also recommend setting `force_ssl` in your config/prod.exs,
   # ensuring no data is ever sent via http, always redirecting to https:
   #
-  #     config :aurora_gov_web, AuroraGovWeb.Endpoint,
+  #     config :aurora_gov_web, AuroraGov.Web.Endpoint,
   #       force_ssl: [hsts: true]
   #
   # Check `Plug.SSL` for all available options in `force_ssl`.

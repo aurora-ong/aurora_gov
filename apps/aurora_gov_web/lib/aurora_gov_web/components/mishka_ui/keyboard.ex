@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Keyboard do
+defmodule AuroraGov.Web.Components.Keyboard do
   @moduledoc """
-  The `AuroraGovWeb.Components.Keyboard` module provides a customizable keyboard component,
+  The `AuroraGov.Web.Components.Keyboard` module provides a customizable keyboard component,
   primarily used for displaying keyboard shortcuts, key combinations, or highlighting
   key inputs in a user interface. The component is designed with flexibility in mind,
   allowing you to easily change its appearance and style through various attributes.

@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.FileField do
+defmodule AuroraGov.Web.Components.FileField do
   @moduledoc """
-  The `AuroraGovWeb.Components.FileField` module provides a versatile and customizable component
+  The `AuroraGov.Web.Components.FileField` module provides a versatile and customizable component
   for handling file uploads in Phoenix LiveView applications.
 
   This module supports various configurations, allowing users to upload files or
@@ -20,10 +20,10 @@ defmodule AuroraGovWeb.Components.FileField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Progress, only: [progress: 1]
-  import AuroraGovWeb.Components.Spinner, only: [spinner: 1]
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
-  use Gettext, backend: AuroraGovWeb.Gettext
+  import AuroraGov.Web.Components.Progress, only: [progress: 1]
+  import AuroraGov.Web.Components.Spinner, only: [spinner: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @doc """
   Renders a `file_input` field with customizable styles, labels, and live upload capabilities.
@@ -933,9 +933,9 @@ defmodule AuroraGovWeb.Components.FileField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

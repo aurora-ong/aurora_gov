@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.RadioField do
+defmodule AuroraGov.Web.Components.RadioField do
   @moduledoc """
-  The `AuroraGovWeb.Components.RadioField` module provides a highly customizable radio button
+  The `AuroraGov.Web.Components.RadioField` module provides a highly customizable radio button
   component for Phoenix LiveView applications. This module supports various styling options,
   including different colors, sizes, and border styles, allowing developers to
   integrate radio buttons seamlessly into their design system.
@@ -16,7 +16,7 @@ defmodule AuroraGovWeb.Components.RadioField do
   """
   use Phoenix.Component
   alias Phoenix.HTML.Form
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a `radio_field` component. This component allows users to select a single option from
@@ -489,9 +489,9 @@ defmodule AuroraGovWeb.Components.RadioField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

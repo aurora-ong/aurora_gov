@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.Live.Proposal.ExecuteModal do
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Live.Proposal.ExecuteModal do
+  use AuroraGov.Web, :live_component
   alias Phoenix.LiveView.AsyncResult
   require Logger
 

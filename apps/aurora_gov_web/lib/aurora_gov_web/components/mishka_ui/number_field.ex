@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.NumberField do
+defmodule AuroraGov.Web.Components.NumberField do
   @moduledoc """
-  The `AuroraGovWeb.Components.NumberField` module provides a versatile and customizable
+  The `AuroraGov.Web.Components.NumberField` module provides a versatile and customizable
   number input component for Phoenix LiveView applications. This component offers
   extensive options for theming, styling, and layout configurations, including border styles,
   color variants, rounded corners, and size settings.
@@ -12,7 +12,7 @@ defmodule AuroraGovWeb.Components.NumberField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `number_input` field with various options such as labels, descriptions,
@@ -1053,9 +1053,9 @@ defmodule AuroraGovWeb.Components.NumberField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

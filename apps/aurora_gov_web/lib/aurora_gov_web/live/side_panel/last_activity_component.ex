@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.Live.Panel.Side.LastActivity do
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
+  use AuroraGov.Web, :live_component
   alias Phoenix.LiveView.AsyncResult
   require Logger
 

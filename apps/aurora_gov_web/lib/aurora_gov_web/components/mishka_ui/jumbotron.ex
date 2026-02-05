@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Jumbotron do
+defmodule AuroraGov.Web.Components.Jumbotron do
   @moduledoc """
-  The `AuroraGovWeb.Components.Jumbotron` module provides a versatile component for creating large,
+  The `AuroraGov.Web.Components.Jumbotron` module provides a versatile component for creating large,
   prominent sections within a Phoenix LiveView or static page. This component is typically
   used for showcasing important content or messages, often at the top of a page, similar to a
   traditional `hero` section.

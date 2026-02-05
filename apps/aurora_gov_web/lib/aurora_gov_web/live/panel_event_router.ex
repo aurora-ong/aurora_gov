@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
+defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   require Logger
   import Phoenix.LiveView
 
@@ -11,7 +11,7 @@ defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
   end
 
   def handle_event({:power_updated, power} = update, socket) do
-    send_update(AuroraGovWeb.Live.Panel.Power,
+    send_update(AuroraGov.Web.Live.Panel.Power,
       id: "panel-power",
       update: update
     )
@@ -24,7 +24,7 @@ defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
   end
 
   def handle_event({:vote_emited, vote} = update, socket) do
-    send_update(AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+    send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
       id: "panel-proposal-#{vote.proposal_id}",
       update: update
     )
@@ -37,7 +37,7 @@ defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
   end
 
   def handle_event({:proposal_executing, proposal} = update, socket) do
-    send_update(AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+    send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
       id: "panel-proposal-#{proposal.proposal_id}",
       update: update
     )
@@ -50,7 +50,7 @@ defmodule AuroraGovWeb.Panel.EventRouter.ProjectorUpdate do
   end
 
   def handle_event({:proposal_consumed, proposal} = update, socket) do
-    send_update(AuroraGovWeb.Live.Panel.Side.ProposalDetail,
+    send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
       id: "panel-proposal-#{proposal.proposal_id}",
       update: update
     )

@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.Live.Panel.Members do
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Live.Panel.Members do
+  use AuroraGov.Web, :live_component
 
   @impl true
   def mount(socket) do

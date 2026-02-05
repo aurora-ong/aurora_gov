@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.TextField do
+defmodule AuroraGov.Web.Components.TextField do
   @moduledoc """
-  The `AuroraGovWeb.Components.TextField` module provides a highly customizable text input field
+  The `AuroraGov.Web.Components.TextField` module provides a highly customizable text input field
   component for use in Phoenix LiveView applications. This component supports various
   styling options such as color themes, border styles, padding, and more.
 
@@ -22,7 +22,7 @@ defmodule AuroraGovWeb.Components.TextField do
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `text_field` component is a customizable text input field with support for various styles,
@@ -1057,9 +1057,9 @@ defmodule AuroraGovWeb.Components.TextField do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

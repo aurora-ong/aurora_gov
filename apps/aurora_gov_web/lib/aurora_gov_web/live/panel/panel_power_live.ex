@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Live.Panel.Power do
+defmodule AuroraGov.Web.Live.Panel.Power do
   alias Phoenix.LiveView.AsyncResult
-  use AuroraGovWeb, :live_component
+  use AuroraGov.Web, :live_component
 
   @impl true
   def update(%{update: {:power_updated, %{ou_id: ou_id}}}, socket) do
@@ -79,7 +79,7 @@ defmodule AuroraGovWeb.Live.Panel.Power do
         <div class="grid grid-cols-3 gap-4">
           <%= for power <- ou_power_list do %>
             <.live_component
-              module={AuroraGovWeb.Components.Power.PowerCardComponent}
+              module={AuroraGov.Web.Components.Power.PowerCardComponent}
               id={"power-card-#{power.id}"}
               power_id={power.id}
               show_actions={true}

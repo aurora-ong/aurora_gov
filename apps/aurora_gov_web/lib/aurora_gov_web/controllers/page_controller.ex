@@ -1,5 +1,5 @@
-defmodule AuroraGovWeb.PageController do
-  use AuroraGovWeb, :controller
+defmodule AuroraGov.Web.PageController do
+  use AuroraGov.Web, :controller
 
   def home(conn, _params) do
     redirect(conn, to: "/app")

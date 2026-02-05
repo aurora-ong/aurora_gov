@@ -1,7 +1,7 @@
-defmodule AuroraGovWeb.Live.Panel.TreeNavigator do
+defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
   alias Phoenix.LiveView.AsyncResult
-  use AuroraGovWeb, :live_component
-  import AuroraGovWeb.OUVisualTreeComponent
+  use AuroraGov.Web, :live_component
+  import AuroraGov.Web.OUVisualTreeComponent
   import AuroraGov.Utils.OUTree
 
   @impl true

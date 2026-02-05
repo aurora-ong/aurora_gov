@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Components.Video do
+defmodule AuroraGov.Web.Components.Video do
   @moduledoc """
   A customizable video component for Phoenix applications, designed to simplify the
   embedding of HTML5 video elements with support for various configurations.
@@ -14,7 +14,7 @@ defmodule AuroraGovWeb.Components.Video do
   Phoenix applications while maintaining flexibility in design and functionality.
   """
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   # https://stackoverflow.com/questions/15268604/html5-track-captions-not-showing/15268843#15268843
   # https://www.w3schools.com/tags/tag_video.asp

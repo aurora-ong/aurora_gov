@@ -1,13 +1,13 @@
-defmodule AuroraGovWeb.Components.Menu do
+defmodule AuroraGov.Web.Components.Menu do
   @moduledoc """
-  The `AuroraGovWeb.Components.Menu` module is designed to render a hierarchical menu structure in
+  The `AuroraGov.Web.Components.Menu` module is designed to render a hierarchical menu structure in
   Phoenix LiveView applications. It provides a versatile menu component capable of
   handling both simple and complex navigation systems with nested sub-menus.
 
   This module supports dynamic configuration of menu items through a list of maps,
   allowing for a wide range of customization options. Menu items can be rendered as
   standalone buttons or as expandable accordions containing nested sub-menus.
-  The `AuroraGovWeb.Components.Menu` is ideal for creating multi-level navigation menus in
+  The `AuroraGov.Web.Components.Menu` is ideal for creating multi-level navigation menus in
   applications with complex information architectures.
 
   The component integrates smoothly with other components from the `MishkaChelekom`
@@ -16,8 +16,8 @@ defmodule AuroraGovWeb.Components.Menu do
   control the layout and appearance of the menu.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Accordion, only: [accordion: 1]
-  import AuroraGovWeb.Components.Button, only: [button_link: 1]
+  import AuroraGov.Web.Components.Accordion, only: [accordion: 1]
+  import AuroraGov.Web.Components.Button, only: [button_link: 1]
 
   @doc """
   Renders a customizable `menu` component that can include menu items as a list of maps or use

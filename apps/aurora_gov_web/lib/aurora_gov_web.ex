@@ -1,12 +1,12 @@
-defmodule AuroraGovWeb do
+defmodule AuroraGov.Web do
   @moduledoc """
   The entrypoint for defining your web interface, such
   as controllers, components, channels, and so on.
 
   This can be used in your application as:
 
-      use AuroraGovWeb, :controller
-      use AuroraGovWeb, :html
+      use AuroraGov.Web, :controller
+      use AuroraGov.Web, :html
 
   The definitions below will be executed for every controller,
   component, etc, so keep them short and clean, focused
@@ -40,9 +40,9 @@ defmodule AuroraGovWeb do
     quote do
       use Phoenix.Controller,
         formats: [:html, :json],
-        layouts: [html: AuroraGovWeb.Layouts]
+        layouts: [html: AuroraGov.Web.Layouts]
 
-      use Gettext, backend: AuroraGovWeb.Gettext
+      use Gettext, backend: AuroraGov.Web.Gettext
 
       import Plug.Conn
 
@@ -53,7 +53,7 @@ defmodule AuroraGovWeb do
   def live_view do
     quote do
       use Phoenix.LiveView,
-        layout: {AuroraGovWeb.Layouts, :app}
+        layout: {AuroraGov.Web.Layouts, :app}
 
       unquote(html_helpers())
     end
@@ -62,8 +62,8 @@ defmodule AuroraGovWeb do
   def live_component do
     quote do
       use Phoenix.LiveComponent
-      alias AuroraGovWeb.Live.Panel.AppModal
-      alias AuroraGovWeb.Live.Panel.AppView
+      alias AuroraGov.Web.Live.Panel.AppModal
+      alias AuroraGov.Web.Live.Panel.AppView
 
       unquote(html_helpers())
     end
@@ -85,14 +85,14 @@ defmodule AuroraGovWeb do
   defp html_helpers do
     quote do
       # Translation
-      use Gettext, backend: AuroraGovWeb.Gettext
+      use Gettext, backend: AuroraGov.Web.Gettext
 
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
-      # import AuroraGovWeb.CoreComponents
-      use AuroraGovWeb.Components.MishkaComponents
-      import AuroraGovWeb.Components.AuroraComponents
+      # import AuroraGov.Web.CoreComponents
+      use AuroraGov.Web.Components.MishkaComponents
+      import AuroraGov.Web.Components.AuroraComponents
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
@@ -105,9 +105,9 @@ defmodule AuroraGovWeb do
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: AuroraGovWeb.Endpoint,
-        router: AuroraGovWeb.Router,
-        statics: AuroraGovWeb.static_paths()
+        endpoint: AuroraGov.Web.Endpoint,
+        router: AuroraGov.Web.Router,
+        statics: AuroraGov.Web.static_paths()
     end
   end
 

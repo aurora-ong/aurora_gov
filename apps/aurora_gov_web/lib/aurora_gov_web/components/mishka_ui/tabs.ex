@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Tabs do
+defmodule AuroraGov.Web.Components.Tabs do
   @moduledoc """
-  `AuroraGovWeb.Components.Tabs` is a Phoenix component module that provides a highly customizable tab
+  `AuroraGov.Web.Components.Tabs` is a Phoenix component module that provides a highly customizable tab
   interface for organizing and displaying content.
 
   It allows the creation of both horizontal and vertical tabs with different styles, colors, and sizes.
@@ -26,8 +26,8 @@ defmodule AuroraGovWeb.Components.Tabs do
 
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Badge, only: [badge: 1]
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Badge, only: [badge: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `tabs` component provides a set of clickable tabs for organizing content.

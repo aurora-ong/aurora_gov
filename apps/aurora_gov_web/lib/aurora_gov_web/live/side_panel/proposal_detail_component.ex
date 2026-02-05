@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
-  alias AuroraGovWeb.Live.Panel.AppView
-  use AuroraGovWeb, :live_component
+defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
+  alias AuroraGov.Web.Live.Panel.AppView
+  use AuroraGov.Web, :live_component
   alias Phoenix.LiveView.AsyncResult
   require Logger
 
@@ -395,7 +395,7 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
 
     app_view = %AppView{
       view_id: "modal-proposal_vote",
-      view_module: AuroraGovWeb.Live.Proposal.VoteModal,
+      view_module: AuroraGov.Web.Live.Proposal.VoteModal,
       view_options: %{
         modal_size: "double_large"
       },
@@ -415,7 +415,7 @@ defmodule AuroraGovWeb.Live.Panel.Side.ProposalDetail do
 
     app_view = %AppView{
       view_id: "modal-execute_proposal",
-      view_module: AuroraGovWeb.Live.Proposal.ExecuteModal,
+      view_module: AuroraGov.Web.Live.Proposal.ExecuteModal,
       view_options: %{
         modal_size: "double_large"
       },

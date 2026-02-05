@@ -1,4 +1,4 @@
-defmodule AuroraGovWeb.Endpoint do
+defmodule AuroraGov.Web.Endpoint do
   use Phoenix.Endpoint, otp_app: :aurora_gov_web
 
   # The session will be stored in the cookie and signed,
@@ -23,7 +23,7 @@ defmodule AuroraGovWeb.Endpoint do
     at: "/",
     from: :aurora_gov_web,
     gzip: false,
-    only: AuroraGovWeb.static_paths()
+    only: AuroraGov.Web.static_paths()
 
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
@@ -45,5 +45,5 @@ defmodule AuroraGovWeb.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
   plug Plug.Session, @session_options
-  plug AuroraGovWeb.Router
+  plug AuroraGov.Web.Router
 end

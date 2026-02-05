@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.NativeSelect do
+defmodule AuroraGov.Web.Components.NativeSelect do
   @moduledoc """
-  The `AuroraGovWeb.Components.NativeSelect` module provides a customizable native select component
+  The `AuroraGov.Web.Components.NativeSelect` module provides a customizable native select component
   for forms in Phoenix LiveView. It supports a variety of styles, colors, and sizes, making
   it adaptable to different design requirements. The module allows for flexible configuration
   of the select element, including options for multi-selection, custom labels, and error handling.
@@ -9,13 +9,13 @@ defmodule AuroraGovWeb.Components.NativeSelect do
   color variants, and rounded corners. It also provides a convenient way to render select
   options through slots, enabling dynamic rendering of form elements based on the passed data.
 
-  With built-in error handling and custom error messages, `AuroraGovWeb.Components.NativeSelect`
+  With built-in error handling and custom error messages, `AuroraGov.Web.Components.NativeSelect`
   enhances the user experience by providing clear feedback and interaction states,
   ensuring a polished and user-friendly interface for form-based applications.
   """
 
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `native_select` input component with options for single or multiple selections.
@@ -702,9 +702,9 @@ defmodule AuroraGovWeb.Components.NativeSelect do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

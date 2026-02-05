@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.CheckboxCard do
+defmodule AuroraGov.Web.Components.CheckboxCard do
   @moduledoc """
-  The `AuroraGovWeb.Components.CheckboxCard` module provides a customizable checkbox card component for Phoenix LiveView
+  The `AuroraGov.Web.Components.CheckboxCard` module provides a customizable checkbox card component for Phoenix LiveView
   applications. This component extends beyond basic checkbox buttons by offering a card-based interface
   with rich styling options.
 
@@ -31,7 +31,7 @@ defmodule AuroraGovWeb.Components.CheckboxCard do
   """
   use Phoenix.Component
   alias Phoenix.HTML.Form
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc type: :component
   attr :id, :string,
@@ -877,9 +877,9 @@ defmodule AuroraGovWeb.Components.CheckboxCard do
     # with our gettext backend as first argument. Translations are
     # available in the errors.po file (as we use the "errors" domain).
     if count = opts[:count] do
-      Gettext.dngettext(AuroraGovWeb.Gettext, "errors", msg, msg, count, opts)
+      Gettext.dngettext(AuroraGov.Web.Gettext, "errors", msg, msg, count, opts)
     else
-      Gettext.dgettext(AuroraGovWeb.Gettext, "errors", msg, opts)
+      Gettext.dgettext(AuroraGov.Web.Gettext, "errors", msg, opts)
     end
   end
 end

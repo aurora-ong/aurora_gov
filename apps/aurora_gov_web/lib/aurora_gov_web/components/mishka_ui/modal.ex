@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Modal do
+defmodule AuroraGov.Web.Components.Modal do
   @moduledoc """
-  The `AuroraGovWeb.Components.Modal` module provides a versatile and customizable modal component for
+  The `AuroraGov.Web.Components.Modal` module provides a versatile and customizable modal component for
   Phoenix LiveView applications. It supports various configurations for size, style, color,
   padding, and border radius to match different design requirements. The module is designed
   to facilitate user interactions with dynamic content, such as forms,
@@ -17,9 +17,9 @@ defmodule AuroraGovWeb.Components.Modal do
   """
 
   use Phoenix.Component
-  use Gettext, backend: AuroraGovWeb.Gettext
+  use Gettext, backend: AuroraGov.Web.Gettext
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   Renders a customizable `modal` component that displays overlay content with optional title and inner content.

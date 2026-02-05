@@ -29,7 +29,7 @@ config :aurora_gov, AuroraGov.Projector.Repo,
 # The watchers configuration can be used to run external
 # watchers to your application. For example, we can use it
 # to bundle .js and .css sources.
-config :aurora_gov_web, AuroraGovWeb.Endpoint,
+config :aurora_gov_web, AuroraGov.Web.Endpoint,
   # Binding to loopback ipv4 address prevents access from other machines.
   # Change to `ip: {0, 0, 0, 0}` to allow access from other machines.
   http: [ip: {127, 0, 0, 1}, port: 4000],
@@ -66,7 +66,7 @@ config :aurora_gov_web, AuroraGovWeb.Endpoint,
 # different ports.
 
 # Watch static and templates for browser reloading.
-config :aurora_gov_web, AuroraGovWeb.Endpoint,
+config :aurora_gov_web, AuroraGov.Web.Endpoint,
   live_reload: [
     patterns: [
       ~r"priv/static/(?!uploads/).*(js|css|png|jpeg|jpg|gif|svg)$",

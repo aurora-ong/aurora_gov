@@ -1,8 +1,8 @@
-defmodule AuroraGovWeb.Components.Badge do
+defmodule AuroraGov.Web.Components.Badge do
   @moduledoc """
   Provides customizable and flexible badge components for use in Phoenix LiveView.
 
-  The `AuroraGovWeb.Components.Badge` module allows you to create badge elements with various styles,
+  The `AuroraGov.Web.Components.Badge` module allows you to create badge elements with various styles,
   sizes, and colors. You can add icons, indicators, and dismiss buttons, and configure
   the badge's appearance and behavior using a range of attributes.
   This module also provides helper functions to show and hide badges with smooth transition effects.
@@ -16,8 +16,8 @@ defmodule AuroraGovWeb.Components.Badge do
 
   use Phoenix.Component
   alias Phoenix.LiveView.JS
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
-  use Gettext, backend: AuroraGovWeb.Gettext
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
+  use Gettext, backend: AuroraGov.Web.Gettext
 
   @icon_positions [
     "right_icon",

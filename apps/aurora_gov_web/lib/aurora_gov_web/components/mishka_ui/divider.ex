@@ -1,6 +1,6 @@
-defmodule AuroraGovWeb.Components.Divider do
+defmodule AuroraGov.Web.Components.Divider do
   @moduledoc """
-  The `AuroraGovWeb.Components.Divider` module provides a versatile and customizable divider
+  The `AuroraGov.Web.Components.Divider` module provides a versatile and customizable divider
   component for creating horizontal and vertical dividers with various styling options
   in a Phoenix LiveView application.
 
@@ -14,7 +14,7 @@ defmodule AuroraGovWeb.Components.Divider do
   - Global attributes and custom CSS classes can be applied for additional customization.
   """
   use Phoenix.Component
-  import AuroraGovWeb.Components.Icon, only: [icon: 1]
+  import AuroraGov.Web.Components.Icon, only: [icon: 1]
 
   @doc """
   The `divider` component is used to visually separate content with either a horizontal or
@@ -171,7 +171,7 @@ defmodule AuroraGovWeb.Components.Divider do
   end
 
   @doc """
-  `AuroraGovWeb.Components.Divider.hr` is used to create a horizontal divider with customizable style, color,
+  `AuroraGov.Web.Components.Divider.hr` is used to create a horizontal divider with customizable style, color,
   and size options.
 
   It can also include text or icons to enhance visual separation between content sections.
