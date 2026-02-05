@@ -1,0 +1,259 @@
+# Default values for aurora-gov
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets:
+    - name: weychafe-registry-secret
+  # Example: 
+  # imagePullSecrets:
+  #   - name: weychafe-registry-secret
+  storageClass: ""
+
+# Application configuration
+app:
+  name: aurora-gov
+  replicaCount: 1
+  
+  image:
+    registry: registry.weychafe.nicher.cl
+    repository: aurora_gov
+    tag: "9"
+    pullPolicy: IfNotPresent
+  
+  # Phoenix/Elixir configuration
+  phoenix:
+    server: true
+    port: 4000
+    host: "gov.aurora.ong"
+    secretKeyBase: ""  # Will be generated if empty
+  
+  # Resource limits and requests
+  resources:
+    requests:
+      cpu: 200m
+      memory: 256Mi
+      ephemeral-storage: 100Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 200Mi
+  
+  # Liveness and readiness probes
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+  
+  readinessProbe:
+    enabled: true
+    httpGet:
+      path: /
+      port: http
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+  
+  # Node selector, tolerations and affinity
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  
+  # Pod security context
+  podSecurityContext:
+    fsGroup: 1000
+  
+  # Container security context
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 1000
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 4000
+  annotations: {}
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "public"
+  annotations:
+    cert-manager.io/cluster-issuer: weychafe-letsencrypt
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+  hosts:
+    - host: gov.aurora.ong
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: aurora-gov-tls
+      hosts:
+        - gov.aurora.ong
+
+# PostgreSQL configuration
+postgresql:
+  enabled: true
+  auth:
+    postgresPassword: ""  # Will be generated if empty
+    database: aurora_gov
+  
+  image:
+    registry: docker.io
+    repository: postgres
+    tag: "15-alpine"
+    pullPolicy: IfNotPresent
+  
+  # Resource limits and requests
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+      ephemeral-storage: 100Mi
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+      ephemeral-storage: 200Mi
+  
+  # Persistence configuration
+  persistence:
+    enabled: true
+    storageClass: ""  # Use default storage class
+    accessModes:
+      - ReadWriteOnce
+    size: 10Gi
+    annotations: {}
+  
+  # PostgreSQL configuration
+  postgresqlConfiguration:
+    max_connections: "100"
+    shared_buffers: "128MB"
+    effective_cache_size: "512MB"
+    maintenance_work_mem: "64MB"
+    checkpoint_completion_target: "0.9"
+    wal_buffers: "16MB"
+    default_statistics_target: "100"
+    random_page_cost: "1.1"
+    effective_io_concurrency: "200"
+  
+  # Service configuration
+  service:
+    type: ClusterIP
+    port: 5432
+  
+  # Pod security context
+  podSecurityContext:
+    fsGroup: 999
+  
+  # Container security context
+  securityContext:
+    runAsUser: 999
+    runAsGroup: 999
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - ALL
+
+# Secrets configuration
+secrets:
+  # Create secrets automatically
+  create: true
+  # Existing secret name (if create is false)
+  existingSecret: ""
+  # Secret keys
+  secretKeyBase: ""  # Will be generated if empty
+  postgresPassword: ""  # Will be generated if empty
+
+# ConfigMap configuration
+configMap:
+  create: true
+  data: {}
+
+# ServiceAccount configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+# RBAC configuration
+rbac:
+  create: false
+
+# Pod Disruption Budget
+podDisruptionBudget:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1
+
+# Horizontal Pod Autoscaler
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Network Policy
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []
+
+# Monitoring configuration
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    namespace: ""
+    interval: 30s
+    scrapeTimeout: 10s
+    labels: {}
+
+# Additional environment variables
+extraEnvVars: []
+# - name: EXTRA_VAR
+#   value: "extra-value"
+
+# Additional environment variables from ConfigMap
+extraEnvVarsConfigMap: ""
+
+# Additional environment variables from Secret
+extraEnvVarsSecret: ""
+
+# Additional volumes
+extraVolumes: []
+
+# Additional volume mounts
+extraVolumeMounts: []
+
+# Init containers
+initContainers: []
+
+# Sidecar containers
+sidecars: []
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Deployment annotations
+deploymentAnnotations: {}
+
+# Deployment labels
+deploymentLabels: {}

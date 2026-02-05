@@ -1,0 +1,178 @@
+# Production values for aurora-gov
+# This file contains production-specific overrides
+
+# Global configuration for production
+global:
+  imagePullSecrets:
+    - name: weychafe-registry-secret
+
+# Application configuration
+app:
+  replicaCount: 3
+  
+  image:
+    tag: "latest"
+    pullPolicy: Always
+  
+  # Production resource limits
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 200Mi
+    limits:
+      cpu: 2000m
+      memory: 2Gi
+      ephemeral-storage: 1Gi
+  
+  # Enhanced probes for production
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 10
+    failureThreshold: 3
+  
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    failureThreshold: 3
+
+# PostgreSQL production configuration
+postgresql:
+  enabled: true
+  
+  # Production resource limits
+  resources:
+    requests:
+      cpu: 1000m
+      memory: 2Gi
+      ephemeral-storage: 500Mi
+    limits:
+      cpu: 4000m
+      memory: 4Gi
+      ephemeral-storage: 2Gi
+  
+  # Production persistence
+  persistence:
+    enabled: true
+    storageClass: "fast-ssd"
+    size: 100Gi
+    accessModes:
+      - ReadWriteOnce
+  
+  # Production PostgreSQL configuration
+  postgresqlConfiguration:
+    max_connections: "200"
+    shared_buffers: "512MB"
+    effective_cache_size: "2GB"
+    maintenance_work_mem: "256MB"
+    checkpoint_completion_target: "0.9"
+    wal_buffers: "64MB"
+    default_statistics_target: "100"
+    random_page_cost: "1.1"
+    effective_io_concurrency: "200"
+    work_mem: "8MB"
+    min_wal_size: "1GB"
+    max_wal_size: "4GB"
+
+# Enable autoscaling in production
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 80
+
+# Enable Pod Disruption Budget
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 2
+
+# Production ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "60"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+  hosts:
+    - host: gov.aurora.ong
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: aurora-gov-tls
+      hosts:
+        - gov.aurora.ong
+
+# Enable network policies for security
+networkPolicy:
+  enabled: true
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 4000
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: aurora-gov
+              app.kubernetes.io/component: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+  egress:
+    - to: []
+      ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: aurora-gov
+              app.kubernetes.io/component: postgresql
+      ports:
+        - protocol: TCP
+          port: 5432
+
+# Production monitoring
+monitoring:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 30s
+    scrapeTimeout: 10s
+
+# Production pod annotations for monitoring
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "4000"
+  prometheus.io/path: "/metrics"
+
+# Production affinity rules
+app:
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app.kubernetes.io/name
+                  operator: In
+                  values:
+                    - aurora-gov
+            topologyKey: kubernetes.io/hostname

@@ -1,0 +1,65 @@
+1. Get the application URL by running these commands:
+{{- if .Values.ingress.enabled }}
+{{- range $host := .Values.ingress.hosts }}
+  {{- range .paths }}
+  http{{ if $.Values.ingress.tls }}s{{ end }}://{{ $host.host }}{{ .path }}
+  {{- end }}
+{{- end }}
+{{- else if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "aurora-gov.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w {{ include "aurora-gov.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "aurora-gov.fullname" . }} --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:{{ .Values.service.port }}
+{{- else if contains "ClusterIP" .Values.service.type }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app.kubernetes.io/name={{ include "aurora-gov.name" . }},app.kubernetes.io/instance={{ .Release.Name }}" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+
+2. Aurora Gov has been deployed successfully!
+
+   Application: {{ include "aurora-gov.fullname" . }}
+   Namespace: {{ .Release.Namespace }}
+   Version: {{ .Chart.AppVersion }}
+
+3. Database Information:
+{{- if .Values.postgresql.enabled }}
+   PostgreSQL is deployed as part of this release.
+   
+   To connect to your database:
+   
+   1. Get the PostgreSQL password:
+      export POSTGRES_PASSWORD=$(kubectl get secret --namespace {{ .Release.Namespace }} {{ include "aurora-gov.postgresql.secretName" . }} -o jsonpath="{.data.postgres-password}" | base64 -d)
+   
+   2. Connect to the database:
+      kubectl run {{ include "aurora-gov.fullname" . }}-postgresql-client --rm --tty -i --restart='Never' --namespace {{ .Release.Namespace }} --image docker.io/postgres:15-alpine --env="PGPASSWORD=$POSTGRES_PASSWORD" --command -- psql --host {{ include "aurora-gov.postgresql.fullname" . }} -U postgres -d {{ .Values.postgresql.auth.database }} -p 5432
+{{- else }}
+   PostgreSQL is not enabled. Make sure to configure external database connection.
+{{- end }}
+
+4. Useful Commands:
+
+   # Check deployment status
+   kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+   
+   # View application logs
+   kubectl logs -n {{ .Release.Namespace }} -l app.kubernetes.io/name={{ include "aurora-gov.name" . }} -f
+   
+   # Scale the application
+   kubectl scale deployment {{ include "aurora-gov.fullname" . }} --replicas=3 -n {{ .Release.Namespace }}
+
+5. Configuration:
+   
+   The application is configured with:
+   - Phoenix Host: {{ .Values.app.phoenix.host }}
+   - Phoenix Port: {{ .Values.app.phoenix.port }}
+   - Replicas: {{ .Values.app.replicaCount }}
+   
+   For more configuration options, check the values.yaml file.
+
+Happy governing with Aurora Gov! 🌅

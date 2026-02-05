@@ -1,0 +1,15 @@
+apiVersion: v2
+name: aurora-gov
+description: Helm chart for Aurora Gov - Digital Governance Platform
+type: application
+version: 0.9.0
+appVersion: "0.9.0"
+keywords:
+  - governance
+  - elixir
+  - phoenix
+  - cqrs
+  - event-sourcing
+home: https://aurora.ong
+sources:
+  - https://github.com/aurora-org/aurora-gov

@@ -1,0 +1,150 @@
+# Development values for aurora-gov
+# This file contains development-specific overrides
+
+#Global configuration
+global:
+  imageRegistry: ""
+  imagePullSecrets:
+    - name: weychafe-registry-secret
+
+# Application configuration
+app:
+  replicaCount: 1
+  
+  image:
+    tag: "dev"
+    pullPolicy: Always
+  
+  # Development resource limits (lower)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+      ephemeral-storage: 50Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+      ephemeral-storage: 200Mi
+  
+  # Faster probes for development
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 15
+    periodSeconds: 10
+    timeoutSeconds: 3
+    failureThreshold: 5
+  
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 2
+    failureThreshold: 5
+
+# PostgreSQL development configuration
+postgresql:
+  enabled: true
+  
+  # Development resource limits (lower)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+      ephemeral-storage: 50Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+      ephemeral-storage: 500Mi
+  
+  # Development persistence (smaller)
+  persistence:
+    enabled: true
+    storageClass: ""  # Use default
+    size: 5Gi
+    accessModes:
+      - ReadWriteOnce
+  
+  # Development PostgreSQL configuration
+  postgresqlConfiguration:
+    max_connections: "50"
+    shared_buffers: "64MB"
+    effective_cache_size: "256MB"
+    maintenance_work_mem: "32MB"
+    checkpoint_completion_target: "0.9"
+    wal_buffers: "8MB"
+    default_statistics_target: "50"
+    random_page_cost: "1.1"
+    effective_io_concurrency: "100"
+
+# Disable autoscaling in development
+autoscaling:
+  enabled: false
+
+# Disable Pod Disruption Budget in development
+podDisruptionBudget:
+  enabled: false
+
+# Development ingress configuration
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+  hosts:
+    - host: dev.aurora.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: aurora-gov-dev-tls
+      hosts:
+        - dev.aurora.local
+
+# Disable network policies for easier development
+networkPolicy:
+  enabled: false
+
+# Disable monitoring in development
+monitoring:
+  enabled: false
+
+# Development pod annotations
+podAnnotations:
+  environment: "development"
+
+# Development environment variables
+extraEnvVars:
+  - name: MIX_ENV
+    value: "dev"
+  - name: LOG_LEVEL
+    value: "debug"
+  - name: ENABLE_DEBUG
+    value: "true"
+
+# Relaxed security context for development
+app:
+  podSecurityContext:
+    fsGroup: 1000
+    runAsNonRoot: false
+  
+  securityContext:
+    runAsNonRoot: false
+    runAsUser: 1000
+    allowPrivilegeEscalation: true
+    capabilities:
+      drop: []
+
+postgresql:
+  podSecurityContext:
+    fsGroup: 999
+    runAsNonRoot: false
+  
+  securityContext:
+    runAsUser: 999
+    runAsGroup: 999
+    allowPrivilegeEscalation: true
+    capabilities:
+      drop: []
