@@ -43,7 +43,7 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
     end
   end
 
-    def error(error, %AuroraGov.Command.ConsumeProposal{}, failure_context) do
+  def error(error, %AuroraGov.Command.ConsumeProposal{}, _failure_context) do
     Logger.error("El comando ConsumeProposal falló con razón: #{inspect(error)}")
 
     {:stop, :error}

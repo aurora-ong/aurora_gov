@@ -17,6 +17,7 @@ defmodule AuroraGov.Projector.ProposalProjector do
           vote_ou: ou_ids,
           vote_value: nil,
           vote_type: nil,
+          vote_comment: nil,
           updated_at: nil
         }
       end)
@@ -53,6 +54,7 @@ defmodule AuroraGov.Projector.ProposalProjector do
     updated_vote_fields = %{
       "vote_value" => event.vote_value,
       "vote_type" => event.vote_type,
+      "vote_comment" => event.vote_comment,
       "updated_at" => DateTime.utc_now()
     }
 

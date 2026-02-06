@@ -179,7 +179,6 @@ defmodule AuroraGov.Web.Components.Progress do
           stroke-dasharray={@circumference}
           stroke-dashoffset={@circumference}
         />
-
         <circle
           cx={@coordinate}
           cy={@coordinate}
@@ -196,7 +195,7 @@ defmodule AuroraGov.Web.Components.Progress do
           ]}
         />
       </svg>
-
+      
       <div
         :if={@label || @value}
         class={[
@@ -385,7 +384,7 @@ defmodule AuroraGov.Web.Components.Progress do
     <style :if={@csp_nonce} nonce={@csp_nonce}>
       /* style for progress section */
       ##{ @id } {
-        <% if @variation == "horizontal" do %>
+        <%= if @variation == "horizontal" do %>
           width: {@value}%;
         <% else %>
           height: {@value}%;
@@ -434,7 +433,7 @@ defmodule AuroraGov.Web.Components.Progress do
         >
           {tooltip[:label]}
         </div>
-
+        
         <div
           id={"#{@id}-tooltip"}
           role="tooltip"
@@ -455,8 +454,7 @@ defmodule AuroraGov.Web.Components.Progress do
             "block absolute size-[8px] bg-inherit rotate-45 -z-[1] tooltip-arrow",
             position_class(tooltip[:position])
           ]}>
-          </span>
-          {render_slot(tooltip)}
+          </span> {render_slot(tooltip)}
         </div>
       </div>
     </div>

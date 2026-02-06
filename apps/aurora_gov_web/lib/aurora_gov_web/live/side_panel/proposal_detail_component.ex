@@ -33,22 +33,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
     refresh_proposal(proposal_id, socket)
   end
 
-  defp refresh_proposal(proposal_id, socket) do
-    socket =
-      if proposal_id == socket.assigns.proposal_id do
-        person_id =
-          socket.assigns.app_context.current_person &&
-            socket.assigns.app_context.current_person.person_id
-
-        socket
-        |> start_async(:load_context, fn -> load_context(proposal_id, person_id) end)
-      else
-        socket
-      end
-
-    {:ok, socket}
-  end
-
   @impl true
   def update(assigns, socket) do
     proposal_id = assigns[:proposal_id]
@@ -89,6 +73,22 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
     end
   end
 
+  defp refresh_proposal(proposal_id, socket) do
+    socket =
+      if proposal_id == socket.assigns.proposal_id do
+        person_id =
+          socket.assigns.app_context.current_person &&
+            socket.assigns.app_context.current_person.person_id
+
+        socket
+        |> start_async(:load_context, fn -> load_context(proposal_id, person_id) end)
+      else
+        socket
+      end
+
+    {:ok, socket}
+  end
+
   @impl true
   def handle_async(:load_context, {:ok, result}, socket) do
     case result do
@@ -111,18 +111,18 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
         <:loading>
           <.loading_spinner size="double_large" />
         </:loading>
-
+        
         <:failed :let={error}>
           <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
             <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
             <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar</h3>
-
+            
             <p class="text-gray-500">
               No se pudo cargar la información de esta propuesta. <br /> {inspect(error)}
             </p>
           </div>
         </:failed>
-
+        
         <div class="mb-2">
           <div class="flex flex-wrap gap-2 mb-3">
             <%= if context.proposal.proposal_ou_start_id != context.proposal.proposal_ou_end_id do %>
@@ -134,7 +134,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
               <span class="text-gray-400 flex items-center text-sm">
                 <i class="fa fa-arrow-right"></i>
               </span>
-
+              
               <.ou_id_badge
                 ou_id={context.proposal.proposal_ou_end_id}
                 ou_name={context.proposal.proposal_ou_end.ou_name}
@@ -148,16 +148,16 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
               />
             <% end %>
           </div>
-
+          
           <h2 class="text-xl font-bold text-gray-900 mb-2 m-0">
             {context.proposal.proposal_title}
           </h2>
-
+          
           <.badge size="extra_small" variant="bordered" rounded="extra_large">
             {context.proposal.proposal_id}
           </.badge>
         </div>
-
+        
     <!-- Tabs -->
         <div class="flex border-b border-gray-200 mb-4">
           <button
@@ -174,7 +174,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
           >
             <i class="fa-solid fa-info-circle mr-1"></i> Información
           </button>
-
+          
           <button
             phx-click="tab_change"
             phx-value-tab="votes"
@@ -189,7 +189,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
           >
             <i class="fa-solid fa-vote-yea mr-1"></i> Estado
           </button>
-
+          
           <button
             phx-click="tab_change"
             phx-value-tab="discussion"
@@ -205,7 +205,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
             <i class="fa-solid fa-comments mr-1"></i> Discusión
           </button>
         </div>
-
+        
     <!-- Contenido de tabs -->
         <div class="flex-1">
           <%= case @active_tab do %>
@@ -213,39 +213,39 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
               <div class="space-y-4">
                 <div>
                   <h3 class="font-semibold text-gray-900 mb-2">Descripción</h3>
-
+                  
                   <p class="text-gray-700 leading-relaxed">{context.proposal.proposal_description}</p>
                 </div>
-
+                
                 <div>
                   <h3 class="font-semibold text-gray-900 mb-2">Detalles</h3>
-
+                  
                   <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
                     <div>
                       <dt class="text-sm font-semibold text-gray-700">Propietario</dt>
-
+                      
                       <dd class="text-sm text-gray-900">
                         {context.proposal.proposal_owner.person_name}
                       </dd>
                     </div>
-
+                    
                     <div>
                       <dt class="text-sm font-semibold text-gray-700">Poder</dt>
-
+                      
                       <dd class="text-sm text-gray-900">{context.proposal.proposal_power_id}</dd>
                     </div>
-
+                    
                     <div>
                       <dt class="text-sm font-semibold text-gray-700">Estado</dt>
-
+                      
                       <dd class="text-sm text-gray-900 capitalize">
                         {context.proposal.proposal_status}
                       </dd>
                     </div>
-
+                    
                     <div>
                       <dt class="text-sm font-semibold text-gray-700">Creada</dt>
-
+                      
                       <dd class="text-sm text-gray-900">
                         {Timex.lformat!(
                           context.proposal.created_at,
@@ -256,7 +256,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                     </div>
                   </dl>
                 </div>
-
+                
                 <%= if context.proposal.proposal_power_data && map_size(context.proposal.proposal_power_data) > 0 do %>
                   <div>
                     <h3 class="font-semibold text-gray-900 mb-2">Datos del Poder</h3>
@@ -277,7 +277,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                           {status[:current_voters]} / {status[:total_voters]} votos
                         </span>
                       </div>
-
+                      
                       <.proposal_vote_progress
                         current_score={status[:current_score]}
                         required_score={status[:required_score]}
@@ -285,7 +285,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                     </div>
                   <% end %>
                 </div>
-
+                
                 <%= if @app_context && @app_context.current_person && @app_context.current_person.person_id == context.proposal.proposal_owner_id && context.proposal.proposal_status == :active do %>
                   <hr class="my-5" />
                   <div class="text-center">
@@ -309,7 +309,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                   <%= for vote <- context.proposal.proposal_votes do %>
                     <div class="bg-gray-50 p-2 rounded text-sm">
                       <div class="flex justify-between items-center">
-                        <span class="font-medium">{vote.person_id}</span>
+                        <span class="font-semibold text-md">{vote.person_id}</span>
                         <span class={[
                           "px-2 py-1 rounded text-xs font-medium",
                           case vote.vote_value do
@@ -345,10 +345,14 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                           <% end %>
                         </span>
                       </div>
+                      
+                      <span :if={vote.vote_comment} class="">
+                        {vote.vote_comment}
+                      </span>
                     </div>
                   <% end %>
                 </div>
-
+                
                 <%= if context.proposal.proposal_status == :active do %>
                   <hr class="border-gray-100 border my-2" />
                   <.button
@@ -365,7 +369,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                                                              do: "Actualizar voto",
                                                              else: "Votar"}
                   </.button>
-
+                  
                   <%!-- <div class="text-center">
                     <button class="primary filled w-full">
                       <i class="fa-solid fa-vote-yea"></i> {if context.current_vote &&

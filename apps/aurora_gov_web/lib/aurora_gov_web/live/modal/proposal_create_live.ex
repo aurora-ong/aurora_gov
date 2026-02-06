@@ -109,7 +109,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         <:loading>
           <.loading_spinner size="double_large" />
         </:loading>
-
+        
         <:failed :let={error}>
           <div class="w-full flex flex-col items-center justify-center gap-4 p-6">
             <div class="mb-3">
@@ -121,7 +121,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
            end)}>
               </i>
             </div>
-
+            
             <div class="text-center">
               <h3 class="text-xl font-semibold">
                 {case error do
@@ -129,7 +129,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
                   _ -> "Error al cargar"
                 end}
               </h3>
-
+              
               <p class="mt-2 text-sm text-gray-600">
                 {case error do
                   :no_auth ->
@@ -140,7 +140,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
                 end}
               </p>
             </div>
-
+            
             <%= case error do %>
               <% :no_auth -> %>
                 <a href="/persons/log_in" class="primary filled mt-5">
@@ -157,15 +157,15 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
             <% end %>
           </div>
         </:failed>
-
+        
         <h1 class="text-4xl text-black mb-5">
           <i class="fa-solid fa-hand text-3xl mr-3"></i>Gobernar
         </h1>
-
+        
         <h2 class="text-xl mb-10">
           Utiliza este formulario para proponer una decisión. Reune los votos del resto de los integrantes para promulgarla.
         </h2>
-
+        
         <.simple_form
           :if={@step == 0}
           for={@step_0_form_proposal}
@@ -208,7 +208,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
               />
             </div>
           </div>
-
+          
           <div class="py-6">
             <.combobox
               searchable
@@ -219,15 +219,15 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
               search_placeholder="Buscar poder"
             >
             </.combobox>
-
+            
             <div :if={@step_0_ou_power_detail != nil}>
               <.async_result :let={ou_power} assign={@step_0_ou_power_detail}>
                 <:loading>
-                  <.loading_spinner size="double_large"></.loading_spinner>
+                  <.loading_spinner size="double_large" />
                 </:loading>
-
+                
                 <div class="mt-5"></div>
-
+                
                 <.live_component
                   module={AuroraGov.Web.Components.Power.PowerCardComponent}
                   id="power-card"
@@ -244,7 +244,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
               </.async_result>
             </div>
           </div>
-
+          
           <:actions>
             <.button phx-disable-with="..." class="w-full primary filled">
               Siguiente <span aria-hidden="true">→</span>
@@ -252,7 +252,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
           </:actions>
         </.simple_form>
       </.async_result>
-
+      
       <.simple_form
         :if={@step == 1}
         for={@step_1_form_power}
@@ -262,7 +262,6 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         phx-target={@myself}
         class="w-full"
       >
-        {inspect(@proposal_data)} <br /> {inspect(@step_1_form_power)}
         <.live_component
           module={AuroraGov.Web.DynamicCommandFormComponent}
           id="proposal-power_form"
@@ -280,13 +279,13 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
           >
             Atrás
           </.button>
-
+          
           <.button phx-disable-with="..." class="w-full">
             Siguiente
           </.button>
         </:actions>
       </.simple_form>
-
+      
       <.simple_form
         :if={@step == 2}
         for={@step_2_form_proposal}
@@ -320,13 +319,13 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
           >
             Atrás
           </.button>
-
+          
           <.button phx-disable-with="..." class="w-full">
             Revisar
           </.button>
         </:actions>
       </.simple_form>
-
+      
       <div :if={@step == 3}>
         <h2>Revisa la propuesta</h2>
          {inspect(@proposal_data)} {inspect(@power_data)}
@@ -341,7 +340,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
           >
             Atrás
           </.button>
-
+          
           <.button
             phx-click="step_2_submit"
             phx-target={@myself}

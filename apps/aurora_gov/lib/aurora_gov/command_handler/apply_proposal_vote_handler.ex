@@ -1,6 +1,6 @@
 defmodule AuroraGov.CommandHandler.ApplyProposalVoteHandler do
   @behaviour Commanded.Commands.Handler
-  alias AuroraGov.Aggregate.{OU, Person, Proposal}
+  alias AuroraGov.Aggregate.{Proposal}
   alias AuroraGov.Command.ApplyProposalVote
   alias AuroraGov.Event.VoteEmited
 
