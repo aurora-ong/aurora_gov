@@ -1,33 +1,90 @@
+defmodule AuroraGov.Command.FieldMeta do
+  defstruct [:name, :type, :label, :description, :form_type, :source, opts: []]
+end
+
 defmodule AuroraGov.Command do
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
-      fields = Keyword.fetch!(opts, :fields)
-      meta = Keyword.get(opts, :gov_power, [])
+      use Ecto.Schema
+      import Ecto.Changeset
 
-      # Definir el struct del comando
-      field_names = Keyword.keys(fields)
-      field_types = for {k, v} <- fields, do: {k, Keyword.get(v, :command_type, :string)}
+      @gov_power_meta Keyword.get(opts, :gov_power, [])
+      @fields_config Keyword.fetch!(opts, :fields)
 
-      use Commanded.Command, Enum.into(field_types, %{})
+      @primary_key false
+      embedded_schema do
+        for {name, config} <- @fields_config do
+          type = Keyword.get(config, :command_type, :string)
+          field name, type
+        end
+      end
 
-      Module.register_attribute(__MODULE__, :form_fields, accumulate: true)
-      for {name, meta} <- fields, do: @form_fields {name, meta}
+      @compiled_fields Enum.map(@fields_config, fn {name, config} ->
+                         %AuroraGov.Command.FieldMeta{
+                           name: name,
+                           type: Keyword.get(config, :command_type, :string),
+                           label: Keyword.get(config, :label, Phoenix.Naming.humanize(name)),
+                           description: Keyword.get(config, :description),
+                           form_type: Keyword.get(config, :form_type, :text),
+                           source: Keyword.get(config, :source, :user),
+                           opts: config
+                         }
+                       end)
 
-      def fields, do: Enum.into(@form_fields, %{})
+      def new(user_params \\ %{}, opts \\ []) do
+        params = Enum.into(user_params, %{})
+        context = Keyword.get(opts, :context, %{})
 
-      @gov_power meta
+        enriched_params =
+          Enum.reduce(@fields_config, params, fn {field_name, config}, acc ->
+            source = Keyword.get(config, :source, :user)
+            field_string = Atom.to_string(field_name)
+
+            case source do
+              {:context, context_key} ->
+                value = Map.get(context, context_key) || Map.get(context, to_string(context_key))
+
+                if value do
+                  Map.put(acc, field_string, value)
+                else
+                  acc
+                end
+
+              :auto ->
+                if field_name == :timestamp do
+                  Map.put(acc, field_string, DateTime.utc_now())
+                else
+                  acc
+                end
+
+              _ ->
+                acc
+            end
+          end)
+
+        allowed_keys = Enum.map(@compiled_fields, & &1.name)
+
+        %__MODULE__{}
+        |> cast(enriched_params, allowed_keys)
+        |> handle_validate(opts)
+      end
+
+      def handle_validate(changeset, _opts), do: handle_validate(changeset)
+      def handle_validate(changeset), do: changeset
+
+      defoverridable handle_validate: 1, handle_validate: 2
 
       def gov_power do
         %{
-          id: Keyword.fetch!(@gov_power, :id),
-          name: Keyword.fetch!(@gov_power, :name),
-          description: Keyword.fetch!(@gov_power, :description)
+          id: Keyword.fetch!(@gov_power_meta, :id),
+          name: Keyword.fetch!(@gov_power_meta, :name),
+          description: Keyword.get(@gov_power_meta, :description, ""),
+          version: Keyword.get(@gov_power_meta, :version, 1),
+          status: Keyword.get(@gov_power_meta, :status, :active)
         }
       end
+
+      def field_definitions, do: @compiled_fields
     end
   end
-end
-
-defmodule GovCommandField do
-  defstruct command_type: :string, label: nil, description: nil, source: :user, form_type: :text
 end

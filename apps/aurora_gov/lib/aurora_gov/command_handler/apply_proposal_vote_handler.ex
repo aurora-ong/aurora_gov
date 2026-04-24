@@ -3,6 +3,7 @@ defmodule AuroraGov.CommandHandler.ApplyProposalVoteHandler do
   alias AuroraGov.Aggregate.{Proposal}
   alias AuroraGov.Command.ApplyProposalVote
   alias AuroraGov.Event.VoteEmited
+  require Logger
 
   def handle(
         %Proposal{} = proposal,
@@ -15,7 +16,6 @@ defmodule AuroraGov.CommandHandler.ApplyProposalVoteHandler do
         }
       ) do
     with :active <- proposal.proposal_status || :inactive do
-      IO.inspect(proposal, label: "Proposal")
 
       %VoteEmited{
         proposal_id: proposal_id,
@@ -26,12 +26,12 @@ defmodule AuroraGov.CommandHandler.ApplyProposalVoteHandler do
         vote_type: vote_type
       }
     else
-      {:error, :ou_not_exists} -> {:error, :ou_origin_not_exists}
-      :inactive -> {:error, :ou_not_active}
-      {:error, :person_not_exists} -> {:error, :person_not_exists}
-      {:error, :membership_not_found} -> {:error, :person_not_member_of_ou}
-      false -> {:error, :person_not_regular_or_senior}
-      {:error, :ou_not_exists} -> {:error, :ou_end_not_exists}
+      {:error, _error} = error ->
+        error
+
+      error ->
+        Logger.error("#{__MODULE__} Error inesperado #{inspect(error)}")
+        {:error, :unexpected_error}
     end
   end
 

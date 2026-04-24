@@ -10,14 +10,14 @@ defmodule AuroraGov.Command.PromoteMembership do
         command_type: :string,
         label: "Unidad Organizacional",
         form_type: :text,
-        field_type: :auto
+        source: {:context, :end_ou_id}
       ],
       person_id: [
         command_type: :string,
         label: "Identificador persona",
         description: "Identificador de la persona a promover",
         form_type: :text,
-        field_type: :user
+        source: :user
       ]
     ]
 

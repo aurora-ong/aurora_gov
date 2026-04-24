@@ -5,17 +5,17 @@ defmodule AuroraGov.Context.ProposalContext do
   alias AuroraGov.Projector.Model.Proposal
   import Ecto.Query
 
-  def create_proposal(proposal_attrs) do
+  def create_proposal!(proposal_attrs) do
     changeset = AuroraGov.Command.CreateProposal.handle_validate_create(proposal_attrs)
 
     case Ecto.Changeset.apply_action(changeset, :create) do
       {:ok, command} ->
-        case AuroraGov.dispatch(command, consistency: :strong, returning: :execution_result) do
+        case AuroraGov.dispatch(command, consistency: :strong, returning: :aggregate_state) do
           {:ok, result} ->
             {:ok, result}
 
           {:error, reason} ->
-            Logger.info("#{__MODULE__} create_proposal error #{inspect(reason)}")
+            {:error, reason}
         end
 
       {:error, invalid_changeset} ->
@@ -23,7 +23,7 @@ defmodule AuroraGov.Context.ProposalContext do
     end
   end
 
-  def consume_proposal(proposal_id) do
+  def consume_proposal!(proposal_id) do
     changeset = AuroraGov.Command.ExecuteProposal.new(%{proposal_id: proposal_id})
 
     case Ecto.Changeset.apply_action(changeset, :create) do
@@ -46,10 +46,8 @@ defmodule AuroraGov.Context.ProposalContext do
     end
   end
 
-  def apply_proposal_vote(vote_attrs) do
+  def apply_proposal_vote!(vote_attrs) do
     changeset = AuroraGov.Command.ApplyProposalVote.new(vote_attrs)
-
-    IO.inspect(vote_attrs)
 
     case Ecto.Changeset.apply_action(changeset, :create) do
       {:ok, command} ->
@@ -68,6 +66,12 @@ defmodule AuroraGov.Context.ProposalContext do
       {:error, invalid_changeset} ->
         {:error, invalid_changeset}
     end
+  end
+
+  def count_active_proposals_by_ou(ou_id) do
+    Proposal
+    |> where([p], p.proposal_ou_end_id == ^ou_id and p.proposal_status == :active)
+    |> Repo.aggregate(:count, :proposal_id)
   end
 
   def list_proposals(params \\ %{}) do

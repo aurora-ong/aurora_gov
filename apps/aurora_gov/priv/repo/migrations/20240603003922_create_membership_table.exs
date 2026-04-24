@@ -5,6 +5,7 @@ defmodule AuroraGov.Projector.Repo.Migrations.CreateMembershipTable do
     create table(:membership_table, primary_key: false) do
       add :ou_id, :string, null: false, primary_key: true
       add :person_id, :string, null: false, primary_key: true
+      add :membership_rank, :string, null: false
       add :membership_status, :string, null: false
       add :created_at, :utc_datetime_usec
       add :updated_at, :utc_datetime_usec

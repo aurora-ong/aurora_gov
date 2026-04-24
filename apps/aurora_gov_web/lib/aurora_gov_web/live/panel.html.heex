@@ -212,7 +212,11 @@
     </section>
   </div>
   
-  <.live_component module={AuroraGov.Web.Live.Panel.Header} id="header" app_context={@app_context} />
+  <.live_component
+    module={AuroraGov.Web.Live.Panel.Header}
+    id="header"
+    app_context={@app_context}
+  />
   <div class="flex flex-row gap-2 overflow-hidden h-full w-full">
     <section class="card flex flex-col items-center bg-white shadow-lg rounded-lg overflow-y-auto flex-1">
       <%= case @app_context.current_module do %>
@@ -238,7 +242,7 @@
           <.live_component
             module={AuroraGov.Web.Live.Panel.Proposals}
             id="panel-proposal"
-            context={@app_context.current_ou_id}
+            app_context={@app_context}
           />
         <% _ -> %>
           <div class="w-full h-full flex flex-col justify-center items-center">
@@ -252,13 +256,13 @@
       :if={@app_side_panel != nil}
       class={"flex flex-col border-2 rounded-xl border-gray-200 overflow-y-auto relative " <> (@app_side_panel.view_options[:panel_size] || "w-4/12")}
     >
-      <button
-        phx-click="app_side_panel_close"
-        phx-value-panel={@app_side_panel.view_id}
-        class="absolute top-5 right-5 z-10 rounded-full p-2 hover:bg-gray-100 transition"
+     
+      <.link
+        patch={get_close_path(@socket, @app_context)}
+        class="absolute top-5 right-5 z-10 rounded-full p-2 hover:bg-gray-100 transition cursor-pointer"
       >
         <i class="fa-solid fa-xmark h-5 w-5"></i>
-      </button>
+      </.link>
       
       <div class="flex flex-col flex-1 w-full overflow-y-auto min-h-0 py-5 px-5">
         <.live_component

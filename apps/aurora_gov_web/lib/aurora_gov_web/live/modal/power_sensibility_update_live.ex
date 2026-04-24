@@ -86,7 +86,7 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
             AsyncResult.failed(socket.assigns.power_update_context, :no_membership)
           )
 
-        membership.membership_status == "junior" ->
+        membership.membership_rank == "junior" ->
           assign(
             socket,
             :power_update_context,
@@ -122,7 +122,7 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
   end
 
   defp calculate_collective_value(%{power_average: %Decimal{} = dec}),
-    do: Decimal.to_integer(dec)
+    do: Decimal.round(dec, 1)
 
   defp calculate_collective_value(_), do: "-"
 

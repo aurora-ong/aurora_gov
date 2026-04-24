@@ -62,17 +62,11 @@ defmodule AuroraGov.Web.Components.Icon do
     """
   end
 
-  # FontAwesome: name="fa-solid fa-github" o name="fa-brands fa-github"
-  def icon(%{name: "fa-" <> _ = fa_class, class: class} = assigns) do
+def icon(%{name: "fa-" <> _} = assigns) do
     ~H"""
-    <i class={[fa_class, class]} {@rest}></i>
+    <i class={[@name, @class, "fa"]} {@rest}></i>
     """
   end
 
-  # FontAwesome: name="fa-github" (simple)
-  def icon(%{name: "fa-" <> _ = fa_class} = assigns) do
-    ~H"""
-    <i class={fa_class} {@rest}></i>
-    """
-  end
+
 end

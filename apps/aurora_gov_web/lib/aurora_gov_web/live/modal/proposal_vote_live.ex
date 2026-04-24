@@ -81,7 +81,7 @@ defmodule AuroraGov.Web.Live.Proposal.VoteModal do
             :form,
             %{
               "vote_value" => context.current_vote.vote_value,
-              "vote_comment" => "Comentario de prueba"
+              "vote_comment" => context.current_vote.vote_comment
             }
             |> to_form(as: "proposal_vote_update_form")
           )
@@ -180,9 +180,6 @@ defmodule AuroraGov.Web.Live.Proposal.VoteModal do
 
   @impl true
   def handle_event("submit", %{"proposal_vote_update_form" => params}, socket) do
-    IO.inspect("XXX")
-    IO.inspect(params)
-
     vote_params =
       params
       |> Map.put("person_id", socket.assigns.app_context.current_person.person_id)
@@ -190,7 +187,7 @@ defmodule AuroraGov.Web.Live.Proposal.VoteModal do
       |> Map.put("vote_type", "direct")
 
     socket =
-      case AuroraGov.Context.ProposalContext.apply_proposal_vote(vote_params) do
+      case AuroraGov.Context.ProposalContext.apply_proposal_vote!(vote_params) do
         {:ok, _result} ->
           send(self(), {:close, :app_modal, "proposal_vote_update_modal"})
 

@@ -8,11 +8,19 @@ defmodule AuroraGov.Context.MembershipContext do
   alias AuroraGov.Projector.Repo
   alias AuroraGov.Projector.Model.Membership
 
-  ## Database getters
+  def list_memberships_by_ou(ou_id, params \\ %{}) do
+    Membership
+    |> where([m], m.ou_id == ^ou_id)
+    |> join(:left, [m], p in assoc(m, :person), as: :person)
+    |> preload([m, p], person: p)
+    |> Flop.validate_and_run(params, for: Membership)
+  end
 
-  def get_all_membership_by_uo(ou_id) do
-    query = from(m in Membership, where: m.ou_id == ^ou_id, preload: [:person])
-    Repo.all(query)
+  def count_active_memberships_by_ou(ou_id) do
+    Membership
+    |> where([m], m.ou_id == ^ou_id)
+    |> where([m], m.membership_status == :active)
+    |> Repo.aggregate(:count, :membership_rank)
   end
 
   def get_membership(ou_id, person_id) do

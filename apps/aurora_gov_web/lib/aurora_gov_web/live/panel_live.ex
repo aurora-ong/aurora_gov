@@ -36,6 +36,7 @@ defmodule AuroraGov.Web.Live.Panel do
   @impl true
   def handle_params(params, _uri, socket) do
     current_ou_id = get_current_ou_id(params)
+    current_module = get_module_from_action(socket.assigns.live_action, params)
 
     socket =
       if current_ou_id != nil do
@@ -43,15 +44,40 @@ defmodule AuroraGov.Web.Live.Panel do
         |> assign(:app_modal, nil)
         |> assign(:app_context, %{
           socket.assigns.app_context
-          | current_module: params["module"] || "home",
+          | current_module: current_module,
             current_ou_id: current_ou_id
         })
+        |> handle_deep_linking(socket.assigns.live_action, params)
       else
         socket
         |> push_patch(to: "/install")
       end
 
     {:noreply, socket}
+  end
+
+  # Helper para normalizar el nombre del módulo
+  defp get_module_from_action(:members_show, _), do: "members"
+  defp get_module_from_action(:members_index, _), do: "members"
+  defp get_module_from_action(:proposals_show, _), do: "proposals"
+  defp get_module_from_action(:proposals_index, _), do: "proposals"
+  defp get_module_from_action(_, %{"module" => module}), do: module
+  # Fallback
+  defp get_module_from_action(_, _), do: "home"
+
+  defp handle_deep_linking(socket, :proposals_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-proposal-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.ProposalDetail,
+      view_params: %{proposal_id: id}
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+
+  # Si es una acción de lista (index), nos aseguramos de limpiar paneles viejos
+  defp handle_deep_linking(socket, _action, _params) do
+    assign(socket, :app_side_panel, nil)
   end
 
   defp get_current_ou_id(%{"context" => context}) when context != "", do: context
@@ -131,5 +157,50 @@ defmodule AuroraGov.Web.Live.Panel do
       send(self(), {:open, :app_side_panel, app_panel})
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_event(
+        "open_proposal_create_modal",
+        params,
+        socket
+      ) do
+    {proposal_params, power_params} = split_proposal_params(params)
+
+    app_view = %AppView{
+      view_id: "modal-proposal_create",
+      view_module: AuroraGov.Web.Live.Panel.ProposalCreate,
+      view_options: %{
+        modal_size: "quadruple_large"
+      },
+      view_params: %{
+        proposal_params: proposal_params,
+        power_params: power_params
+      }
+    }
+
+    send(self(), {:open, :app_modal, app_view})
+
+    {:noreply, socket}
+  end
+
+  defp split_proposal_params(params) do
+    {power_raw, proposal_raw} =
+      Map.split_with(params, fn {key, _val} -> String.starts_with?(key, "power-") end)
+
+    power_data =
+      Map.new(power_raw, fn {k, v} ->
+        {String.replace_prefix(k, "power-", ""), v}
+      end)
+
+    proposal_data = Map.new(proposal_raw)
+
+    {proposal_data, power_data}
+  end
+
+  defp get_close_path(_socket, app_context) do
+    query_params = %{context: app_context.current_ou_id}
+
+    ~p"/app/#{app_context.current_module}?#{query_params}"
   end
 end

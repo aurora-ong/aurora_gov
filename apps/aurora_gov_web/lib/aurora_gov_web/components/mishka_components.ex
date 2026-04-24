@@ -25,7 +25,7 @@ defmodule AuroraGov.Web.Components.MishkaComponents do
       import AuroraGov.Web.Components.Avatar, only: [avatar: 1, avatar_group: 1]
 
       import AuroraGov.Web.Components.Badge,
-        only: [badge: 1, hide_badge: 1, hide_badge: 2, show_badge: 1, show_badge: 2]
+        only: [badge: 1]
 
       import AuroraGov.Web.Components.Banner,
         only: [banner: 1, show_banner: 1, show_banner: 2, hide_banner: 1, hide_banner: 2]
@@ -100,7 +100,7 @@ defmodule AuroraGov.Web.Components.MishkaComponents do
       import AuroraGov.Web.Components.PasswordField, only: [password_field: 1]
 
       import AuroraGov.Web.Components.Popover,
-        only: [popover: 1, popover_trigger: 1, popover_content: 1]
+        only: [popover: 1]
 
       import AuroraGov.Web.Components.Progress,
         only: [progress: 1, progress_section: 1, semi_circle_progress: 1, ring_progress: 1]
@@ -116,13 +116,13 @@ defmodule AuroraGov.Web.Components.MishkaComponents do
       import AuroraGov.Web.Components.SpeedDial, only: [speed_dial: 1]
       import AuroraGov.Web.Components.Spinner, only: [spinner: 1]
       import AuroraGov.Web.Components.Stepper, only: [stepper: 1, stepper_section: 1]
-      import AuroraGov.Web.Components.Table, only: [table: 1, th: 1, tr: 1, td: 1]
+
 
       import AuroraGov.Web.Components.TableContent,
         only: [table_content: 1, content_wrapper: 1, content_item: 1]
 
-      import AuroraGov.Web.Components.Tabs,
-        only: [tabs: 1, show_tab: 2, show_tab: 3, hide_tab: 2, hide_tab: 3]
+      # import AuroraGov.Web.Components.Tabs,
+      #   only: [tabs: 1, show_tab: 2, show_tab: 3, hide_tab: 2, hide_tab: 3]
 
       import AuroraGov.Web.Components.TelField, only: [tel_field: 1]
       import AuroraGov.Web.Components.TextField, only: [text_field: 1]
@@ -172,6 +172,7 @@ defmodule AuroraGov.Web.Components.MishkaComponents do
 
       import AuroraGov.Web.Components.FilterButtonGroup
       import AuroraGov.Web.Components.ProposalVoteProgress
+      import AuroraGov.Web.Components.Table
     end
   end
 end

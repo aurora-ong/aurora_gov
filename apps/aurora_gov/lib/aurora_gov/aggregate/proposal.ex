@@ -1,5 +1,6 @@
 defmodule AuroraGov.Aggregate.Proposal do
   require Logger
+  alias AuroraGov.Utils
 
   defstruct [
     :proposal_id,
@@ -37,6 +38,7 @@ defmodule AuroraGov.Aggregate.Proposal do
           proposal_ou_end_id: proposal_ou_end_id
         } = event
       ) do
+    power_sensibility = Utils.normalize_map(power_sensibility)
     proposal_votes = calculate_proposal_votes(event)
 
     %__MODULE__{
@@ -126,12 +128,14 @@ defmodule AuroraGov.Aggregate.Proposal do
         %__MODULE__{proposal_status: :active} = proposal,
         %AuroraGov.Command.ExecuteProposal{}
       ) do
-    with true <- validate_proposal_score(proposal) do
+    if validate_proposal_score(proposal) do
       %AuroraGov.Event.ProposalExecuted{
         proposal_id: proposal.proposal_id,
         proposal_power_id: proposal.proposal_power_id,
         proposal_power_data: proposal.proposal_power_data
       }
+    else
+      {:error, :score_not_met}
     end
   end
 
@@ -164,7 +168,6 @@ defmodule AuroraGov.Aggregate.Proposal do
         end)
 
       total_voters = length(relevant_votes)
-      # Si no hay votantes para esta OU, se considera aprobada.
       if total_voters == 0 do
         true
       else

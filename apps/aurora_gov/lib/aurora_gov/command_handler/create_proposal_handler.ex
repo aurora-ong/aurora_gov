@@ -25,7 +25,9 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
          {:person, _person} <- Person.get_person(person_id),
          # Validar membresía de la persona en OU origen
          {:membership, membership} <- OU.get_membership(ou_origin_agg, person_id),
-         true <- membership.membership_status in [:regular, :senior],
+         IO.inspect(membership),
+         :ok <- check_required_rank(membership),
+         IO.inspect(check_required_rank(membership)),
          # Validar OU de destino
          {:ou, ou_end_agg} <- OU.get_ou(ou_end),
          :active <- ou_end_agg.ou_status || :inactive do
@@ -33,8 +35,6 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
 
       proposal_voters = calculate_proposal_voters(ou_end)
       Logger.debug("Proposal voters #{inspect(proposal_voters)}")
-
-
 
       %ProposalCreated{
         proposal_id: proposal_id,
@@ -49,12 +49,12 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
         proposal_voters: proposal_voters
       }
     else
-      {:error, :ou_not_exists} -> {:error, :ou_origin_not_exists}
-      :inactive -> {:error, :ou_not_active}
-      {:error, :person_not_exists} -> {:error, :person_not_exists}
-      {:error, :membership_not_found} -> {:error, :person_not_member_of_ou}
-      false -> {:error, :person_not_regular_or_senior}
-      {:error, :ou_not_exists} -> {:error, :ou_end_not_exists}
+      {:error, _error} = error ->
+        error
+
+      error ->
+        Logger.error("#{__MODULE__} Error inesperado #{inspect(error)}")
+        {:error, :unexpected_error}
     end
   end
 
@@ -67,8 +67,11 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
     |> Enum.reduce(%{}, fn sub_ou_id, acc ->
       case AuroraGov.Aggregate.OU.get_ou(sub_ou_id) do
         {:ou, ou} ->
-          AuroraGov.Aggregate.OU.get_membership_with_vote_power(ou)
-          |> Enum.reduce(acc, fn {person_id, _membership_status}, acc2 ->
+          AuroraGov.Aggregate.OU.get_membership_list(ou)
+          |> Enum.filter(fn {_person_id, rank} ->
+            rank in ["regular", "senior"]
+          end)
+          |> Enum.reduce(acc, fn {person_id, _membership_rank}, acc2 ->
             person_vote =
               Map.get(acc2, person_id, %{
                 ou_id: []
@@ -95,5 +98,13 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
       {:ok, avg_power} = AuroraGov.Aggregate.OU.get_power_avg_sensitivity(ou, power_id)
       Map.put(acc, sub_ou_id, avg_power)
     end)
+  end
+
+  defp check_required_rank(%OU.Membership{membership_rank: membership_rank}) do
+    if membership_rank in ["regular", "senior"] do
+      :ok
+    else
+      {:error, :insufficient_rank}
+    end
   end
 end

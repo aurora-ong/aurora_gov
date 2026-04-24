@@ -35,6 +35,34 @@ Hooks.Tippy = {
   }
 }
 
+Hooks.InfiniteScroll = {
+  mounted() {
+    this.observer = new IntersectionObserver(entries => {
+      const entry = entries[0];
+      if (entry.isIntersecting) {
+        this.pushEventTo(this.el, "load_more", {});
+      }
+    }, {
+      root: null,
+      rootMargin: "0px 0px 100px 0px",
+      threshold: 0
+    });
+
+    this.observer.observe(this.el);
+  },
+  updated() {
+    if (this.observer) {
+      this.observer.unobserve(this.el);
+      this.observer.observe(this.el);
+    }
+  },
+  destroyed() {
+    if (this.observer) {
+      this.observer.disconnect();
+    }
+  }
+}
+
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 
 let liveSocket = new LiveSocket("/live", Socket, {

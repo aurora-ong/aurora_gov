@@ -2,24 +2,41 @@ defmodule AuroraGov.Web.DynamicCommandFormComponent do
   use AuroraGov.Web, :live_component
 
   @impl true
-  def update(assigns, socket) do
-    {:ok, assign(socket, assigns)}
-  end
-
-  @impl true
   def render(assigns) do
     ~H"""
-    <div>
-      <%= for {field, meta} <- @command_module.fields(), meta[:field_type] == :user do %>
-        <div class="mb-4">
-          <.input
-            field={@form[field]}
-            type={meta[:form_type] || :text}
-            label={meta[:label]}
-            class="w-full"
-            description={meta[:description]}
-          />
-        </div>
+    <div class="space-y-4">
+      <%= for field_meta <- @command_module.field_definitions() do %>
+        <%= if field_meta.source == :user do %>
+          <div>
+            <%= case field_meta.form_type do %>
+              <% :user_search -> %>
+                <.live_component
+                  module={AuroraGov.Web.Components.SmartInputs.UserSelector}
+                  id={"#{field_meta.name}_selector"}
+                  form={@form}
+                  field={field_meta.name}
+                  label={field_meta.label}
+                />
+              <% :ou_search -> %>
+                <.live_component
+                  module={AuroraGov.Web.Components.SmartInputs.OUSelector}
+                  id={"#{field_meta.name}_selector"}
+                  form={@form}
+                  field={field_meta.name}
+                  label={field_meta.label}
+                />
+              <% type -> %>
+                <.input
+                  field={@form[field_meta.name]}
+                  type={Atom.to_string(type)}
+                  label={field_meta.label}
+                  description={field_meta.description}
+                  class="w-full"
+                  placeholder={Keyword.get(field_meta.opts, :placeholder)}
+                />
+            <% end %>
+          </div>
+        <% end %>
       <% end %>
     </div>
     """

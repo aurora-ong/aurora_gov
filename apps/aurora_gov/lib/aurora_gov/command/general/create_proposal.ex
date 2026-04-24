@@ -9,11 +9,6 @@ defmodule AuroraGov.Command.CreateProposal do
     proposal_power_id: :string,
     proposal_power_data: :map
 
-  # def handle_validate(changeset) do
-  #   IO.inspect(inspect(changeset), label: "QQ", pretty: true, limit: :infinity)
-  #   changeset
-  # end
-
   def handle_validate_step(params, 0) do
     AuroraGov.Command.CreateProposal.new(params)
     |> validate_required([
@@ -29,8 +24,8 @@ defmodule AuroraGov.Command.CreateProposal do
       :proposal_title,
       :proposal_description
     ])
-    |> validate_length(:proposal_title, min: 5)
-    |> validate_length(:proposal_description, min: 10)
+    |> validate_length(:proposal_title, min: 5, max: 60)
+    |> validate_length(:proposal_description, min: 10, max: 1000)
   end
 
   def handle_validate_create(params) do
@@ -45,6 +40,6 @@ defmodule AuroraGov.Command.CreateProposal do
     ])
     |> validate_length(:proposal_title, min: 5)
     |> validate_length(:proposal_description, min: 10)
-    |> put_change(:proposal_id, Ecto.UUID.generate)
+    |> put_change(:proposal_id, Ecto.ShortUUID.generate())
   end
 end

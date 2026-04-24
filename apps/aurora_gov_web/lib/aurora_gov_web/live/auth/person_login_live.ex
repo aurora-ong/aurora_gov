@@ -16,22 +16,16 @@ defmodule AuroraGov.Web.PersonLoginLive do
       >
         <.input field={@form[:id]} type="email" label="Email" required />
         <.input field={@form[:password]} type="password" label="Password" required />
-        <:actions>
-          <.input field={@form[:remember_me]} type="checkbox" label="Recordarme por 7 días" />
-        </:actions>
-
+        <.input field={@form[:remember_me]} type="checkbox" label="Recordarme por 7 días" />
+        <small>
+          <a href={~p"/persons/register"} class="text-black hover:underline">
+            ¿No tienes cuenta? Regístrate aquí
+          </a>
+        </small>
         <:actions>
           <.button phx-disable-with="..." class="w-full">
             Ingresar <span aria-hidden="true">→</span>
           </.button>
-        </:actions>
-
-        <:actions>
-          <small>
-            <a href={~p"/persons/register"} class="text-black hover:underline">
-              ¿No tienes cuenta? Regístrate aquí
-            </a>
-          </small>
         </:actions>
       </.simple_form>
     </div>

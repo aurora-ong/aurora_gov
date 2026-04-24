@@ -222,7 +222,7 @@ proposal_params = %{
   }
 }
 
-AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
+AuroraGov.Context.ProposalContext.create_proposal!(proposal_params)
 
 # # AuroraGov.dispatch(proposal)
 
@@ -236,4 +236,4 @@ AuroraGov.Context.ProposalContext.create_proposal(proposal_params)
 #   vote_type: "direct"
 # }
 
-AuroraGov.Context.ProposalContext.consume_proposal("1ea9bccf-1dd5-4d73-8242-3f7f496a11a0")
+# AuroraGov.Context.ProposalContext.consume_proposal!("1ea9bccf-1dd5-4d73-8242-3f7f496a11a0")

@@ -1,13 +1,48 @@
 defmodule AuroraGov.Web.Live.Panel.Members do
+require Logger
   use AuroraGov.Web, :live_component
+  alias AuroraGov.Context.MembershipContext
 
   @impl true
   def mount(socket) do
     socket =
       socket
       |> assign(:filter, "all")
-      |> stream_configure(:member_list, dom_id: & &1.person_id)
+      |> assign(current_page: 1, total_pages: 0, total_count: 0)
+      |> assign(:sort_by, :created_at)
+      |> assign(:sort_order, :desc)
+      |> stream_configure(:member_list, dom_id: &"member-#{&1.person_id}")
       |> stream(:member_list, [])
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(%{new_membership: member}, socket) do
+    current_ou = socket.assigns.app_context.current_ou_id
+
+    socket =
+      if member.ou_id == current_ou do
+        socket
+        |> stream_insert(:member_list, member, at: 0)
+      else
+        socket
+      end
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(%{updated_membership: member}, socket) do
+    current_ou = socket.assigns.app_context.current_ou_id
+
+    socket =
+      if member.ou_id == current_ou do
+        socket
+        |> stream_insert(:member_list, member, at: 0)
+      else
+        socket
+      end
 
     {:ok, socket}
   end
@@ -17,23 +52,77 @@ defmodule AuroraGov.Web.Live.Panel.Members do
     socket =
       socket
       |> assign(:app_context, assigns.app_context)
-      |> assign(loading: true)
-      |> start_async(:load_data, fn ->
-        :timer.sleep(100)
-        AuroraGov.Context.MembershipContext.get_all_membership_by_uo(assigns.app_context.current_ou_id)
-      end)
+      |> load_members()
 
     {:ok, socket}
   end
 
+  defp load_members(socket) do
+    ou_id = socket.assigns.app_context.current_ou_id
+
+    params = %{
+      "page" => socket.assigns.current_page,
+      "order_by" => [socket.assigns.sort_by],
+      "order_directions" => [socket.assigns.sort_order]
+    }
+
+    socket
+    |> assign(:loading, true)
+    |> start_async(:load_data, fn ->
+      :timer.sleep(300)
+
+      MembershipContext.list_memberships_by_ou(ou_id, params)
+    end)
+  end
+
   @impl true
-  def handle_async(:load_data, {:ok, member_list}, socket) do
+  def handle_async(:load_data, {:ok, {:ok, {members, meta}}}, socket) do
+
+
     socket =
       socket
       |> assign(:loading, false)
-      |> stream(:member_list, member_list, reset: true)
+      |> assign(:current_page, meta.current_page)
+      |> assign(:total_pages, meta.total_pages)
+      |> assign(:total_count, meta.total_count)
+      |> stream(:member_list, members, reset: true)
 
     {:noreply, socket}
+  end
+
+  def handle_async(:load_data, reason, socket) do
+    Logger.warning("Error al cargar miembros #{reason}")
+
+    socket =
+      socket
+      |> assign(:loading, false)
+      |> put_flash(:error, "No se pudieron cargar los miembros.")
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("paginate", %{"page" => page}, socket) do
+    {:noreply,
+     socket
+     |> assign(:current_page, String.to_integer(page))
+     |> load_members()}
+  end
+
+  @impl true
+  def handle_event("sort", %{"field" => field}, socket) do
+    field_atom = String.to_existing_atom(field)
+
+    new_order =
+      if socket.assigns.sort_by == field_atom and socket.assigns.sort_order == :asc,
+        do: :desc,
+        else: :asc
+
+    {:noreply,
+     socket
+     |> assign(:sort_by, field_atom)
+     |> assign(:sort_order, new_order)
+     |> load_members()}
   end
 
   @impl true
@@ -56,129 +145,68 @@ defmodule AuroraGov.Web.Live.Panel.Members do
             <.search_field name="search" value="" placeholder="Búsqueda rápida" />
           </form>
 
-          <%!-- <button
-            phx-click="open_gov_modal"
+          <button
+            phx-click="open_proposal_create_modal"
+            phx-value-proposal_ou_origin={@app_context.current_ou_id}
+            phx-value-proposal_ou_end={@app_context.current_ou_id}
+            phx-value-proposal_power_id="org.membership.start"
+            phx-value-power-person_id="999@test.com"
             phx-value-proposal_title="Titulo propuesta"
             phx-value-proposal_description="Descripcion de propuesta en detalle"
-            phx-value-proposal_ou_origin="raiz"
-            phx-value-proposal_ou_end="raiz.sub"
-            phx-value-proposal_power="org.membership.start"
-            phx-value-person_id="aperson"
             class="justify-center items-center text-lg primary"
           >
             <i class="fa-solid fa-hand text-xl"></i> Nuevo miembro
-          </button> --%>
-
-          <.dropdown
-            id="action-dropdown"
-            relative="md:relative"
-            size="large"
-            padding="extra_big"
-          >
-            <:trigger class="flex justify-center items-center">
-              <button class="justify-center items-center text-lg primary outlined">
-                <i class="fa-solid fa-hand text-xl"></i>
-              </button>
-            </:trigger>
-
-            <:content>
-              <div class="flex flex-col gap-1">
-                <.action_button
-                  size="md"
-                  phx-click="mi_evento"
-                  phx-value-id="123"
-                  phx-target={@myself}
-                >
-                  Nuevo miembro
-                </.action_button>
-
-                <button
-                  phx-click="open_gov_modal"
-                  phx-value-proposal_title="Titulo propuesta"
-                  phx-value-proposal_description="Descripcion de propuesta en detalle"
-                  phx-value-proposal_ou_origin="raiz"
-                  phx-value-proposal_ou_end="raiz.sub"
-                  phx-value-proposal_power="org.membership.start"
-                  phx-value-person_id="aperson"
-                  class="justify-center items-center text-lg primary"
-                >
-                  <i class="fa-solid fa-hand text-xl"></i> Nuevo miembro
-                </button>
-              </div>
-            </:content>
-          </.dropdown>
+          </button>
         </div>
       </div>
 
       <div class="w-full">
-        <%= if @loading do %>
-          <.loading_spinner size="double_large" />
-        <% else %>
-          <%!-- <%= if Stream.|.empty?(@streams.member_list) do %>
-            <div class="text-center py-10 text-gray-500">
-              No hay miembros registrados aún.
+        <.table
+          id="membership-table"
+          rows={@streams.member_list}
+          page={@current_page}
+          loading={@loading}
+          total_pages={@total_pages}
+          total_count={@total_count}
+          target={@myself}
+          on_paginate="paginate"
+          on_sort="sort"
+          on_row_click={
+            fn membership ->
+              params = [context: @app_context.current_ou_id]
+              JS.patch(~p"/app/members/#{membership.person_id}?#{params}")
+            end
+          }
+        >
+          <:top_content></:top_content>
+
+          <:empty_state>
+            <div class="flex flex-col items-center justify-center py-4">
+              <i class="fa-solid fa-users-between-lines text-4xl text-gray-300 mb-3"></i>
+              <h3 class="text-lg font-medium text-gray-900">No se encontraron miembros</h3>
             </div>
-          <% else %>
-            <!-- tu tabla aquí -->
-          <% end %> --%>
-          <.table
-            thead_class="bg-gray-50 w-full"
-            rounded="medium"
-            text_size="medium"
-            id="members"
-            rows={@streams.member_list}
-          >
-            <:header class="">Id Persona</:header>
+          </:empty_state>
 
-            <:header class="">Nombre</:header>
+          <:col :let={membership} label="Id" field={:person_id}>{membership.person.person_id}</:col>
 
-            <:header class="text-center">Rango</:header>
+          <:col :let={membership} label="Nombre" field={:person_name}>
+            {membership.person.person_name}
+          </:col>
 
-            <:header class="text-center">Miembro desde</:header>
+          <:col :let={membership} align="center" label="Miembro desde" field={:created_at}>
+            {Timex.lformat!(membership.created_at, "{relative}", "es", :relative)}
+          </:col>
 
-            <:col :let={{_id, membership}}>
-              {membership.person_id}
-            </:col>
+          <:col :let={membership} label="Rango" align="center" field={:membership_rank}>
+            {membership.membership_rank}
+          </:col>
 
-            <:col :let={{_id, membership}}>
-              {membership.person.person_name}
-            </:col>
-
-            <:col :let={{_id, membership}} class="text-center">
-              <%= case (membership.membership_status) do %>
-                <% "junior" -> %>
-                  <.badge size="medium" class="font-semibold" rounded="full">
-                    {membership.membership_status}
-                  </.badge>
-                <% "regular" -> %>
-                  <.badge size="medium" class="font-semibold" rounded="full">
-                    {membership.membership_status}
-                  </.badge>
-                <% "senior" -> %>
-                  <.badge size="medium" class="text-red-500 font-semibold" rounded="full">
-                    {membership.membership_status}
-                  </.badge>
-              <% end %>
-            </:col>
-
-            <:col :let={{_id, membership}} class="text-center">
-              {Timex.lformat!(membership.created_at, "{relative}", "es", :relative)}
-            </:col>
-
-            <:footer class="text-sm w-100 bg-gray-50">Total 4 miembros
-
-
-            </:footer>
-          </.table>
-        <% end %>
+          <:col :let={membership} label="Estado" align="center" field={:membership_status}>
+            {membership.membership_status}
+          </:col>
+        </.table>
       </div>
     </div>
     """
-  end
-
-  @impl true
-  def handle_event("update_filter", %{"filter" => filter}, socket) do
-    IO.inspect(filter, label: "update_filter")
-    {:noreply, assign(socket, filter: filter)}
   end
 end

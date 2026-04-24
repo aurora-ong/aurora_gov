@@ -54,7 +54,7 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
           <span>{@ou_id}</span>
         </div>
       </:trigger>
-       <.tooltip :if={@ou_name} text={@ou_name} />
+       <%!-- <.tooltip :if={@ou_name} text={@ou_name} /> --%>
     </.clipboard>
     """
   end
@@ -235,7 +235,7 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
 
   def voting_progress_full(assigns) do
     ou_list = Map.keys(assigns.voting_map)
-    total = Enum.count(ou_list)
+    _total = Enum.count(ou_list)
 
     color_list = [
       "bg-aurora_orange text-white",

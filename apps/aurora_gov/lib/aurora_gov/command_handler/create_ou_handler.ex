@@ -6,8 +6,8 @@ defmodule AuroraGov.CommandHandler.CreateOUHandler do
   alias AuroraGov.Utils.OUTree
 
   def handle(%OU{ou_id: nil}, %CreateOU{ou_id: ou_id, ou_name: ou_name, ou_goal: ou_goal, ou_description: ou_description}) do
-    case OUTree.get_parent!(ou_id) do
-      ^ou_id ->
+    case OUTree.get_parent(ou_id) do
+      nil ->
         %OUCreated{ou_id: ou_id, ou_name: ou_name, ou_goal: ou_goal, ou_description: ou_description}
       parent ->
         case AuroraGov.aggregate_state(OU, parent) do

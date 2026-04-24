@@ -31,26 +31,10 @@ defmodule AuroraGov.Web.Live.Proposal.ExecuteModal do
   defp load_data(proposal_id, person_id) do
     Logger.debug("Cargando ExecuteModal #{proposal_id}, #{person_id}")
 
-    :timer.sleep(2000)
-
     %Context{
-      can_execute?: true
+      proposal_id: proposal_id,
+      can_execute?: AuroraGov.Context.ProposalContext.can_proposal_execute?(proposal_id)
     }
-
-    with r <-
-           AuroraGov.Context.ProposalContext.can_proposal_execute?(proposal_id) do
-      %Context{
-        proposal_id: proposal_id,
-        can_execute?: r
-      }
-    else
-      {:error, reason} ->
-        {:error, reason}
-
-      error ->
-        Logger.error("Error #{inspect(error)}")
-        {:error, "unknown error"}
-    end
   end
 
   @impl true
@@ -82,27 +66,27 @@ defmodule AuroraGov.Web.Live.Proposal.ExecuteModal do
     ~H"""
     <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
       <.async_result :let={context} assign={@context}>
-        <:loading>
-          <.loading_spinner size="double_large" text="Validando" />
-        </:loading>
+        <:loading><.loading_spinner size="double_large" text="Validando" /></:loading>
 
         <:failed :let={error}>
           <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
             <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
             <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar</h3>
 
-            <p class="text-gray-500">
-              No se pudo cargar. <br /> {inspect(error)}
-            </p>
+            <p class="text-gray-500">No se pudo cargar. <br /> {inspect(error)}</p>
           </div>
         </:failed>
 
         <h2 class="text-2xl font-semibold flex items-center gap-2">
-          <i class="fa-solid fa-hand-point-up text-2xl"></i> Promulgar
+          <i class="fa-solid fa-bullhorn text-2xl"></i> Promulgar
         </h2>
 
-        <h4 class="my-5">
+        <h4 :if={context.can_execute?} class="my-5">
           Hacer en click en promulgar hará esta acción oficial y será notificada publicamente. Esta acción no se puede cancelar.
+        </h4>
+
+        <h4 :if={!context.can_execute?} class="my-5">
+          Esta propuesta aún no reune los votos necesarios para ser promulgada.
         </h4>
 
         <.button
@@ -122,7 +106,7 @@ defmodule AuroraGov.Web.Live.Proposal.ExecuteModal do
   @impl true
   def handle_event("submit", _params, socket) do
     socket =
-      case AuroraGov.Context.ProposalContext.consume_proposal(
+      case AuroraGov.Context.ProposalContext.consume_proposal!(
              socket.assigns.context.result.proposal_id
            ) do
         {:ok, _result} ->

@@ -110,7 +110,7 @@ defmodule AuroraGov.Web.Components.InputField do
           {@rest}
         /> {@label}
       </label>
-      
+
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -120,7 +120,7 @@ defmodule AuroraGov.Web.Components.InputField do
     ~H"""
     <div>
       <.label for={@id}>{@label}</.label>
-      
+
       <select
         id={@id}
         name={@name}
@@ -131,7 +131,7 @@ defmodule AuroraGov.Web.Components.InputField do
         <option :if={@prompt} value="">{@prompt}</option>
          {Phoenix.HTML.Form.options_for_select(@options, @value)}
       </select>
-      
+
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -161,7 +161,7 @@ defmodule AuroraGov.Web.Components.InputField do
     ~H"""
     <div>
       <.label for={@id}>{@label}</.label>
-      
+
       <input
         type={@type}
         name={@name}
@@ -175,7 +175,7 @@ defmodule AuroraGov.Web.Components.InputField do
         {@rest}
       />
       <p :if={@description} class="mt-2 text-sm text-gray-500">{@description}</p>
-      
+
       <.error :for={msg <- @errors}>{msg}</.error>
     </div>
     """
@@ -205,7 +205,7 @@ defmodule AuroraGov.Web.Components.InputField do
   def error(assigns) do
     ~H"""
     <p class="mt-3 flex gap-3 text-sm leading-6 text-rose-600">
-      <.icon name="hero-exclamation-circle-mini" class="mt-0.5 h-5 w-5 flex-none" /> {render_slot(
+      <.icon name="fa-circle-exclamation" class="mt-0.5 h-5 w-5 flex-none" /> {render_slot(
         @inner_block
       )}
     </p>

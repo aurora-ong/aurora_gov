@@ -33,7 +33,7 @@ defmodule AuroraGov.Context.OUContext do
           ou_name: ou.ou_name,
           ou_goal: ou.ou_goal,
           created_at: ou.created_at,
-          membership_status: m.membership_status,
+          membership_rank: m.membership_rank,
           membership_created_at: m.created_at
         }
 

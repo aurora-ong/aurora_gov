@@ -2,7 +2,7 @@ defmodule AuroraGov.Aggregate.OU do
   defstruct [:ou_id, :ou_status, :ou_membership, :ou_power]
 
   defmodule Membership do
-    defstruct [:membership_status]
+    defstruct [:membership_rank]
   end
 
   defmodule Power do
@@ -28,23 +28,25 @@ defmodule AuroraGov.Aggregate.OU do
       ou
       | ou_membership:
           Map.put(ou.ou_membership, person_id, %Membership{
-            membership_status: :junior
+            membership_rank: "junior"
           })
     }
   end
 
-  def apply(%OU{} = ou, %MembershipPromoted{
-        person_id: person_id,
-        membership_status: membership_status
-      }) do
-
+  def apply(
+        %OU{} = ou,
+        %MembershipPromoted{
+          person_id: person_id,
+          membership_rank: membership_rank
+        }
+      ) do
     %OU{
       ou
       | ou_membership:
           Map.update!(ou.ou_membership, person_id, fn membership ->
             %Membership{
               membership
-              | membership_status: to_atom_if_needed(membership_status)
+              | membership_rank: membership_rank
             }
           end)
     }
@@ -107,15 +109,10 @@ defmodule AuroraGov.Aggregate.OU do
     end
   end
 
-  def get_membership_with_vote_power(%OU{ou_membership: ou_membership}) do
-    IO.inspect(ou_membership)
-
+  def get_membership_list(%OU{ou_membership: ou_membership}) do
     ou_membership
-    |> Enum.filter(fn {_person_id, %Membership{membership_status: status}} ->
-      status in [:regular, :senior]
-    end)
-    |> Enum.map(fn {person_id, %Membership{membership_status: status}} ->
-      {person_id, status}
+    |> Enum.map(fn {person_id, %Membership{membership_rank: rank}} ->
+      {person_id, rank}
     end)
   end
 
@@ -148,7 +145,4 @@ defmodule AuroraGov.Aggregate.OU do
         {:ok, avg}
     end
   end
-
-  defp to_atom_if_needed(val) when is_atom(val), do: val
-defp to_atom_if_needed(val) when is_binary(val), do: String.to_atom(val)
 end

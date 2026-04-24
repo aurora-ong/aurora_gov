@@ -1,15 +1,10 @@
 defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
-  alias Phoenix.LiveView.AsyncResult
   use AuroraGov.Web, :live_component
   import AuroraGov.Web.OUVisualTreeComponent
   import AuroraGov.Utils.OUTree
 
   @impl true
   def mount(socket) do
-    socket =
-      socket
-      |> assign(:ou_tree, AsyncResult.loading())
-
     {:ok, socket}
   end
 
@@ -18,24 +13,24 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
     socket =
       socket
       |> assign(:app_context, assigns.app_context)
-      |> start_async(:load_data, fn ->
-        if assigns.app_context.current_person != nil do
-          AuroraGov.Context.OUContext.get_ou_tree_with_membership(
-            assigns.app_context.current_person.person_id
-          )
-        else
-          AuroraGov.Context.OUContext.get_ou_tree()
-          |> Enum.map(&Map.from_struct/1)
-        end
+      |> assign_async(:ou_tree, fn ->
+        ou_tree =
+          if assigns.app_context.current_person != nil do
+            AuroraGov.Context.OUContext.get_ou_tree_with_membership(
+              assigns.app_context.current_person.person_id
+            )
+          else
+            AuroraGov.Context.OUContext.get_ou_tree()
+            |> Enum.map(&Map.from_struct/1)
+          end
+
+        {:ok,
+         %{
+           ou_tree: ou_tree
+         }}
       end)
 
     {:ok, socket}
-  end
-
-  @impl true
-  def handle_async(:load_data, {:ok, ou_tree}, socket) do
-    %{ou_tree: ou_tree_async} = socket.assigns
-    {:noreply, assign(socket, :ou_tree, AsyncResult.ok(ou_tree_async, ou_tree))}
   end
 
   # ============ UI SUBCOMPONENTS (HEEx) ============
@@ -76,7 +71,6 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
     >
       <i class="fa-solid fa-user-slash text-[12px]"></i>
     </span>
-
     <!-- Caso: pertenece (usa assigns calculados arriba) -->
     <span
       :if={!is_nil(@status)}
@@ -130,9 +124,7 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
       </h2>
 
       <.async_result :let={ou_tree} assign={@ou_tree}>
-        <:loading>
-          <.loading_spinner size="double_large" />
-        </:loading>
+        <:loading><.loading_spinner size="double_large" /></:loading>
 
         <:failed :let={_failure}>
           <div class="text-center text-sm text-red-600">
@@ -155,8 +147,7 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
                   class="hidden md:block absolute -left-8 top-1/2 -translate-y-1/2 w-8 h-px bg-gray-200"
                 >
                 </span>
-
-    <!-- Tarjeta OU -->
+                <!-- Tarjeta OU -->
                 <div class={
                   "cursor-pointer hover:bg-gray-50 px-4 sm:px-5 py-3 rounded-lg my-1 flex flex-row items-center border transition " <>
                   if @app_context.current_ou_id == ou.ou_id, do: "border-2 border-aurora_orange bg-aurora_orange/10", else: "border-gray-200"
@@ -167,7 +158,7 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
                       <%!-- <.chip icon_class="fa-solid fa-calendar-days">
                         {Timex.lformat!(ou[:created_at], "{relative}", "es", :relative)}
                       </.chip> --%>
-                      <.membership_badge status={ou[:membership_status]} />
+                      <.membership_badge status={ou[:membership_rank]} />
                     </div>
 
                     <div
@@ -177,33 +168,13 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
                       {ou.ou_name}
                     </div>
                   </div>
-
-    <!-- Indicador de pertenencia -->
+                  <!-- Indicador de pertenencia -->
                   <div class="pl-3 sm:pl-5 flex items-center"></div>
                 </div>
               </div>
             </.link>
           </:ou_item>
         </.ou_visual_tree>
-
-    <!-- Leyenda -->
-        <div class="mx-auto mt-10 flex flex-wrap items-center justify-center gap-2 text-xs text-gray-600 !hidden">
-          <span class="inline-flex items-center gap-1">
-            <i class="fa-solid fa-calendar-days"></i> Fecha Fundación
-          </span>
-
-          <span class="inline-flex items-center gap-1">
-            <i class="fa-regular fa-circle-user"></i> Sin unidad
-          </span>
-           <span class="inline-flex items-center gap-1"><i class="fa-solid fa-user"></i> Junior</span>
-          <span class="inline-flex items-center gap-1">
-            <i class="fa-solid fa-user-check"></i> Regular
-          </span>
-
-          <span class="inline-flex items-center gap-1">
-            <i class="fa-solid fa-user-tie"></i> Senior
-          </span>
-        </div>
       </.async_result>
     </section>
     """

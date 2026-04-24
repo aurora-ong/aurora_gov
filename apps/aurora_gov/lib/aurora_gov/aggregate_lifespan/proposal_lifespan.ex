@@ -5,5 +5,8 @@ defmodule AuroraGov.Aggregate.Proposal.Lifespan do
   def after_event(_event), do: :infinity
 
   def after_command(_command), do: :infinity
+
+  def after_error(:score_not_met), do: :infinity
+
   def after_error(_error), do: :stop
 end

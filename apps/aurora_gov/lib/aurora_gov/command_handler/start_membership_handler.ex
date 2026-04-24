@@ -31,8 +31,8 @@ defmodule AuroraGov.CommandHandler.StartMembershipHandler do
   end
 
   def check_parent_membership(ou_id, person_id) do
-    case OUTree.get_parent!(ou_id) do
-      ^ou_id ->
+    case OUTree.get_parent(ou_id) do
+      nil ->
         :ok
 
       parent ->

@@ -3,6 +3,7 @@ defmodule AuroraGov.CommandHandler.PromoteMembershipHandler do
   alias AuroraGov.Aggregate.OU
   alias AuroraGov.Command.PromoteMembership
   alias AuroraGov.Event.MembershipPromoted
+  require Logger
 
   def handle(%OU{ou_id: nil}, %PromoteMembership{}) do
     {:error, :ou_not_exists}
@@ -13,12 +14,19 @@ defmodule AuroraGov.CommandHandler.PromoteMembershipHandler do
         person_id: person_id
       }) do
     with {:membership, %OU.Membership{} = membership} <- OU.get_membership(ou, person_id),
-         {:ok, membership_status} <- get_next_stament(membership) do
+         {:ok, membership_rank} <- get_next_rank(membership) do
       %MembershipPromoted{
         ou_id: ou_id,
         person_id: person_id,
-        membership_status: membership_status
+        membership_rank: membership_rank
       }
+    else
+      {:error, _error} = error ->
+        error
+
+      error ->
+        Logger.error("#{__MODULE__} Error inesperado #{inspect(error)}")
+        {:error, :unexpected_error}
     end
   end
 
@@ -26,10 +34,10 @@ defmodule AuroraGov.CommandHandler.PromoteMembershipHandler do
     {:error, :ou_not_active}
   end
 
-  defp get_next_stament(%OU.Membership{membership_status: membership_status}) do
+  defp get_next_rank(%OU.Membership{membership_rank: membership_rank}) do
     cond do
-      membership_status == :junior -> {:ok, :regular}
-      membership_status == :regular -> {:ok, :senior}
+      membership_rank == "junior" -> {:ok, "regular"}
+      membership_rank == "regular" -> {:ok, "senior"}
       true -> {:error, :max_statement_reached}
     end
   end

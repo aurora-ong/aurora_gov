@@ -16,12 +16,9 @@ defmodule AuroraGov.CommandHandler.UpdatePowerHandler do
       }) do
     with {:membership, %OU.Membership{} = membership} <-
            OU.get_membership(ou, person_id),
-         :ok <- check_membership_status(membership),
+         :ok <- check_membership_rank(membership),
          power <- OU.get_person_power(ou, power_id, person_id),
          :ok <- check_power_constrains(power) do
-      IO.inspect(membership, label: "Membership")
-      IO.inspect(power, label: "Power")
-
       %PowerUpdated{
         person_id: person_id,
         ou_id: ou_id,
@@ -34,9 +31,9 @@ defmodule AuroraGov.CommandHandler.UpdatePowerHandler do
     end
   end
 
-  defp check_membership_status(%OU.Membership{membership_status: membership_status}) do
+  defp check_membership_rank(%OU.Membership{membership_rank: membership_rank}) do
     cond do
-      membership_status == :junior -> {:error, :insufficient_power}
+      membership_rank == "junior" -> {:error, :insufficient_power}
       true -> :ok
     end
   end

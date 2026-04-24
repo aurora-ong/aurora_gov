@@ -32,9 +32,8 @@ defmodule AuroraGov.Web.OUSelectorComponent do
     ~H"""
     <div id={@id} class="relative">
       <label for={@id} class="block text-sm text-gray-700 mb-1 font-semibold">
-        {@label || "Organización"}
-      </label>
-       <%!-- <.label for={@id}>{@label}</.label> --%>
+        {@label || "Unidad"}
+      </label> <%!-- <.label for={@id}>{@label}</.label> --%>
       <%= if @selected_ou do %>
         <div class="flex flex-row border py-2 px-4 rounded-lg items-center bg-gray-100 shadow-md">
           <div class="flex flex-col grow">
@@ -51,18 +50,6 @@ defmodule AuroraGov.Web.OUSelectorComponent do
          <input type="hidden" name={@field.name} value={@selected_ou.ou_id} />
       <% end %>
 
-      <%!-- <.input
-        :if={@selected_ou == nil}
-        field={@field}
-        type="text"
-        label={@label}
-        value={@query}
-        placeholder="Escribe el nombre o ID de la unidad..."
-        phx-target={@myself}
-        phx-debounce="300"
-        phx-keyup="search"
-        autocomplete="off"
-      /> --%>
       <input
         :if={@selected_ou == nil}
         type="text"
@@ -103,8 +90,8 @@ defmodule AuroraGov.Web.OUSelectorComponent do
               </div>
 
               <div class="text-xs font-medium">
-                <%= if ou.membership_status do %>
-                  <span class="text-green-600">✓ Miembro</span>
+                <%= if ou.membership_rank do %>
+                  <span class="text-green-600">{ou.membership_rank}</span>
                 <% else %>
                   <span class="text-gray-400 italic">No miembro</span>
                 <% end %>
@@ -144,8 +131,6 @@ defmodule AuroraGov.Web.OUSelectorComponent do
       Enum.find(socket.assigns.ou_tree, fn ou ->
         ou.ou_id == ou_id
       end)
-
-    send(self(), {:ou_selected, socket.assigns.field.field, ou_id})
 
     Phoenix.LiveView.send_update(
       socket.assigns.parent_module,

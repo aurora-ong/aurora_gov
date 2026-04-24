@@ -18,6 +18,7 @@ defmodule AuroraGov.Application do
 
       AuroraGov,
       AuroraGov.Projector,
+      AuroraGov.Blockchain.Projector,
       AuroraGov.ProcessManagers.ProposalExecutor
     ]
 

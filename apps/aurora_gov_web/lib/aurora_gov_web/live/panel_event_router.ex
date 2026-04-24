@@ -2,11 +2,29 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   require Logger
   import Phoenix.LiveView
 
-  def handle_event({:membership_started, %{person: person, ou: ou} = _membership}, socket) do
+  def handle_event({:membership_started, %{person: person, ou: ou} = membership}, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Members,
+      id: "panel-members",
+      new_membership: membership
+    )
+
     socket
     |> put_flash(
       :info,
       "#{person.person_name} (#{person.person_id}) ahora es miembro de #{ou.ou_name} (#{ou.ou_id})"
+    )
+  end
+
+  def handle_event({:membership_promoted, %{person: person, ou: ou} = membership}, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Members,
+      id: "panel-members",
+      updated_membership: membership
+    )
+
+    socket
+    |> put_flash(
+      :info,
+      "#{person.person_name} (#{person.person_id}) ahora tiene rango #{membership.membership_rank} en #{ou.ou_name} (#{ou.ou_id})"
     )
   end
 
