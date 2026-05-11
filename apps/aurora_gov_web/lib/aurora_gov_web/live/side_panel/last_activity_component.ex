@@ -208,14 +208,25 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     Calendar.strftime(date, "%d %b · %H:%M")
   end
 
-  defp render_description(%{data: %VoteEmited{vote_value: val, vote_comment: comment}}) do
-    vote_text = if val > 0, do: "A favor", else: "En contra"
+  defp render_description(%{
+         data: %VoteEmited{vote_value: val, proposal_id: proposal_id},
+         person: %Person{person_name: person_name}
+       }) do
+    vote_text =
+      case val do
+        1 -> "a favor"
+        0 -> "se abstuvo"
+        -1 -> "en contra"
+        _ -> "votó"
+      end
 
-    if comment && comment != "" do
-      "Votó #{vote_text}: \"#{truncate(comment, 40)}\""
-    else
-      "Votó #{vote_text} en la propuesta"
-    end
+    proposal_title =
+      case AuroraGov.Context.ProposalContext.get_proposal_by_id(proposal_id) do
+        %{proposal_title: title} -> title
+        _ -> "la propuesta"
+      end
+
+    "#{person_name} votó #{vote_text} en \"#{truncate(proposal_title, 50)}\""
   end
 
   defp render_description(%{
