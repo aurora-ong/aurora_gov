@@ -17,7 +17,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     ProposalConsumed
   }
 
-  alias AuroraGov.Projector.Model.{Person, OU}
+  alias AuroraGov.Projector.Model.{Person, OU, Proposal}
 
   # 1. ACTUALIZACIÓN DE ESTADO: Añadimos paginación
   defmodule Context do
@@ -52,6 +52,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
         socket = assign(socket, :context, AsyncResult.ok(%{ctx | loading_more: true}))
 
         ou_id = socket.assigns.ou_id
+
         {:noreply,
          start_async(socket, :load_more_async, fn ->
            load_page(ou_id, current_page + 1)
@@ -192,7 +193,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
               phx-target={@myself}
               class="h-4 w-full"
             >
-            <.loading_spinner size="small" />
+              <.loading_spinner size="small" />
             </div>
           <% end %>
         </div>
@@ -201,32 +202,35 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     """
   end
 
-
   defp format_date(nil), do: "-"
 
   defp format_date(date) do
     Calendar.strftime(date, "%d %b · %H:%M")
   end
 
-  defp render_description(%{
-         data: %VoteEmited{vote_value: val, proposal_id: proposal_id},
-         person: %Person{person_name: person_name}
-       }) do
-    vote_text =
-      case val do
-        1 -> "a favor"
-        0 -> "se abstuvo"
-        -1 -> "en contra"
-        _ -> "votó"
-      end
+  defp render_description(
+         %{
+           data: %VoteEmited{vote_value: val, proposal_id: proposal_id},
+           person: %Person{person_name: person_name},
+           proposal: %Proposal{proposal_title: proposal_title}
+         } = event
+       ) do
+    inspect(event)
+    # vote_text =
+    #   case val do
+    #     1 -> "a favor"
+    #     0 -> "se abstuvo"
+    #     -1 -> "en contra"
+    #     _ -> "votó"
+    #   end
 
-    proposal_title =
-      case AuroraGov.Context.ProposalContext.get_proposal_by_id(proposal_id) do
-        %{proposal_title: title} -> title
-        _ -> "la propuesta"
-      end
+    # proposal_title =
+    #   case AuroraGov.Context.ProposalContext.get_proposal_by_id(proposal_id) do
+    #     %{proposal_title: title} -> title
+    #     _ -> "la propuesta"
+    #   end
 
-    "#{person_name} votó #{vote_text} en \"#{truncate(proposal_title, 50)}\""
+    # "#{person_name} votó #{vote_text} en \"#{truncate(proposal_title, 50)}\""
   end
 
   defp render_description(%{
@@ -276,7 +280,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
          ou: %OU{ou_name: ou_name},
          person: %Person{person_name: person_name}
        }) do
-
     "#{person_name} actualizó su poder #{power_id} de voto en #{ou_name} a #{val} puntos"
   end
 
