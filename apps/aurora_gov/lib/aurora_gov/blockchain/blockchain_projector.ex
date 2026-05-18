@@ -28,6 +28,7 @@ defmodule AuroraGov.Blockchain.Projector do
       # is_visible: is_visible,
       ou_id: extract_ou_id(event),
       person_id: extract_person_id(event),
+      proposal_id: extract_proposal_id(event),
       event_type: Atom.to_string(event.__struct__),
       data: Map.from_struct(event),
       correlation_id: metadata.correlation_id,
@@ -46,16 +47,13 @@ defmodule AuroraGov.Blockchain.Projector do
   defp extract_ou_id(%{proposal_ou_end_id: id}) when is_binary(id), do: id
   defp extract_ou_id(%{ou_id: id}) when is_binary(id), do: id
 
-  defp extract_ou_id(event) do
-    Logger.warning("Blockchain: No se pudo obtener ou_id de evento: #{inspect(event)}")
-
-    ""
-  end
+  defp extract_ou_id(_event), do: ""
 
   defp extract_person_id(%{person_id: id}), do: id
 
-  defp extract_person_id(event) do
-    Logger.warning("Blockchain: No se pudo obtener person_id de evento: #{inspect(event)}")
-    ""
-  end
+  defp extract_person_id(_event), do: ""
+
+  defp extract_proposal_id(%{proposal_id: id}), do: id
+
+  defp extract_proposal_id(_event), do: ""
 end

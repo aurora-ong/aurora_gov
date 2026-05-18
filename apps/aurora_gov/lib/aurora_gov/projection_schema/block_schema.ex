@@ -2,17 +2,15 @@ defmodule AuroraGov.Projector.Model.Block do
   use Ecto.Schema
   import Ecto.Changeset
 
-
   @derive {Flop.Schema,
-    filterable: [:ou_id, :person_id, :event_type, :is_visible, :occurred_at, :hash],
-    sortable: [:index, :occurred_at],
-    default_limit: 20,
-    max_limit: 100,
-    default_order: %{
-      order_by: [:index],
-      order_directions: [:desc]
-    }
-  }
+           filterable: [:ou_id, :person_id, :event_type, :is_visible, :occurred_at, :hash],
+           sortable: [:index, :occurred_at],
+           default_limit: 20,
+           max_limit: 100,
+           default_order: %{
+             order_by: [:index],
+             order_directions: [:desc]
+           }}
 
   @primary_key {:index, :integer, autogenerate: false}
   schema "gov_blockchain" do
@@ -38,6 +36,11 @@ defmodule AuroraGov.Projector.Model.Block do
       foreign_key: :person_id,
       type: :string,
       references: :person_id
+
+    belongs_to :proposal, AuroraGov.Projector.Model.Proposal,
+      foreign_key: :proposal_id,
+      type: :string,
+      references: :proposal_id
   end
 
   def changeset(entry, attrs) do
@@ -54,7 +57,8 @@ defmodule AuroraGov.Projector.Model.Block do
       :data,
       :is_visible,
       :ou_id,
-      :person_id
+      :person_id,
+      :proposal_id
     ])
     # Validamos lo mínimo para que exista un bloque válido
     |> validate_required([:index, :hash, :prev_hash, :event_id, :data, :ou_id])
