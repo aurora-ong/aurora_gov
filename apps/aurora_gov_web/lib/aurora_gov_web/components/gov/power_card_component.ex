@@ -8,13 +8,9 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
     <div class="border px-5 py-5 rounded-lg flex flex-col justify-between">
       <div class="flex justify-between items-start">
         <div>
-          <h3 class="text-lg font-semibold">
-            {(@power_info && @power_info[:name]) || @power_id}
-          </h3>
+          <h3 class="text-lg font-semibold">{(@power_info && @power_info.name) || @power_id}</h3>
 
-          <p class="text-sm text-gray-600">
-            {(@power_info && @power_info[:description]) || ""}
-          </p>
+          <p class="text-sm text-gray-600">{(@power_info && @power_info.description) || ""}</p>
         </div>
 
         <div :if={@show_actions && @app_context.current_person != nil} class="flex flex-row gap-1">
@@ -26,7 +22,6 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
           >
             <i class="fa-solid fa-hand-point-up text-sm"></i>
           </button>
-
           <button
             :if={false}
             phx-click="update_power"
@@ -44,7 +39,6 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
           <label class="text-sm text-gray-500 grow">
             Requiere <strong>{to_percent(@ou_power.power_average)}%</strong> de aprobación colectiva
           </label>
-
           <span
             title="Cantidad de miembros que han manifestado su postura."
             class="text-sm flex flex-row items-center gap-1"
@@ -69,10 +63,7 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
 
       <div :if={@ou_power == nil} class="mt-3">
         <div class="flex flex-row">
-          <label class="text-sm text-gray-500 grow">
-            Sin postura
-          </label>
-
+          <label class="text-sm text-gray-500 grow">Sin postura</label>
           <span class="text-sm flex flex-row items-center gap-1">
             0/12 <i class="fa-solid fa-user-group text-sm"></i>
           </span>

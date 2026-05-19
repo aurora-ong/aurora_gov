@@ -1,6 +1,6 @@
 defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
-  alias AuroraGov.Context.MembershipContext
-  alias AuroraGov.Context.PowerContext
+  alias AuroraGov.Context.{MembershipContext, PowerContext, GovPowerContext, OuPowerContext}
+
   alias AuroraGov.Context.OUContext
   use AuroraGov.Web, :live_component
   alias Phoenix.LiveView.AsyncResult
@@ -60,9 +60,9 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
 
     tasks = [
       Task.async(fn -> PowerContext.get_power(ou_id, person_id, power_id) end),
-      Task.async(fn -> PowerContext.get_ou_power(ou_id, power_id) end),
+      Task.async(fn -> OuPowerContext.get_ou_power(ou_id, power_id) end),
       Task.async(fn -> OUContext.get_ou_by_id(ou_id) end),
-      Task.async(fn -> PowerContext.get_power_metadata(power_id) end),
+      Task.async(fn -> GovPowerContext.get_gov_power!(power_id) end),
       Task.async(fn -> MembershipContext.get_membership(ou_id, person_id) end)
     ]
 
@@ -358,7 +358,7 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
       |> Map.put("power_id", socket.assigns.power_id)
 
     socket =
-      case AuroraGov.Context.PowerContext.update_person_power!(update_params) do
+      case AuroraGov.Context.PowerContext.update_power!(update_params) do
         {:ok, _result} ->
           send(self(), {:close, :app_modal, "power_update_modal"})
 

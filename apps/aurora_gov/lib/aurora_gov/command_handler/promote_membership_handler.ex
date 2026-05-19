@@ -23,10 +23,6 @@ defmodule AuroraGov.CommandHandler.PromoteMembershipHandler do
     else
       {:error, _error} = error ->
         error
-
-      error ->
-        Logger.error("#{__MODULE__} Error inesperado #{inspect(error)}")
-        {:error, :unexpected_error}
     end
   end
 

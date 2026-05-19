@@ -1,7 +1,6 @@
 defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   use AuroraGov.Web, :live_component
   alias AuroraGov.Command.CreateProposal
-  alias AuroraGov.CommandUtils
 
   defmodule Context do
     defstruct current_step: 0, current_vote: nil, form_valid?: false
@@ -77,6 +76,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       <h1 class="text-4xl text-black mb-5"><i class="fa-solid fa-hand text-3xl mr-3"></i>Gobernar</h1>
 
       <h2 class="text-xl mb-10">Utiliza este formulario para proponer una decisión.</h2>
+
       <%= case @step do %>
         <% 0 -> %>
           <.step_0 {assigns} />
@@ -145,7 +145,10 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
             label="Acción"
             field={@step_0_form[:proposal_power_id]}
             size="extra_large"
-            options={[nil] ++ CommandUtils.all_proposable_modules_select()}
+            options={
+              [nil] ++
+                (AuroraGov.Context.GovPowerContext.list_gov_power() |> Enum.map(&{&1.name, &1.id}))
+            }
             search_placeholder="Buscar poder"
           />
           <div :if={@step_0_ou_power_detail}>
@@ -157,10 +160,10 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
                   module={AuroraGov.Web.Components.Power.PowerCardComponent}
                   id="power-card"
                   show_actions={false}
-                  power_id={@step_0_form[:proposal_power].value}
+                  power_id={@step_0_form[:proposal_power_id].value}
                   power_info={
-                    AuroraGov.Context.PowerContext.get_power_metadata(
-                      @step_0_form[:proposal_power].value
+                    AuroraGov.Context.GovPowerContext.get_gov_power!(
+                      @step_0_form[:proposal_power_id].value
                     )
                   }
                   ou_power={ou_power}
@@ -195,7 +198,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         module={AuroraGov.Web.DynamicCommandFormComponent}
         id="proposal-power_form"
         form={@step_1_form}
-        command_module={CommandUtils.find_command_by_id(@proposal_data.proposal_power_id)}
+        command_module={
+          @proposal_data.proposal_power_id
+          |> AuroraGov.Context.GovPowerContext.get_gov_power!()
+          |> then(& &1.module)
+        }
       />
       <:actions>
         <.back_button target={@myself} step={0} />
@@ -397,7 +404,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         {:ok,
          %{
            step_0_ou_power_detail:
-             AuroraGov.Context.PowerContext.get_ou_power(
+             AuroraGov.Context.OuPowerContext.get_ou_power(
                proposal_ou_end,
                proposal_power_id
              )
@@ -441,7 +448,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         |> assign(proposal_data: updated_proposal_data)
         |> assign_new(:step_1_form, fn ->
           proposal_power = proposal_changeset.changes.proposal_power_id
-          command_module = AuroraGov.CommandUtils.find_command_by_id(proposal_power)
+
+          command_module =
+            proposal_power
+            |> AuroraGov.Context.GovPowerContext.get_gov_power!()
+            |> then(& &1.module)
 
           power_changeset =
             command_module.new(socket.assigns.power_params || %{})
@@ -468,7 +479,9 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   @impl true
   def handle_event("step_1_validate", %{"power" => power_params}, socket) do
     command_module =
-      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power_id)
+      socket.assigns.proposal_data.proposal_power_id
+      |> AuroraGov.Context.GovPowerContext.get_gov_power!()
+      |> then(& &1.module)
 
     proposal_context = %{
       origin_ou_id: socket.assigns.app_context.current_ou_id,
@@ -491,7 +504,9 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   @impl true
   def handle_event("step_1_next", %{"power" => power_params}, socket) do
     command_module =
-      AuroraGov.CommandUtils.find_command_by_id(socket.assigns.proposal_data.proposal_power_id)
+      socket.assigns.proposal_data.proposal_power_id
+      |> AuroraGov.Context.GovPowerContext.get_gov_power!()
+      |> then(& &1.module)
 
     proposal_context = %{
       origin_ou_id: socket.assigns.app_context.current_ou_id,

@@ -1,5 +1,11 @@
-defmodule AuroraGov.Command.FieldMeta do
+defmodule AuroraGov.GovPower.Field do
   defstruct [:name, :type, :label, :description, :form_type, :source, opts: []]
+end
+
+defmodule AuroraGov.GovPower do
+  @enforce_keys [:id, :name]
+
+  defstruct [:id, :name, :description, :module, version: 1, status: :active]
 end
 
 defmodule AuroraGov.Command do
@@ -20,7 +26,7 @@ defmodule AuroraGov.Command do
       end
 
       @compiled_fields Enum.map(@fields_config, fn {name, config} ->
-                         %AuroraGov.Command.FieldMeta{
+                         %AuroraGov.GovPower.Field{
                            name: name,
                            type: Keyword.get(config, :command_type, :string),
                            label: Keyword.get(config, :label, Phoenix.Naming.humanize(name)),
@@ -75,13 +81,9 @@ defmodule AuroraGov.Command do
       defoverridable handle_validate: 1, handle_validate: 2
 
       def gov_power do
-        %{
-          id: Keyword.fetch!(@gov_power_meta, :id),
-          name: Keyword.fetch!(@gov_power_meta, :name),
-          description: Keyword.get(@gov_power_meta, :description, ""),
-          version: Keyword.get(@gov_power_meta, :version, 1),
-          status: Keyword.get(@gov_power_meta, :status, :active)
-        }
+        @gov_power_meta
+        |> Keyword.put(:module, __MODULE__)
+        |> then(&struct!(AuroraGov.GovPower, &1))
       end
 
       def field_definitions, do: @compiled_fields
