@@ -267,7 +267,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   end
 
   defp render_description(%{
-         data: %ProposalCreated{proposal_title: title, proposal_ou_end_id: proposal_ou_end_id},
+         data: %ProposalCreated{proposal_title: title},
          ou: %OU{ou_name: ou_name}
        }) do
     "Nueva propuesta \"#{title}\" publicada en #{ou_name}"

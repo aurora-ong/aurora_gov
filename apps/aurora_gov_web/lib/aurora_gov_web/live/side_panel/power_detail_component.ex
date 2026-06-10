@@ -291,7 +291,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
           <%= if @active_tab == "sensitivities" do %>
             <div class="space-y-4">
               <div :if={Enum.empty?(context.sensitivities)} class="text-center py-8 text-gray-500">
-                No hay sensibilidades registradas para este poder.
+                No hay posturas registradas para este poder.
               </div>
 
               <%= for sensitivity <- context.sensitivities do %>
@@ -325,7 +325,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
                 <div class="flex gap-3">
                   <i class="fa-solid fa-circle-info text-blue-500 mt-1"></i>
                   <p class="text-xs text-blue-800 leading-relaxed">
-                    Delega tu poder en unidades que confíes. Estas unidades podrán utilizar tu voto en propuestas basadas en este poder.
+                    Delega tu poder en unidades que confíes. Estas unidades podrán utilizar tu voto en propuestas que utilicen en este poder.
                   </p>
                 </div>
               </div>
