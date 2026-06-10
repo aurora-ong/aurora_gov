@@ -225,21 +225,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   end
 
   defp render_description(%{
-         data: %VoteEmited{vote_value: val, proposal_id: proposal_id},
-         person: %Person{person_name: person_name}
-       }) do
-    vote_text =
-      case val do
-        1 -> "a favor"
-        0 -> "se abstuvo"
-        -1 -> "en contra"
-        _ -> "votó"
-      end
-
-    "#{person_name} votó #{vote_text} en la propuesta #{proposal_id}"
-  end
-
-  defp render_description(%{
          data: %ProposalCreated{proposal_title: title, proposal_ou_end_id: proposal_ou_end_id}
        }) do
     "Nueva propuesta: #{title} publicada en #{proposal_ou_end_id}"
