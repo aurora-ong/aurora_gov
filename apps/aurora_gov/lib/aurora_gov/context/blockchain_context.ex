@@ -26,7 +26,7 @@ defmodule AuroraGov.Context.BlockchainContext do
     from(b in Block,
       # where: b.ou_id == ^ou_id,       # <--- FILTRO ACTIVADO
       # where: b.is_visible == true,    # <--- FILTRO ACTIVADO
-      preload: [:person, :ou]
+      preload: [:person, :ou, :proposal]
     )
     |> Flop.validate_and_run(params, for: Block)
     |> hydrate_flop_result() # Convertimos el resultado de Flop a Structs

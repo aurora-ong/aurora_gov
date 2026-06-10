@@ -17,7 +17,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     ProposalConsumed
   }
 
-  alias AuroraGov.Projector.Model.{Person, OU}
+  alias AuroraGov.Projector.Model.{Person, OU, Proposal}
 
   # 1. ACTUALIZACIÓN DE ESTADO: Añadimos paginación
   defmodule Context do
@@ -52,6 +52,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
         socket = assign(socket, :context, AsyncResult.ok(%{ctx | loading_more: true}))
 
         ou_id = socket.assigns.ou_id
+
         {:noreply,
          start_async(socket, :load_more_async, fn ->
            load_page(ou_id, current_page + 1)
@@ -192,7 +193,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
               phx-target={@myself}
               class="h-4 w-full"
             >
-            <.loading_spinner size="small" />
+              <.loading_spinner size="small" />
             </div>
           <% end %>
         </div>
@@ -201,21 +202,26 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     """
   end
 
-
   defp format_date(nil), do: "-"
 
   defp format_date(date) do
     Calendar.strftime(date, "%d %b · %H:%M")
   end
 
-  defp render_description(%{data: %VoteEmited{vote_value: val, vote_comment: comment}}) do
-    vote_text = if val > 0, do: "A favor", else: "En contra"
+  defp render_description(%{
+         data: %VoteEmited{vote_value: val},
+         person: %Person{person_name: person_name},
+         proposal: %Proposal{proposal_title: proposal_title}
+       }) do
+    vote_text =
+      case val do
+        1 -> "a favor"
+        0 -> "se abstuvo"
+        -1 -> "en contra"
+        _ -> "votó"
+      end
 
-    if comment && comment != "" do
-      "Votó #{vote_text}: \"#{truncate(comment, 40)}\""
-    else
-      "Votó #{vote_text} en la propuesta"
-    end
+    "#{person_name} votó #{vote_text} en \"#{truncate(proposal_title, 50)}\""
   end
 
   defp render_description(%{
@@ -265,7 +271,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
          ou: %OU{ou_name: ou_name},
          person: %Person{person_name: person_name}
        }) do
-
     "#{person_name} actualizó su poder #{power_id} de voto en #{ou_name} a #{val} puntos"
   end
 
@@ -283,14 +288,17 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
 
   defp render_description(_), do: "Información no disponible"
 
+  defp render_link(%{data: %VoteEmited{proposal_id: proposal_id}}),
+    do: ~p"/app/proposals/#{proposal_id}"
+
   defp render_link(%{data: %ProposalCreated{proposal_id: proposal_id}}),
     do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(%{data: %ProposalExecuted{proposal_id: proposal_id}}),
-    do: ~p"/app//proposals/#{proposal_id}"
+    do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(%{data: %ProposalConsumed{proposal_id: proposal_id}}),
-    do: ~p"/app//proposals/#{proposal_id}"
+    do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(_), do: ""
 
