@@ -50,7 +50,7 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
 
       <%!-- Caso: NO Tiene Power --%>
       <div :if={@ou_power == nil} class="mt-3">
-        <div class="grid grid-cols-3 gap-2 mt-4 text-white opacity-60">
+        <div class="grid grid-cols-2 gap-2 mt-4 text-white opacity-60">
           <div
             class="select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 bg-neutral-500 text-white"
             title="Quórum"

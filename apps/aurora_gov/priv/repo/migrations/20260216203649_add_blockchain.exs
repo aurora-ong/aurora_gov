@@ -19,13 +19,16 @@ defmodule AuroraGov.Projector.Repo.Migrations.AddBlockChain do
 
       add :ou_id, :string
       add :person_id, :string
+      add :proposal_id, :string
     end
 
     create unique_index(:gov_blockchain, [:hash])
 
-    create index(:gov_blockchain, [:ou_id, :is_visible, :index])
+    create index(:gov_blockchain, [:ou_id, :index])
 
     create index(:gov_blockchain, [:person_id, :index])
+
+    create index(:gov_blockchain, [:proposal_id, :index])
 
     create index(:gov_blockchain, [:correlation_id])
 

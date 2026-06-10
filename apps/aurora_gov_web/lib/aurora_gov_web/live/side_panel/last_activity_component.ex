@@ -19,7 +19,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     PowerDelegationDeactivated
   }
 
-  alias AuroraGov.Projector.Model.{Person, OU}
+  alias AuroraGov.Projector.Model.{Person, OU, Proposal}
 
   # 1. ACTUALIZACIÓN DE ESTADO: Añadimos paginación
   defmodule Context do
@@ -54,7 +54,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
         socket = assign(socket, :context, AsyncResult.ok(%{ctx | loading_more: true}))
 
         ou_id = socket.assigns.ou_id
-
 
         {:noreply,
          start_async(socket, :load_more_async, fn ->
@@ -197,7 +196,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
               class="h-4 w-full"
             >
               <.loading_spinner size="small" />
-              <.loading_spinner size="small" />
             </div>
           <% end %>
         </div>
@@ -232,20 +230,47 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     "#{person_name} ha dejado de delegar su poder #{power_id} en #{ou_name}"
   end
 
-  defp render_description(%{data: %VoteEmited{vote_value: val, vote_comment: comment}}) do
-    vote_text = if val > 0, do: "A favor", else: "En contra"
-
-    if comment && comment != "" do
-      "Votó #{vote_text}: \"#{truncate(comment, 40)}\""
-    else
-      "Votó #{vote_text} en la propuesta"
-    end
+  defp render_description(%{
+         data: %PowerDelegationActivated{
+           power_id: power_id
+         },
+         person: %Person{person_name: person_name},
+         ou: %OU{ou_name: ou_name}
+       }) do
+    "#{person_name} ha delegado su poder #{power_id} en #{ou_name}"
   end
 
   defp render_description(%{
-         data: %ProposalCreated{proposal_title: title, proposal_ou_end_id: proposal_ou_end_id}
+         data: %PowerDelegationDeactivated{
+           power_id: power_id
+         },
+         person: %Person{person_name: person_name},
+         ou: %OU{ou_name: ou_name}
        }) do
-    "Nueva propuesta: #{title} publicada en #{proposal_ou_end_id}"
+    "#{person_name} ha dejado de delegar su poder #{power_id} en #{ou_name}"
+  end
+
+  defp render_description(%{
+         data: %VoteEmited{vote_value: val},
+         person: %Person{person_name: person_name},
+         proposal: %Proposal{proposal_title: proposal_title}
+       }) do
+    vote_text =
+      case val do
+        1 -> "a favor"
+        0 -> "se abstuvo"
+        -1 -> "en contra"
+        _ -> "votó"
+      end
+
+    "#{person_name} votó #{vote_text} en \"#{truncate(proposal_title, 50)}\""
+  end
+
+  defp render_description(%{
+         data: %ProposalCreated{proposal_title: title, proposal_ou_end_id: proposal_ou_end_id},
+         ou: %OU{ou_name: ou_name}
+       }) do
+    "Nueva propuesta \"#{title}\" publicada en #{ou_name}"
   end
 
   defp render_description(%{data: %ProposalExecuted{proposal_id: proposal_id}}) do
@@ -306,14 +331,17 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
 
   defp render_description(_), do: "Información no disponible"
 
+  defp render_link(%{data: %VoteEmited{proposal_id: proposal_id}}),
+    do: ~p"/app/proposals/#{proposal_id}"
+
   defp render_link(%{data: %ProposalCreated{proposal_id: proposal_id}}),
     do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(%{data: %ProposalExecuted{proposal_id: proposal_id}}),
-    do: ~p"/app//proposals/#{proposal_id}"
+    do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(%{data: %ProposalConsumed{proposal_id: proposal_id}}),
-    do: ~p"/app//proposals/#{proposal_id}"
+    do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(_), do: ""
 
