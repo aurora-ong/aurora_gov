@@ -8,19 +8,20 @@ defmodule AuroraGov.Context.OUContext do
   alias AuroraGov.Projector.Repo
   alias AuroraGov.Projector.Model.OU
 
-  ## Database getters
-
-  def get_all_active_ou() do
-    query = from(ou in OU, where: ou.ou_status == :active, preload: [:ou, :person])
-    Repo.all(query)
-  end
-
-  def get_ou_tree() do
+  def list_ou() do
     Repo.all(OU)
   end
 
-  def get_ou_by_id(id) do
+  def get_ou(id) do
     Repo.get(OU, id)
+  end
+
+  def list_ou_childs(parent_ou_id) do
+    active_ous = list_ou()
+
+    Enum.filter(active_ous, fn ou ->
+      AuroraGov.Utils.OUTree.get_parent(ou.ou_id) == parent_ou_id
+    end)
   end
 
   def get_ou_tree_with_membership(user_id) do

@@ -83,7 +83,7 @@ defmodule AuroraGov.Web.Live.Panel do
   defp get_current_ou_id(%{"context" => context}) when context != "", do: context
 
   defp get_current_ou_id(_params) do
-    case (Enum.at(AuroraGov.Context.OUContext.get_ou_tree(), 0) || %{}).ou_id do
+    case (Enum.at(AuroraGov.Context.OUContext.list_ou(), 0) || %{}).ou_id do
       ou_id when is_binary(ou_id) and ou_id != "" ->
         ou_id
 

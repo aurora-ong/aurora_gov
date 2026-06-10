@@ -14,7 +14,9 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     PowerUpdated,
     PersonRegistered,
     ProposalExecuted,
-    ProposalConsumed
+    ProposalConsumed,
+    PowerDelegationActivated,
+    PowerDelegationDeactivated
   }
 
   alias AuroraGov.Projector.Model.{Person, OU}
@@ -52,6 +54,8 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
         socket = assign(socket, :context, AsyncResult.ok(%{ctx | loading_more: true}))
 
         ou_id = socket.assigns.ou_id
+
+
         {:noreply,
          start_async(socket, :load_more_async, fn ->
            load_page(ou_id, current_page + 1)
@@ -192,7 +196,8 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
               phx-target={@myself}
               class="h-4 w-full"
             >
-            <.loading_spinner size="small" />
+              <.loading_spinner size="small" />
+              <.loading_spinner size="small" />
             </div>
           <% end %>
         </div>
@@ -201,11 +206,30 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     """
   end
 
-
   defp format_date(nil), do: "-"
 
   defp format_date(date) do
     Calendar.strftime(date, "%d %b · %H:%M")
+  end
+
+  defp render_description(%{
+         data: %PowerDelegationActivated{
+           power_id: power_id
+         },
+         person: %Person{person_name: person_name},
+         ou: %OU{ou_name: ou_name}
+       }) do
+    "#{person_name} ha delegado su poder #{power_id} en #{ou_name}"
+  end
+
+  defp render_description(%{
+         data: %PowerDelegationDeactivated{
+           power_id: power_id
+         },
+         person: %Person{person_name: person_name},
+         ou: %OU{ou_name: ou_name}
+       }) do
+    "#{person_name} ha dejado de delegar su poder #{power_id} en #{ou_name}"
   end
 
   defp render_description(%{data: %VoteEmited{vote_value: val, vote_comment: comment}}) do
@@ -265,7 +289,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
          ou: %OU{ou_name: ou_name},
          person: %Person{person_name: person_name}
        }) do
-
     "#{person_name} actualizó su poder #{power_id} de voto en #{ou_name} a #{val} puntos"
   end
 

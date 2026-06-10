@@ -7,7 +7,7 @@ defmodule AuroraGov.Web.Live.Panel.Home do
       socket
       |> assign(:app_context, assigns.app_context)
       |> assign(:page_title, "Inicio")
-      |> assign(:ou, AuroraGov.Context.OUContext.get_ou_by_id(assigns.app_context.current_ou_id))
+      |> assign(:ou, AuroraGov.Context.OUContext.get_ou(assigns.app_context.current_ou_id))
 
     show_activity_panel(assigns.app_context)
 

@@ -7,7 +7,8 @@ defmodule AuroraGov.Command.CreateProposal do
     proposal_person_id: :string,
     proposal_ou_end: :string,
     proposal_power_id: :string,
-    proposal_power_data: :map
+    proposal_power_data: :map,
+    proposal_use_delegated: :boolean
 
   def handle_validate_step(params, 0) do
     AuroraGov.Command.CreateProposal.new(params)
@@ -26,6 +27,13 @@ defmodule AuroraGov.Command.CreateProposal do
     ])
     |> validate_length(:proposal_title, min: 5, max: 60)
     |> validate_length(:proposal_description, min: 10, max: 1000)
+  end
+
+  def handle_validate_step(params, 2) do
+    AuroraGov.Command.CreateProposal.new(params)
+    |> validate_required([
+      :proposal_use_delegated
+    ])
   end
 
   def handle_validate_create(params) do

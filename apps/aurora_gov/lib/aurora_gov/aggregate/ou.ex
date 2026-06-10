@@ -1,5 +1,5 @@
 defmodule AuroraGov.Aggregate.OU do
-  defstruct [:ou_id, :ou_status, :ou_membership, :ou_power]
+  defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation]
 
   defmodule Membership do
     defstruct [:membership_rank]
@@ -10,7 +10,15 @@ defmodule AuroraGov.Aggregate.OU do
   end
 
   alias AuroraGov.Aggregate.OU
-  alias AuroraGov.Event.{OUCreated, MembershipStarted, MembershipPromoted, PowerUpdated}
+
+  alias AuroraGov.Event.{
+    OUCreated,
+    MembershipStarted,
+    MembershipPromoted,
+    PowerUpdated,
+    PowerDelegationActivated,
+    PowerDelegationDeactivated
+  }
 
   # State mutators
 
@@ -19,7 +27,8 @@ defmodule AuroraGov.Aggregate.OU do
       ou_id: ou_id,
       ou_status: :active,
       ou_membership: %{},
-      ou_power: %{}
+      ou_power: %{},
+      ou_power_delegation: %{}
     }
   end
 
@@ -92,6 +101,36 @@ defmodule AuroraGov.Aggregate.OU do
     %OU{ou | ou_power: updated_power_map}
   end
 
+  def apply(%OU{} = ou, %PowerDelegationActivated{
+        person_id: person_id,
+        power_id: power_id
+      }) do
+    updated_power_delegation_map =
+      Map.update(
+        ou.ou_power_delegation || %{},
+        power_id,
+        MapSet.new([person_id]),
+        &MapSet.put(&1, person_id)
+      )
+
+    %OU{ou | ou_power_delegation: updated_power_delegation_map}
+  end
+
+  def apply(%OU{} = ou, %PowerDelegationDeactivated{
+        person_id: person_id,
+        power_id: power_id
+      }) do
+    updated_power_delegation_map =
+      Map.update(
+        ou.ou_power_delegation || %{},
+        power_id,
+        MapSet.new(),
+        &MapSet.delete(&1, person_id)
+      )
+
+    %OU{ou | ou_power_delegation: updated_power_delegation_map}
+  end
+
   # Functions
   def get_ou(ou_id) when is_nil(ou_id), do: {:error, :ou_not_exists}
 
@@ -144,5 +183,11 @@ defmodule AuroraGov.Aggregate.OU do
 
         {:ok, avg}
     end
+  end
+
+  def get_power_delegated(%OU{ou_power_delegation: power_delegation}, power_id) do
+    power_delegation
+    |> Map.get(power_id, MapSet.new())
+    |> MapSet.to_list()
   end
 end

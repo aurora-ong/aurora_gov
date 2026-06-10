@@ -6,7 +6,7 @@ defmodule AuroraGov.Projector.Model.Proposal.Vote do
     field :person_id, :string
     field :vote_ou, {:array, :string}
     field :vote_value, :integer
-    field :vote_type, Ecto.Enum, values: [:direct, :representative]
+    field :vote_type, Ecto.Enum, values: [:direct, :delegated]
     field :vote_comment, :string
     field :updated_at, :utc_datetime_usec
   end

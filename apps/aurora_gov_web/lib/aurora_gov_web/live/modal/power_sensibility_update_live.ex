@@ -61,7 +61,7 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
     tasks = [
       Task.async(fn -> PowerContext.get_power(ou_id, person_id, power_id) end),
       Task.async(fn -> OuPowerContext.get_ou_power(ou_id, power_id) end),
-      Task.async(fn -> OUContext.get_ou_by_id(ou_id) end),
+      Task.async(fn -> OUContext.get_ou(ou_id) end),
       Task.async(fn -> GovPowerContext.get_gov_power!(power_id) end),
       Task.async(fn -> MembershipContext.get_membership(ou_id, person_id) end)
     ]

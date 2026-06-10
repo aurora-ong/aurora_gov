@@ -151,7 +151,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
             }
             search_placeholder="Buscar poder"
           />
-          <div :if={@step_0_ou_power_detail}>
+          <%!-- <div :if={@step_0_ou_power_detail}>
             <.async_result :let={ou_power} assign={@step_0_ou_power_detail}>
               <:loading><.loading_spinner size="double_large" /></:loading>
 
@@ -171,7 +171,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
                 />
               </div>
             </.async_result>
-          </div>
+          </div> --%>
         </div>
 
         <:actions>
@@ -242,7 +242,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
     <div class="space-y-6 w-full">
       <h2 class="text-2xl font-bold">Resumen de la Propuesta</h2>
 
-      <div class="bg-gray-50 p-4 rounded border">
+      <div class="bg-gray-50 p-4 rounded-xl border">
         <div class="flex-row flex">
           <%!-- <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
             <.ou_id_badge
@@ -280,31 +280,29 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
             size="sm"
             class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 py-3 cursor-pointer h-fit"
           >
-            {@proposal_data[:proposal_power_id]}
+            {AuroraGov.Context.GovPowerContext.get_gov_power!(@proposal_data[:proposal_power_id]).name}
           </.badge>
         </div>
       </div>
 
       <.simple_form
-        for={@step_2_form}
-        id="proposal_step_2_form"
-        phx-submit="step_2_next"
-        phx-change="step_2_validate"
+        for={@step_3_form}
+        id="proposal_step_3_form"
+        phx-submit="step_3_next"
+        phx-change="step_3_validate"
         phx-target={@myself}
         class="w-full space-y-8"
       >
+        {inspect(@step_3_form)}
         <.toggle_field
-          name="b"
+          field={@step_3_form[:proposal_use_delegated]}
           label="Utilizar poder delegado"
-          checked={false}
           color="primary"
           phx-debounce="300"
         />
         <:actions>
           <.back_button target={@myself} step={2} />
           <.button
-            phx-click="proposal_submit"
-            phx-target={@myself}
             phx-disable-with="Publicando..."
             class="w-full primary filled"
           >
@@ -566,11 +564,77 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
           proposal_data: Map.merge(socket.assigns.proposal_data, proposal_changeset.changes)
         )
         |> assign(step: 3)
+        |> assign_new(:step_3_form, fn ->
+          %{}
+          |> AuroraGov.Command.CreateProposal.handle_validate_step(2)
+          |> to_form(as: "proposal")
+        end)
       else
         assign(socket, step_2_form: to_form(proposal_changeset, as: "proposal"))
       end
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_3_validate", %{"proposal" => proposal_params}, socket) do
+    proposal_changeset =
+      proposal_params
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(2)
+      |> Map.put(:action, :validate)
+
+    IO.inspect(proposal_changeset)
+
+    socket =
+      socket
+      |> assign(step_3_form: to_form(proposal_changeset, as: "proposal"))
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_3_next", %{"proposal" => proposal_params}, socket) do
+    proposal_changeset =
+      proposal_params
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(2)
+      |> Map.put(:action, :validate)
+
+    socket =
+      if proposal_changeset.valid? do
+        socket
+        |> assign(
+          proposal_data: Map.merge(socket.assigns.proposal_data, proposal_changeset.changes)
+        )
+        |> proposal_submit()
+      else
+        assign(socket, step_3_form: to_form(proposal_changeset, as: "proposal"))
+      end
+
+    {:noreply, socket}
+  end
+
+  defp proposal_submit(socket) do
+    full_params =
+      socket.assigns.proposal_data
+      |> Map.put(:proposal_power_data, socket.assigns.power_data)
+      |> Map.put(:proposal_person_id, socket.assigns.app_context.current_person.person_id)
+
+    case AuroraGov.Context.ProposalContext.create_proposal!(full_params) do
+      {:ok,
+       %AuroraGov.Aggregate.Proposal{
+         proposal_id: proposal_id,
+         proposal_ou_end_id: proposal_ou_end_id
+       }} ->
+        query_params = %{context: proposal_ou_end_id}
+
+        socket
+        |> put_flash(:info, "Propuesta creada exitosamente")
+        |> push_navigate(to: ~p"/app/proposals/#{proposal_id}?#{query_params}")
+
+      {:error, reason} ->
+        IO.inspect(reason, label: "Error creando propuesta")
+        put_flash(socket, :error, "Error al crear la propuesta. Intenta nuevamente.")
+    end
   end
 
   @impl true

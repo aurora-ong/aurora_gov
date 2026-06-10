@@ -14,7 +14,7 @@ defmodule AuroraGov.Aggregate.Proposal do
   ]
 
   @type status :: :active | :executing | :consumed
-  @type vote_type :: :direct | :represented
+  @type vote_type :: :direct | :delegated
 
   defmodule Vote do
     defstruct [

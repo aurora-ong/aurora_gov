@@ -7,6 +7,10 @@ defmodule AuroraGov.Projector do
 
   require Logger
 
+  alias AuroraGov.Projector.PowerDelegationProjector
+  alias AuroraGov.Event.PowerDelegationActivated
+  alias AuroraGov.Projector.PowerDelegationProjector
+  alias AuroraGov.Event.PowerDelegationActivated
   alias AuroraGov.Event.VoteEmited
   alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector}
   alias AuroraGov.Event.PowerUpdated
@@ -18,7 +22,8 @@ defmodule AuroraGov.Projector do
     ProposalCreated,
     ProposalExecuted,
     ProposalConsumed,
-    MembershipPromoted
+    MembershipPromoted,
+    PowerDelegationDeactivated
   }
 
   alias AuroraGov.Projector.Model.{Person, OU}
@@ -77,9 +82,13 @@ defmodule AuroraGov.Projector do
 
   project(%PowerUpdated{} = evt, metadata, &PowerProjector.project(evt, metadata, &1))
 
+  project(%PowerDelegationActivated{} = evt, metadata, &PowerDelegationProjector.project(evt, metadata, &1))
+
+  project(%PowerDelegationDeactivated{} = evt, metadata, &PowerDelegationProjector.project(evt, metadata, &1))
+
   @impl Commanded.Projections.Ecto
-  def after_update(_event, _metadata, %{projector_update: projector_update}) do
-    Logger.debug("Notificando (projector_update) #{inspect(projector_update)}")
+  def after_update(event, _metadata, %{projector_update: projector_update}) do
+    Logger.debug("PROYECTOR: Notificando (projector_update) #{inspect(projector_update)} para evento #{inspect(event.__struct__)}")
 
     Phoenix.PubSub.broadcast(
       AuroraGov.PubSub,
@@ -91,8 +100,8 @@ defmodule AuroraGov.Projector do
   end
 
   @impl Commanded.Projections.Ecto
-  def after_update(_event, _metadata, data) do
-    Logger.debug("Notificando (projector_update) (Sin datos para notificar) #{inspect(data)}")
+  def after_update(event, _metadata, data) do
+    Logger.debug("PROYECTOR: after_update sin projector_update para evento #{inspect(event.__struct__)}. Data: #{inspect(data)}")
     :ok
   end
 

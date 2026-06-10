@@ -215,7 +215,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
             size="sm"
             class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 cursor-pointer"
           >
-            {proposal.proposal_power_id}
+            {AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name}
           </.badge>
         </:col>
       </.table>

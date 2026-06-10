@@ -2,7 +2,7 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
   @behaviour Commanded.Commands.Handler
   alias AuroraGov.Aggregate.{OU, Person, Proposal}
   alias AuroraGov.Command.CreateProposal
-  alias AuroraGov.Event.ProposalCreated
+  alias AuroraGov.Event.{ProposalCreated, VoteEmited}
   require Logger
 
   def handle(
@@ -15,7 +15,8 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
           proposal_title: title,
           proposal_description: description,
           proposal_power_id: power_id,
-          proposal_power_data: power_data
+          proposal_power_data: power_data,
+          proposal_use_delegated: use_delegated
         }
       ) do
     # Validar OU de origen
@@ -36,7 +37,7 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
       proposal_voters = calculate_proposal_voters(ou_end)
       Logger.debug("Proposal voters #{inspect(proposal_voters)}")
 
-      %ProposalCreated{
+      proposal_event = %ProposalCreated{
         proposal_id: proposal_id,
         proposal_title: title,
         proposal_description: description,
@@ -48,6 +49,27 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
         proposal_ou_end_id: ou_end,
         proposal_voters: proposal_voters
       }
+
+      if use_delegated do
+        Logger.debug("Using delegated power!")
+
+        delegated_person_list = calculate_ou_tree_delegated_power(ou_origin, power_id)
+
+        delegated_votes =
+          Enum.map(delegated_person_list, fn delegated_person_id ->
+            %VoteEmited{
+              proposal_id: proposal_id,
+              person_id: delegated_person_id,
+              vote_id: Ecto.ShortUUID.generate(),
+              vote_value: 1,
+              vote_type: :delegated
+            }
+          end)
+
+        [proposal_event] ++ delegated_votes
+      else
+        proposal_event
+      end
     else
       {:error, _error} = error ->
         error
@@ -98,6 +120,19 @@ defmodule AuroraGov.CommandHandler.CreateProposalHandler do
       {:ok, avg_power} = AuroraGov.Aggregate.OU.get_power_avg_sensitivity(ou, power_id)
       Map.put(acc, sub_ou_id, avg_power)
     end)
+  end
+
+  defp calculate_ou_tree_delegated_power(ou_id, power_id) do
+    IO.inspect("calculate_ou_tree_delegated_power")
+
+    AuroraGov.Utils.OUTree.ou_tree_list(ou_id)
+    |> Enum.reduce([], fn sub_ou_id, acc ->
+      {:ou, ou} = AuroraGov.Aggregate.OU.get_ou(sub_ou_id)
+      power_delegated = OU.get_power_delegated(ou, power_id)
+      IO.inspect("calculate_ou_tree_delegated_power #{sub_ou_id} #{power_delegated}")
+      acc ++ power_delegated
+    end)
+    |> Enum.dedup()
   end
 
   defp check_required_rank(%OU.Membership{membership_rank: membership_rank}) do

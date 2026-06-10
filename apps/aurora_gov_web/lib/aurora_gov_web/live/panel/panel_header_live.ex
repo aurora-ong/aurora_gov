@@ -10,7 +10,7 @@ defmodule AuroraGov.Web.Live.Panel.Header do
     socket =
       socket
       |> assign(:app_context, assigns.app_context)
-      |> assign(:ou, AuroraGov.Context.OUContext.get_ou_by_id(assigns.app_context.current_ou_id))
+      |> assign(:ou, AuroraGov.Context.OUContext.get_ou(assigns.app_context.current_ou_id))
 
     {:ok, socket}
   end
@@ -25,7 +25,7 @@ defmodule AuroraGov.Web.Live.Panel.Header do
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-2">
         <h1 class="text-3xl md:text-4xl font-bold text-gray-900 flex items-center gap-3">
           <div class="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center text-aurora_orange shadow-sm border border-blue-100 shrink-0">
-            <i class="fa-solid fa-users text-xl"></i>
+            <i class="fa-solid fa-sitemap text-xl"></i>
           </div>
            <span class="truncate">{@ou.ou_name}</span>
         </h1>

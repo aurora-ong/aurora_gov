@@ -20,7 +20,7 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
               assigns.app_context.current_person.person_id
             )
           else
-            AuroraGov.Context.OUContext.get_ou_tree()
+            AuroraGov.Context.OUContext.list_ou()
             |> Enum.map(&Map.from_struct/1)
           end
 

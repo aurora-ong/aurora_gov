@@ -34,6 +34,11 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       update: update
     )
 
+    send_update(AuroraGov.Web.Live.Panel.Side.PowerDetail,
+      id: "power-detail-#{power.power_id}",
+      update: update
+    )
+
     socket
     |> put_flash(
       :info,
@@ -78,6 +83,24 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       :info,
       "Se ha promulgando (#{proposal.proposal_title} #{proposal.proposal_id})"
     )
+  end
+
+  def handle_event({:power_delegation_activated, delegation} = update, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Side.PowerDetail,
+      id: "power-detail-#{delegation.power_id}",
+      update: update
+    )
+
+    socket
+  end
+
+  def handle_event({:power_delegation_deactivated, delegation} = update, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Side.PowerDetail,
+      id: "power-detail-#{delegation.power_id}",
+      update: update
+    )
+
+    socket
   end
 
   def handle_event({event, _data}, socket) do

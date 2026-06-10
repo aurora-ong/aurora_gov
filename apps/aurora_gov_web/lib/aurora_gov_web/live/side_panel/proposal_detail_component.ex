@@ -131,7 +131,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
               <span class="text-gray-400 flex items-center text-sm">
                 <i class="fa fa-arrow-right"></i>
               </span>
-
               <.ou_id_badge
                 ou_id={context.proposal.proposal_ou_end_id}
                 size="sm"
@@ -302,7 +301,18 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                   <%= for vote <- context.proposal.proposal_votes do %>
                     <div class="bg-gray-50 p-2 rounded text-sm">
                       <div class="flex justify-between items-center">
-                        <span class="font-semibold text-md">{vote.person_id}</span>
+                        <span class="font-semibold text-md">{vote.person_id}
+                         <.badge
+                          :if={vote.vote_type == :delegated}
+                          icon="fa-solid fa-handshake"
+                          class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 cursor-pointer"
+                          size="xs"
+                        >
+                        </.badge>
+                        </span>
+
+
+
                         <span class={[
                           "px-2 py-1 rounded text-xs font-medium",
                           case vote.vote_value do
