@@ -3,9 +3,7 @@ defmodule AuroraGov.Command.StartMembership do
     gov_power: [
       id: "org.membership.start",
       name: "Iniciar membresía",
-      description: "Permite iniciar la membresía de una persona en una unidad organizacional",
-      version: 1,
-      status: :active
+      description: "Permite iniciar la membresía de una persona en una unidad organizacional"
     ],
     fields: [
       ou_id: [

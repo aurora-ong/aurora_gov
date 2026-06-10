@@ -9,7 +9,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
         socket
         |> assign(:ou_power_list, AsyncResult.loading())
         |> start_async(:load_data, fn ->
-          AuroraGov.Context.PowerContext.get_ou_power_list(ou_id)
+          AuroraGov.Context.OuPowerContext.list_ou_power(ou_id)
         end)
       else
         socket
@@ -34,7 +34,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
       |> assign(power_modal: false)
       |> assign(power_modal_power_id: nil)
       |> start_async(:load_data, fn ->
-        AuroraGov.Context.PowerContext.get_ou_power_list(assigns.app_context.current_ou_id)
+        AuroraGov.Context.OuPowerContext.list_ou_power(assigns.app_context.current_ou_id)
       end)
 
     {:ok, socket}
@@ -43,10 +43,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
   @impl true
   def handle_async(:load_data, {:ok, ou_powers}, socket) do
     power_info =
-      AuroraGov.CommandUtils.all_proposable_modules()
-      |> Enum.map(fn module ->
-        Map.merge(module.gov_power(), %{})
-      end)
+      AuroraGov.Context.GovPowerContext.list_gov_power()
 
     power_ids =
       (Enum.map(power_info, & &1.id) ++ Enum.map(ou_powers, & &1.power_id))
@@ -70,9 +67,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
     ~H"""
     <div class="h-full w-full p-6">
       <.async_result :let={ou_power_list} assign={@ou_power_list}>
-        <:loading>
-          <.loading_spinner size="double_large" />
-        </:loading>
+        <:loading><.loading_spinner size="double_large" /></:loading>
 
         <:failed :let={_failure}>error loading</:failed>
 
@@ -91,9 +86,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
           <% end %>
         </div>
       </.async_result>
-
     </div>
     """
   end
-
 end

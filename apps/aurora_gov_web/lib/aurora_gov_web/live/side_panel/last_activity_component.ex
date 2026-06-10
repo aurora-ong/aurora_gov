@@ -208,29 +208,35 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     Calendar.strftime(date, "%d %b · %H:%M")
   end
 
-  defp render_description(
-         %{
-           data: %VoteEmited{vote_value: val, proposal_id: proposal_id},
-           person: %Person{person_name: person_name},
-           proposal: %Proposal{proposal_title: proposal_title}
-         } = event
-       ) do
-    inspect(event)
-    # vote_text =
-    #   case val do
-    #     1 -> "a favor"
-    #     0 -> "se abstuvo"
-    #     -1 -> "en contra"
-    #     _ -> "votó"
-    #   end
+  defp render_description(%{
+         data: %VoteEmited{vote_value: val},
+         person: %Person{person_name: person_name},
+         proposal: %Proposal{proposal_title: proposal_title}
+       }) do
+    vote_text =
+      case val do
+        1 -> "a favor"
+        0 -> "se abstuvo"
+        -1 -> "en contra"
+        _ -> "votó"
+      end
 
-    # proposal_title =
-    #   case AuroraGov.Context.ProposalContext.get_proposal_by_id(proposal_id) do
-    #     %{proposal_title: title} -> title
-    #     _ -> "la propuesta"
-    #   end
+    "#{person_name} votó #{vote_text} en \"#{truncate(proposal_title, 50)}\""
+  end
 
-    # "#{person_name} votó #{vote_text} en \"#{truncate(proposal_title, 50)}\""
+  defp render_description(%{
+         data: %VoteEmited{vote_value: val, proposal_id: proposal_id},
+         person: %Person{person_name: person_name}
+       }) do
+    vote_text =
+      case val do
+        1 -> "a favor"
+        0 -> "se abstuvo"
+        -1 -> "en contra"
+        _ -> "votó"
+      end
+
+    "#{person_name} votó #{vote_text} en la propuesta #{proposal_id}"
   end
 
   defp render_description(%{
@@ -297,14 +303,17 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
 
   defp render_description(_), do: "Información no disponible"
 
+  defp render_link(%{data: %VoteEmited{proposal_id: proposal_id}}),
+    do: ~p"/app/proposals/#{proposal_id}"
+
   defp render_link(%{data: %ProposalCreated{proposal_id: proposal_id}}),
     do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(%{data: %ProposalExecuted{proposal_id: proposal_id}}),
-    do: ~p"/app//proposals/#{proposal_id}"
+    do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(%{data: %ProposalConsumed{proposal_id: proposal_id}}),
-    do: ~p"/app//proposals/#{proposal_id}"
+    do: ~p"/app/proposals/#{proposal_id}"
 
   defp render_link(_), do: ""
 

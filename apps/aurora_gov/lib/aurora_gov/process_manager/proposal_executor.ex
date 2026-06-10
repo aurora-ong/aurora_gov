@@ -71,13 +71,11 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
     :skip
   end
 
-  # Adaptación de tu función auxiliar para usar los datos del evento
   defp build_proposal_command(%ProposalExecuted{
          proposal_power_id: power_id,
          proposal_power_data: power_data
        }) do
-    # Tu misma lógica de Ecto/Changeset, pero usando los datos que viajan en el evento
-    with command_module <- AuroraGov.CommandUtils.find_command_by_id(power_id),
+    with %AuroraGov.GovPower{module: command_module} <- AuroraGov.Context.GovPowerContext.get_gov_power!(power_id),
          %Ecto.Changeset{valid?: true} = changeset <- command_module.new(power_data),
          {:ok, proposal_command} <- Ecto.Changeset.apply_action(changeset, :register) do
       {:ok, proposal_command}
