@@ -94,7 +94,6 @@ defmodule AuroraGov.Web.Live.Panel.Power do
     <div class="h-full w-full p-6">
       <.async_result :let={ou_power_list} assign={@ou_power_list}>
         <:loading><.loading_spinner size="double_large" /></:loading>
-        <:loading><.loading_spinner size="double_large" /></:loading>
 
         <:failed :let={_failure}>error loading</:failed>
 
