@@ -12,7 +12,11 @@ defmodule AuroraGov.Router do
     ConsumeProposal,
     ExecuteProposal,
     ActivatePowerDelegation,
-    DeactivatePowerDelegation
+    DeactivatePowerDelegation,
+    CreateRole,
+    AssignRole,
+    UnassignRole,
+    ArchiveRole
   }
 
   alias AuroraGov.CommandHandler.{
@@ -24,7 +28,11 @@ defmodule AuroraGov.Router do
     CreateProposalHandler,
     ApplyProposalVoteHandler,
     ActivatePowerDelegationHandler,
-    DeactivatePowerDelegationHandler
+    DeactivatePowerDelegationHandler,
+    CreateRoleHandler,
+    AssignRoleHandler,
+    UnassignRoleHandler,
+    ArchiveRoleHandler
   }
 
   alias AuroraGov.Aggregate.{Person, OU, Proposal}
@@ -38,6 +46,10 @@ defmodule AuroraGov.Router do
   dispatch(UpdatePower, to: UpdatePowerHandler, aggregate: OU, identity: :ou_id)
   dispatch(ActivatePowerDelegation, to: ActivatePowerDelegationHandler, aggregate: OU, identity: :ou_id)
   dispatch(DeactivatePowerDelegation, to: DeactivatePowerDelegationHandler, aggregate: OU, identity: :ou_id)
+  dispatch(CreateRole, to: CreateRoleHandler, aggregate: OU, identity: :ou_id)
+  dispatch(AssignRole, to: AssignRoleHandler, aggregate: OU, identity: :ou_id)
+  dispatch(UnassignRole, to: UnassignRoleHandler, aggregate: OU, identity: :ou_id)
+  dispatch(ArchiveRole, to: ArchiveRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(CreateProposal, to: CreateProposalHandler, aggregate: Proposal, identity: :proposal_id)
 
   dispatch(ApplyProposalVote,

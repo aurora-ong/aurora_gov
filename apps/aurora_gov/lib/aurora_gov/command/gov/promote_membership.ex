@@ -3,7 +3,8 @@ defmodule AuroraGov.Command.PromoteMembership do
     gov_power: [
       id: "org.membership.promote",
       name: "Promover membresía",
-      description: "Promueve a un miembro hacía un estamento superior"
+      description: "Promueve a un miembro hacía un estamento superior",
+      category: :membership
     ],
     fields: [
       ou_id: [

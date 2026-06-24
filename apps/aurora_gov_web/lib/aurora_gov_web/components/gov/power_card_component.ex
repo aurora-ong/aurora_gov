@@ -103,13 +103,6 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
     end
   end
 
-  defp delegation_color(value) do
-    cond do
-      value > 0 -> "bg-blue-600 text-white"
-      true -> "bg-neutral-500 text-white"
-    end
-  end
-
   @impl true
   def handle_event("open_power_detail", %{"power_id" => power_id}, socket) do
     app_panel = %AppView{

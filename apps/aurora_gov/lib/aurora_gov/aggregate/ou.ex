@@ -1,5 +1,5 @@
 defmodule AuroraGov.Aggregate.OU do
-  defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation]
+  defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation, :ou_roles]
 
   defmodule Membership do
     defstruct [:membership_rank]
@@ -7,6 +7,10 @@ defmodule AuroraGov.Aggregate.OU do
 
   defmodule Power do
     defstruct [:membership_id, :power_id, :power_value, :power_updated_at]
+  end
+
+  defmodule Role do
+    defstruct [:role_id, :role_name, :role_description, :status, assignments: MapSet.new()]
   end
 
   alias AuroraGov.Aggregate.OU
@@ -17,7 +21,11 @@ defmodule AuroraGov.Aggregate.OU do
     MembershipPromoted,
     PowerUpdated,
     PowerDelegationActivated,
-    PowerDelegationDeactivated
+    PowerDelegationDeactivated,
+    OURoleCreated,
+    OURoleAssigned,
+    OURoleUnassigned,
+    OURoleArchived
   }
 
   # State mutators
@@ -28,7 +36,8 @@ defmodule AuroraGov.Aggregate.OU do
       ou_status: :active,
       ou_membership: %{},
       ou_power: %{},
-      ou_power_delegation: %{}
+      ou_power_delegation: %{},
+      ou_roles: %{}
     }
   end
 
@@ -129,6 +138,49 @@ defmodule AuroraGov.Aggregate.OU do
       )
 
     %OU{ou | ou_power_delegation: updated_power_delegation_map}
+  end
+
+  def apply(%OU{} = ou, %OURoleCreated{
+        role_id: role_id,
+        role_name: role_name,
+        role_description: role_description
+      }) do
+    new_role = %Role{
+      role_id: role_id,
+      role_name: role_name,
+      role_description: role_description,
+      status: :active,
+      assignments: MapSet.new()
+    }
+
+    %OU{ou | ou_roles: Map.put(ou.ou_roles || %{}, role_id, new_role)}
+  end
+
+  def apply(%OU{} = ou, %OURoleAssigned{role_id: role_id, person_id: person_id}) do
+    updated_roles =
+      Map.update!(ou.ou_roles, role_id, fn role ->
+        %Role{role | assignments: MapSet.put(role.assignments, person_id)}
+      end)
+
+    %OU{ou | ou_roles: updated_roles}
+  end
+
+  def apply(%OU{} = ou, %OURoleUnassigned{role_id: role_id, person_id: person_id}) do
+    updated_roles =
+      Map.update!(ou.ou_roles, role_id, fn role ->
+        %Role{role | assignments: MapSet.delete(role.assignments, person_id)}
+      end)
+
+    %OU{ou | ou_roles: updated_roles}
+  end
+
+  def apply(%OU{} = ou, %OURoleArchived{role_id: role_id}) do
+    updated_roles =
+      Map.update!(ou.ou_roles, role_id, fn role ->
+        %Role{role | status: :archived}
+      end)
+
+    %OU{ou | ou_roles: updated_roles}
   end
 
   # Functions

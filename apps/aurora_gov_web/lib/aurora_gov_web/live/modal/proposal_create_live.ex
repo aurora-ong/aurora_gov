@@ -613,30 +613,6 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
     {:noreply, socket}
   end
 
-  defp proposal_submit(socket) do
-    full_params =
-      socket.assigns.proposal_data
-      |> Map.put(:proposal_power_data, socket.assigns.power_data)
-      |> Map.put(:proposal_person_id, socket.assigns.app_context.current_person.person_id)
-
-    case AuroraGov.Context.ProposalContext.create_proposal!(full_params) do
-      {:ok,
-       %AuroraGov.Aggregate.Proposal{
-         proposal_id: proposal_id,
-         proposal_ou_end_id: proposal_ou_end_id
-       }} ->
-        query_params = %{context: proposal_ou_end_id}
-
-        socket
-        |> put_flash(:info, "Propuesta creada exitosamente")
-        |> push_navigate(to: ~p"/app/proposals/#{proposal_id}?#{query_params}")
-
-      {:error, reason} ->
-        IO.inspect(reason, label: "Error creando propuesta")
-        put_flash(socket, :error, "Error al crear la propuesta. Intenta nuevamente.")
-    end
-  end
-
   @impl true
   def handle_event("proposal_submit", _params, socket) do
     full_params =
@@ -660,6 +636,30 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       {:error, reason} ->
         IO.inspect(reason, label: "Error creando propuesta")
         {:noreply, put_flash(socket, :error, "Error al crear la propuesta. Intenta nuevamente.")}
+    end
+  end
+
+  defp proposal_submit(socket) do
+    full_params =
+      socket.assigns.proposal_data
+      |> Map.put(:proposal_power_data, socket.assigns.power_data)
+      |> Map.put(:proposal_person_id, socket.assigns.app_context.current_person.person_id)
+
+    case AuroraGov.Context.ProposalContext.create_proposal!(full_params) do
+      {:ok,
+       %AuroraGov.Aggregate.Proposal{
+         proposal_id: proposal_id,
+         proposal_ou_end_id: proposal_ou_end_id
+       }} ->
+        query_params = %{context: proposal_ou_end_id}
+
+        socket
+        |> put_flash(:info, "Propuesta creada exitosamente")
+        |> push_navigate(to: ~p"/app/proposals/#{proposal_id}?#{query_params}")
+
+      {:error, reason} ->
+        IO.inspect(reason, label: "Error creando propuesta")
+        put_flash(socket, :error, "Error al crear la propuesta. Intenta nuevamente.")
     end
   end
 end

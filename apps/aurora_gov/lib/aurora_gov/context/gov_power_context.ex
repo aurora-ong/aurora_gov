@@ -7,7 +7,11 @@ defmodule AuroraGov.Context.GovPowerContext do
   @proposable_power [
     Elixir.AuroraGov.Command.StartMembership,
     Elixir.AuroraGov.Command.CreateOU,
-    Elixir.AuroraGov.Command.PromoteMembership
+    Elixir.AuroraGov.Command.PromoteMembership,
+    Elixir.AuroraGov.Command.CreateRole,
+    Elixir.AuroraGov.Command.AssignRole,
+    Elixir.AuroraGov.Command.UnassignRole,
+    Elixir.AuroraGov.Command.ArchiveRole
   ]
 
   def list_gov_power do

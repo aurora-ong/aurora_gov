@@ -231,26 +231,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   end
 
   defp render_description(%{
-         data: %PowerDelegationActivated{
-           power_id: power_id
-         },
-         person: %Person{person_name: person_name},
-         ou: %OU{ou_name: ou_name}
-       }) do
-    "#{person_name} ha delegado su poder #{power_id} en #{ou_name}"
-  end
-
-  defp render_description(%{
-         data: %PowerDelegationDeactivated{
-           power_id: power_id
-         },
-         person: %Person{person_name: person_name},
-         ou: %OU{ou_name: ou_name}
-       }) do
-    "#{person_name} ha dejado de delegar su poder #{power_id} en #{ou_name}"
-  end
-
-  defp render_description(%{
          data: %VoteEmited{vote_value: val},
          person: %Person{person_name: person_name},
          proposal: %Proposal{proposal_title: proposal_title}

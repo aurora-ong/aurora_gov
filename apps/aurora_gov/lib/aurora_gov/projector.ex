@@ -12,7 +12,7 @@ defmodule AuroraGov.Projector do
   alias AuroraGov.Projector.PowerDelegationProjector
   alias AuroraGov.Event.PowerDelegationActivated
   alias AuroraGov.Event.VoteEmited
-  alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector}
+  alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector, OURoleProjector}
   alias AuroraGov.Event.PowerUpdated
 
   alias AuroraGov.Event.{
@@ -23,7 +23,11 @@ defmodule AuroraGov.Projector do
     ProposalExecuted,
     ProposalConsumed,
     MembershipPromoted,
-    PowerDelegationDeactivated
+    PowerDelegationDeactivated,
+    OURoleCreated,
+    OURoleAssigned,
+    OURoleUnassigned,
+    OURoleArchived
   }
 
   alias AuroraGov.Projector.Model.{Person, OU}
@@ -85,6 +89,14 @@ defmodule AuroraGov.Projector do
   project(%PowerDelegationActivated{} = evt, metadata, &PowerDelegationProjector.project(evt, metadata, &1))
 
   project(%PowerDelegationDeactivated{} = evt, metadata, &PowerDelegationProjector.project(evt, metadata, &1))
+
+  project(%OURoleCreated{} = evt, metadata, &OURoleProjector.project(evt, metadata, &1))
+
+  project(%OURoleAssigned{} = evt, metadata, &OURoleProjector.project(evt, metadata, &1))
+
+  project(%OURoleUnassigned{} = evt, metadata, &OURoleProjector.project(evt, metadata, &1))
+
+  project(%OURoleArchived{} = evt, metadata, &OURoleProjector.project(evt, metadata, &1))
 
   @impl Commanded.Projections.Ecto
   def after_update(event, _metadata, %{projector_update: projector_update}) do

@@ -5,7 +5,7 @@ end
 defmodule AuroraGov.GovPower do
   @enforce_keys [:id, :name]
 
-  defstruct [:id, :name, :description, :module, version: 1, status: :active]
+  defstruct [:id, :name, :description, :module, :category, version: 1, status: :active]
 end
 
 defmodule AuroraGov.Command do
@@ -29,7 +29,7 @@ defmodule AuroraGov.Command do
                          %AuroraGov.GovPower.Field{
                            name: name,
                            type: Keyword.get(config, :command_type, :string),
-                           label: Keyword.get(config, :label, Phoenix.Naming.humanize(name)),
+                           label: Keyword.get(config, :label, name |> to_string() |> String.replace("_", " ") |> String.capitalize()),
                            description: Keyword.get(config, :description),
                            form_type: Keyword.get(config, :form_type, :text),
                            source: Keyword.get(config, :source, :user),
