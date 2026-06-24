@@ -6,7 +6,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
     socket =
       socket
       |> assign(:search, "")
-      |> assign(:filter_type, "internal")
+      |> assign(:filter, "all")
       |> assign(current_page: 1, total_pages: 0, total_count: 0)
       |> assign(:sort_by, :created_at)
       |> assign(:sort_order, :desc)
@@ -18,8 +18,26 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
   end
 
   @impl true
+  def update(%{proposal_event: {type, proposal}}, socket)
+      when type in [:proposal_created, :proposal_executing, :proposal_consumed] do
+    current_ou = socket.assigns.app_context.current_ou_id
+
+    socket =
+      if proposal.proposal_ou_end_id == current_ou or proposal.proposal_ou_start_id == current_ou do
+        proposal_with_assocs =
+          AuroraGov.Projector.Repo.preload(proposal, [:proposal_ou_start, :proposal_ou_end, :proposal_owner])
+
+        socket |> stream_insert(:proposal_list, proposal_with_assocs, at: 0)
+      else
+        socket
+      end
+
+    {:ok, socket}
+  end
+
+  @impl true
   def update(assigns, socket) do
-    filter_type = socket.assigns[:filter_type] || "internal"
+    filter = socket.assigns[:filter] || "all"
     filter_search = socket.assigns[:search] || ""
     params = assigns[:params] || %{}
 
@@ -28,37 +46,27 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
       |> assign(:app_context, assigns.app_context)
       |> assign(:loading, true)
       |> start_async(:load_proposals, fn ->
-        fetch_proposals(assigns.app_context, filter_type, filter_search, params)
+        fetch_proposals(assigns.app_context, filter, filter_search, params)
       end)
 
     {:ok, socket}
   end
 
-  defp fetch_proposals(context, filter_type, search, params) do
+  defp fetch_proposals(context, filter_status, search, params) do
     current_ou_id = context.current_ou_id
+    import Ecto.Query
+    alias AuroraGov.Projector.Model.Proposal
+
+    query =
+      Proposal
+      |> where([p], p.proposal_ou_start_id == ^current_ou_id or p.proposal_ou_end_id == ^current_ou_id)
+      |> order_by(desc: :created_at)
+      |> preload([:proposal_ou_start, :proposal_ou_end, :proposal_owner])
 
     filters =
-      case filter_type do
-        "out" ->
-          [
-            %{field: :proposal_ou_start_id, op: :==, value: current_ou_id},
-            %{field: :proposal_ou_end_id, op: :!=, value: current_ou_id}
-          ]
-
-        "in" ->
-          [
-            %{field: :proposal_ou_end_id, op: :==, value: current_ou_id},
-            %{field: :proposal_ou_start_id, op: :!=, value: current_ou_id}
-          ]
-
-        "internal" ->
-          [
-            %{field: :proposal_ou_end_id, op: :==, value: current_ou_id},
-            %{field: :proposal_ou_start_id, op: :==, value: current_ou_id}
-          ]
-
-        _ ->
-          []
+      case filter_status do
+        "all" -> []
+        status -> [%{field: :proposal_status, op: :==, value: String.to_existing_atom(status)}]
       end
 
     filters =
@@ -68,8 +76,8 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
 
     params = Map.put(params, :filters, filters)
 
-    case AuroraGov.Context.ProposalContext.list_proposals(params) do
-      {proposals, meta} -> {proposals, meta}
+    case Flop.validate_and_run(query, params) do
+      {:ok, {proposals, meta}} -> {proposals, meta}
     end
   end
 
@@ -112,11 +120,11 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
             <div class="flex gap-2">
               <.filter_button_group
                 options={[
-                  %{label: "Internas", value: "internal"},
-                  %{label: "Entrantes", value: "in"},
-                  %{label: "Salientes", value: "out"}
+                  %{label: "Todas", value: "all"},
+                  %{label: "Activas", value: "active"},
+                  %{label: "Completadas", value: "consumed"}
                 ]}
-                selected={@filter_type}
+                selected={@filter}
                 on_select="update_filter"
                 phx_target={@myself}
               />
@@ -224,10 +232,10 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
   end
 
   @impl true
-  def handle_event("update_filter", %{"filter" => filter_type}, socket) do
+  def handle_event("update_filter", %{"filter" => filter}, socket) do
     socket =
       socket
-      |> assign(:filter_type, filter_type)
+      |> assign(:filter, filter)
       |> assign(:current_page, 1)
       |> reload_proposals()
 
@@ -259,7 +267,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
 
   defp reload_proposals(socket, extra_params \\ []) do
     app_context = socket.assigns.app_context
-    filter_type = socket.assigns.filter_type
+    filter = socket.assigns.filter
     search = socket.assigns.search
 
     params = Enum.into(extra_params, %{})
@@ -267,7 +275,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
     socket
     |> assign(:loading, true)
     |> start_async(:load_proposals, fn ->
-      fetch_proposals(app_context, filter_type, search, params)
+      fetch_proposals(app_context, filter, search, params)
     end)
   end
 end

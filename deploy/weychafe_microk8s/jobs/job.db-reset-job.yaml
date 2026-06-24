@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: aurora-gov-migration
+  namespace: aurora-gov
+spec:
+  backoffLimit: 2
+  template:
+    metadata:
+      labels:
+        app: aurora-gov-migration
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: aurora-gov-migration
+          image: registry.weychafe.nicher.cl/aurora_gov:21
+          # Este es el comando estándar para ejecutar migraciones en un release de Elixir.
+          # Asegúrate de que el módulo AuroraGov.Release exista en tu código.
+          command: ["/app/bin/aurora_gov_web", "eval", "AuroraGov.Release.db_reset"]
+          resources:
+            requests:
+              cpu: 200m
+              ephemeral-storage: 100Mi
+              memory: 256Mi
+          env:
+            - name: SECRET_KEY_BASE
+              value: 'IM8Y/YdCfqzMKWkRdZ/lRVrgJeSjCz6NbILtoLcvw4wxdpWXTsVTkPHSJseyw/TC'
+            - name: PHX_HOST
+              value: gov.aurora.ong
+            - name: PROJECTOR_DATABASE_URL
+              value: 'ecto://postgres:aurora_gov@aurora-gov-database-service:5432/aurora_gov_projector'
+            - name: EVENTSTORE_DATABASE_URL
+              value: 'ecto://postgres:aurora_gov@aurora-gov-database-service:5432/aurora_gov_eventstore'

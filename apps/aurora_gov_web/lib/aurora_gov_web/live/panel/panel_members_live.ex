@@ -8,6 +8,7 @@ require Logger
     socket =
       socket
       |> assign(:filter, "all")
+      |> assign(:search_query, "")
       |> assign(current_page: 1, total_pages: 0, total_count: 0)
       |> assign(:sort_by, :created_at)
       |> assign(:sort_order, :desc)
@@ -60,10 +61,26 @@ require Logger
   defp load_members(socket) do
     ou_id = socket.assigns.app_context.current_ou_id
 
+    filters = []
+
+    filters =
+      case socket.assigns[:filter] do
+        "active" -> [%{"field" => "membership_status", "op" => "==", "value" => "active"} | filters]
+        "inactive" -> [%{"field" => "membership_status", "op" => "!=", "value" => "active"} | filters]
+        _ -> filters
+      end
+
+    filters =
+      case socket.assigns[:search_query] do
+        query when query in [nil, ""] -> filters
+        query -> [%{"field" => "person_name", "op" => "like_and", "value" => query} | filters]
+      end
+
     params = %{
       "page" => socket.assigns.current_page,
       "order_by" => [socket.assigns.sort_by],
-      "order_directions" => [socket.assigns.sort_order]
+      "order_directions" => [socket.assigns.sort_order],
+      "filters" => filters
     }
 
     socket
@@ -110,6 +127,24 @@ require Logger
   end
 
   @impl true
+  def handle_event("update_filter", %{"filter" => filter}, socket) do
+    {:noreply,
+     socket
+     |> assign(:filter, filter)
+     |> assign(:current_page, 1)
+     |> load_members()}
+  end
+
+  @impl true
+  def handle_event("search", %{"search" => search}, socket) do
+    {:noreply,
+     socket
+     |> assign(:search_query, search)
+     |> assign(:current_page, 1)
+     |> load_members()}
+  end
+
+  @impl true
   def handle_event("sort", %{"field" => field}, socket) do
     field_atom = String.to_existing_atom(field)
 
@@ -142,7 +177,7 @@ require Logger
         />
         <div class="flex flex-row gap-3">
           <form phx-change="search" phx-target={@myself} class="flex items-center gap-2">
-            <.search_field name="search" value="" placeholder="Búsqueda rápida" />
+            <.search_field name="search" value={@search_query} placeholder="Búsqueda rápida" />
           </form>
 
           <button

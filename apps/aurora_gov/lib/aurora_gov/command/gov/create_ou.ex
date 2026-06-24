@@ -5,7 +5,8 @@ defmodule AuroraGov.Command.CreateOU do
     gov_power: [
       id: "org.ou.create",
       name: "Crear unidad organizacional",
-      description: "Permite crear una unidad organizacional"
+      description: "Permite crear una unidad organizacional",
+      category: :ou
     ],
     fields: [
       ou_slug: [

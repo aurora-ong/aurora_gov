@@ -5,7 +5,7 @@ end
 defmodule AuroraGov.GovPower do
   @enforce_keys [:id, :name]
 
-  defstruct [:id, :name, :description, :module, version: 1, status: :active]
+  defstruct [:id, :name, :description, :module, :category, version: 1, status: :active]
 end
 
 defmodule AuroraGov.Command do

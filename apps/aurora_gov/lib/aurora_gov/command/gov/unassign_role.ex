@@ -1,10 +1,10 @@
-defmodule AuroraGov.Command.StartMembership do
+defmodule AuroraGov.Command.UnassignRole do
   use AuroraGov.Command,
     gov_power: [
-      id: "org.membership.start",
-      name: "Iniciar membresía",
-      description: "Permite iniciar la membresía de una persona en una unidad organizacional",
-      category: :membership
+      id: "org.role.unassign",
+      name: "Desasignar rol",
+      description: "Permite quitar un rol a un miembro de la unidad organizacional",
+      category: :role
     ],
     fields: [
       ou_id: [
@@ -13,10 +13,15 @@ defmodule AuroraGov.Command.StartMembership do
         form_type: :text,
         source: {:context, :end_ou_id}
       ],
+      role_id: [
+        command_type: :string,
+        label: "ID del rol",
+        form_type: :text,
+        source: :user
+      ],
       person_id: [
         command_type: :string,
         label: "Persona",
-        description: "Identificador de la persona que iniciará su membresía",
         form_type: :text,
         source: :user
       ]
@@ -24,6 +29,6 @@ defmodule AuroraGov.Command.StartMembership do
 
   def handle_validate(changeset) do
     changeset
-    |> validate_required([:ou_id, :person_id])
+    |> validate_required([:ou_id, :role_id, :person_id])
   end
 end

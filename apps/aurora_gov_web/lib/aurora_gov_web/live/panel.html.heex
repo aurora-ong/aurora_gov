@@ -50,6 +50,16 @@
           <i class="fa-solid fa-users-between-lines"></i> Miembros
         </.link>
       </li>
+
+      <li class={"menu-item " <>
+        if @app_context.current_module == "roles",
+          do: "link active",
+          else: "link"
+      }>
+        <.link patch={~p"/app/roles?context=#{@app_context.current_ou_id}"} replace>
+          <i class="fa-solid fa-id-card-clip"></i> Roles
+        </.link>
+      </li>
       
       <li class={"menu-item " <>
         if @app_context.current_module == "power",
@@ -230,6 +240,12 @@
           <.live_component
             module={AuroraGov.Web.Live.Panel.Members}
             id="panel-members"
+            app_context={@app_context}
+          />
+        <% "roles" -> %>
+          <.live_component
+            module={AuroraGov.Web.Live.Panel.Roles}
+            id="panel-roles"
             app_context={@app_context}
           />
         <% "power" -> %>

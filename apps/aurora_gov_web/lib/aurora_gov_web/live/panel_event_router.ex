@@ -59,10 +59,28 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
   end
 
+  def handle_event({:proposal_created, proposal} = update, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Proposals,
+      id: "panel-proposal",
+      proposal_event: update
+    )
+
+    socket
+    |> put_flash(
+      :info,
+      "Propuesta creada (#{proposal.proposal_title})"
+    )
+  end
+
   def handle_event({:proposal_executing, proposal} = update, socket) do
     send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
       id: "panel-proposal-#{proposal.proposal_id}",
       update: update
+    )
+
+    send_update(AuroraGov.Web.Live.Panel.Proposals,
+      id: "panel-proposal",
+      proposal_event: update
     )
 
     socket
@@ -76,6 +94,11 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
       id: "panel-proposal-#{proposal.proposal_id}",
       update: update
+    )
+
+    send_update(AuroraGov.Web.Live.Panel.Proposals,
+      id: "panel-proposal",
+      proposal_event: update
     )
 
     socket
@@ -101,6 +124,24 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
+  end
+
+  def handle_event({type, data} = event, socket)
+      when type in [:role_created, :role_assigned, :role_unassigned, :role_archived] do
+    send_update(AuroraGov.Web.Live.Panel.Roles,
+      id: "panel-roles",
+      role_event: event
+    )
+
+    msg =
+      case type do
+        :role_created -> "Rol '#{data.role_name}' creado."
+        :role_assigned -> "Rol asignado a #{data.person_id}."
+        :role_unassigned -> "Rol quitado a #{data.person_id}."
+        :role_archived -> "Rol archivado."
+      end
+
+    socket |> put_flash(:info, msg)
   end
 
   def handle_event({event, _data}, socket) do
