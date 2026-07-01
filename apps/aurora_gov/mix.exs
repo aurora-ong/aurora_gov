@@ -47,7 +47,7 @@ defmodule AuroraGov.MixProject do
       {:commanded_eventstore_adapter, "~> 1.4"},
       {:commanded_ecto_projections, "~> 1.4"},
       {:pbkdf2_elixir, "~> 2.0"},
-      {:faker, "~> 0.18.0"},
+      {:faker_fork, "~> 0.19"},
       {:ecto_shortuuid, "~> 0.2"},
       {:commanded_messaging, "~> 0.2.0"},
       {:flop, "~> 0.26.3"}
