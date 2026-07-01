@@ -32,4 +32,15 @@ defmodule AuroraGov.Context.PowerDelegationContext do
 
     Repo.one(query)
   end
+
+  def count_ou_tree_delegated_power(ou_id, power_id) do
+    ou_ids = AuroraGov.Utils.OUTree.ou_tree_list(ou_id)
+
+    query =
+      PowerDelegation
+      |> where([m], m.ou_id in ^ou_ids)
+      |> where([m], m.power_id == ^power_id)
+
+    Repo.aggregate(query, :count, :person_id)
+  end
 end

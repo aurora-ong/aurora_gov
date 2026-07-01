@@ -14,6 +14,9 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(:proposal_data, %{})
       |> assign(:power_data, %{})
       |> assign(:step_0_ou_power_detail, nil)
+      |> assign(:delegated_votes_count, 0)
+      |> assign(:ou_start_name, "")
+      |> assign(:ou_end_name, "")
 
     {:ok, socket}
   end
@@ -239,46 +242,30 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
   defp step_3(assigns) do
     ~H"""
-    <div class="space-y-6 w-full">
-      <h2 class="text-2xl font-bold">Resumen de la Propuesta</h2>
+    <div class="space-y-6 w-full max-w-2xl mx-auto">
+      <h2 class="text-2xl font-bold text-gray-900">Resumen de la Propuesta</h2>
 
-      <div class="bg-gray-50 p-4 rounded-xl border">
-        <div class="flex-row flex">
-          <%!-- <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
-            <.ou_id_badge
-              ou_id={proposal.proposal_ou_start_id}
-              ou_name={proposal.proposal_ou_start.ou_name}
-              size="sm"
-            />
-            <span class="mx-2 text-gray-400 flex items-center">
-              <i class="fa fa-arrow-right"></i>
-            </span>
-            <.ou_id_badge
-              ou_id={proposal.proposal_ou_end_id}
-              ou_name={proposal.proposal_ou_end.ou_name}
-              size="sm"
-            />
-          <% else %>
-            <.ou_id_badge
-              ou_id={proposal.proposal_ou_end_id}
-              ou_name={proposal.proposal_ou_end.ou_name}
-              size="sm"
-            />
-          <% end %> --%>
+      <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4 w-full">
+        <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
+          <span class="font-medium text-gray-700">Origen:</span>
+          <.badge size="sm">{@ou_start_name}</.badge>
+          <i class="fa-solid fa-arrow-right mx-1 text-gray-300"></i>
+          <span class="font-medium text-gray-700">Destino:</span>
+          <.badge size="sm">{@ou_end_name}</.badge>
         </div>
-         <hr />
-        <div class="flex flex-row items-center">
-          <div class="flex grow flex-col">
-            {@proposal_data[:proposal_ou_start]}
-            <h3 class="font-bold">{@proposal_data[:proposal_title]}</h3>
 
-            <p class="text-gray-600">{@proposal_data[:proposal_description]}</p>
+        <div class="border-t border-gray-100 my-3"></div>
+
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div class="flex-1 space-y-2">
+            <h3 class="text-xl font-bold text-gray-950 leading-tight">{@proposal_data[:proposal_title]}</h3>
+            <p class="text-gray-600 text-sm whitespace-pre-line leading-relaxed">{@proposal_data[:proposal_description]}</p>
           </div>
 
           <.badge
             icon="fa-bolt fa-solid"
-            size="sm"
-            class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 py-3 cursor-pointer h-fit"
+            size="md"
+            class="bg-amber-50 text-amber-800 border border-amber-200 rounded-xl p-3 shrink-0 h-fit"
           >
             {AuroraGov.Context.GovPowerContext.get_gov_power!(@proposal_data[:proposal_power_id]).name}
           </.badge>
@@ -291,15 +278,28 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         phx-submit="step_3_next"
         phx-change="step_3_validate"
         phx-target={@myself}
-        class="w-full space-y-8"
+        class="w-full space-y-6"
       >
-        {inspect(@step_3_form)}
-        <.toggle_field
-          field={@step_3_form[:proposal_use_delegated]}
-          label="Utilizar poder delegado"
-          color="primary"
-          phx-debounce="300"
-        />
+        <div class="space-y-4">
+          <.input
+            type="checkbox"
+            field={@step_3_form[:proposal_use_delegated]}
+            label="Utilizar poder delegado"
+          />
+
+          <%= if Ecto.Changeset.get_field(@step_3_form.source, :proposal_use_delegated) == true do %>
+            <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex gap-3 items-start transition-all">
+              <i class="fa-solid fa-users text-indigo-600 text-lg mt-0.5 shrink-0"></i>
+              <div>
+                <h4 class="font-semibold text-indigo-900 text-sm">Votos delegados activos</h4>
+                <p class="text-indigo-700 text-xs mt-1 leading-relaxed">
+                  Al activar esta opción, se sumarán automáticamente <span class="font-bold text-sm bg-indigo-100 px-1.5 py-0.5 rounded text-indigo-900">{@delegated_votes_count}</span> votos delegados de miembros que han confiado su poder en esta unidad.
+                </p>
+              </div>
+            </div>
+          <% end %>
+        </div>
+
         <:actions>
           <.back_button target={@myself} step={2} />
           <.button
@@ -559,10 +559,22 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
     socket =
       if proposal_changeset.valid? do
+        proposal_data = Map.merge(socket.assigns.proposal_data, proposal_changeset.changes)
+
+        delegated_count =
+          AuroraGov.Context.PowerDelegationContext.count_ou_tree_delegated_power(
+            proposal_data.proposal_ou_origin,
+            proposal_data.proposal_power_id
+          )
+
+        ou_start_name = AuroraGov.Context.OUContext.get_ou(proposal_data.proposal_ou_origin).ou_name
+        ou_end_name = AuroraGov.Context.OUContext.get_ou(proposal_data.proposal_ou_end).ou_name
+
         socket
-        |> assign(
-          proposal_data: Map.merge(socket.assigns.proposal_data, proposal_changeset.changes)
-        )
+        |> assign(proposal_data: proposal_data)
+        |> assign(delegated_votes_count: delegated_count)
+        |> assign(ou_start_name: ou_start_name)
+        |> assign(ou_end_name: ou_end_name)
         |> assign(step: 3)
         |> assign_new(:step_3_form, fn ->
           %{}
@@ -587,6 +599,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
     socket =
       socket
+      |> assign(proposal_data: Map.merge(socket.assigns.proposal_data, proposal_changeset.changes))
       |> assign(step_3_form: to_form(proposal_changeset, as: "proposal"))
 
     {:noreply, socket}

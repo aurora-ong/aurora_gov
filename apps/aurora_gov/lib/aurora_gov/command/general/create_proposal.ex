@@ -31,9 +31,6 @@ defmodule AuroraGov.Command.CreateProposal do
 
   def handle_validate_step(params, 2) do
     AuroraGov.Command.CreateProposal.new(params)
-    |> validate_required([
-      :proposal_use_delegated
-    ])
   end
 
   def handle_validate_create(params) do
