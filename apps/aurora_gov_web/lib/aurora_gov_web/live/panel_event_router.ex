@@ -28,6 +28,20 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
   end
 
+  def handle_event({:membership_demoted, membership}, socket) do
+  send_update(
+    AuroraGov.Web.Live.Panel.Members,
+    id: "panel-members",
+    app_context: socket.assigns.app_context
+  )
+
+  socket
+  |> put_flash(
+    :info,
+    "Se actualizó el rango de #{membership.person.person_name}."
+  )
+end
+
   def handle_event({:power_updated, power} = update, socket) do
     send_update(AuroraGov.Web.Live.Panel.Power,
       id: "panel-power",

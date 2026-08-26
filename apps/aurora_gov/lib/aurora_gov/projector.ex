@@ -23,6 +23,7 @@ defmodule AuroraGov.Projector do
     ProposalExecuted,
     ProposalConsumed,
     MembershipPromoted,
+    MembershipDemoted,
     PowerDelegationDeactivated,
     OURoleCreated,
     OURoleAssigned,
@@ -83,6 +84,8 @@ defmodule AuroraGov.Projector do
   project(%VoteEmited{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))
 
   project(%MembershipPromoted{} = evt, metadata, &MembershipProjector.project(evt, metadata, &1))
+
+  project(%MembershipDemoted{} = evt, metadata, &MembershipProjector.project(evt, metadata, &1))
 
   project(%PowerUpdated{} = evt, metadata, &PowerProjector.project(evt, metadata, &1))
 

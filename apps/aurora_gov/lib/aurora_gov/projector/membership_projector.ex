@@ -1,6 +1,6 @@
 defmodule AuroraGov.Projector.MembershipProjector do
   alias AuroraGov.Projector.Model.Membership
-  alias AuroraGov.Event.{MembershipStarted, MembershipPromoted}
+  alias AuroraGov.Event.{MembershipStarted, MembershipPromoted,  MembershipDemoted}
 
   def project(
         %MembershipStarted{ou_id: ou_id, person_id: person_id},
@@ -56,6 +56,37 @@ defmodule AuroraGov.Projector.MembershipProjector do
       membership
       |> repo.preload([:ou, :person])
       |> then(&{:ok, {:membership_promoted, &1}})
+    end)
+  end
+
+  def project(
+        %MembershipDemoted{
+        person_id: person_id,
+        ou_id: ou_id,
+        membership_rank: membership_rank
+      },
+        metadata,
+        multi
+      ) do
+    multi
+      |> Ecto.Multi.run(:membership_demote_lookup, fn repo, _changes ->
+      case repo.get_by(Membership, person_id: person_id, ou_id: ou_id) do
+      nil -> {:error, :membership_not_found}
+      membership -> {:ok, membership}
+      end
+    end)
+  |> Ecto.Multi.update(:membership_demote_update, fn %{
+      membership_demote_lookup: membership} ->
+      Membership.changeset(membership, %{
+      membership_rank: membership_rank,
+      updated_at: metadata.created_at
+    })
+    end)
+  |> Ecto.Multi.run(:projector_update, fn repo, %{
+      membership_demote_update: membership} ->
+      membership
+    |> repo.preload([:ou, :person])
+    |> then(&{:ok, {:membership_demoted, &1}})
     end)
   end
 end

@@ -19,6 +19,7 @@ defmodule AuroraGov.Aggregate.OU do
     OUCreated,
     MembershipStarted,
     MembershipPromoted,
+    MembershipDemoted,
     PowerUpdated,
     PowerDelegationActivated,
     PowerDelegationDeactivated,
@@ -69,6 +70,29 @@ defmodule AuroraGov.Aggregate.OU do
           end)
     }
   end
+
+  def apply(
+      %OU{} = ou,
+      %MembershipDemoted{
+        person_id: person_id,
+        membership_rank: membership_rank
+      }
+    ) do
+  %OU{
+    ou
+    | ou_membership:
+        Map.update!(
+          ou.ou_membership,
+          person_id,
+          fn %Membership{} = membership ->
+            %Membership{
+              membership
+              | membership_rank: membership_rank
+            }
+          end
+        )
+  }
+end
 
   def apply(%OU{} = ou, %PowerUpdated{
         person_id: person_id,
