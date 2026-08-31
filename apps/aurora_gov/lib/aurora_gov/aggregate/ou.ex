@@ -1,5 +1,15 @@
 defmodule AuroraGov.Aggregate.OU do
-  defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation, :ou_roles]
+  defstruct [
+    :ou_id,
+    :ou_name,
+    :ou_goal,
+    :ou_description,
+    :ou_status,
+    :ou_membership,
+    :ou_power,
+    :ou_power_delegation,
+    :ou_roles
+  ]
 
   defmodule Membership do
     defstruct [:membership_rank]
@@ -17,6 +27,8 @@ defmodule AuroraGov.Aggregate.OU do
 
   alias AuroraGov.Event.{
     OUCreated,
+    OURenamed,
+    OUGoalUpdated,
     MembershipStarted,
     MembershipPromoted,
     PowerUpdated,
@@ -30,14 +42,49 @@ defmodule AuroraGov.Aggregate.OU do
 
   # State mutators
 
-  def apply(_uo, %OUCreated{ou_id: ou_id}) do
+  def apply(
+        _ou,
+        %OUCreated{
+          ou_id: ou_id,
+          ou_name: ou_name,
+          ou_goal: ou_goal,
+          ou_description: ou_description
+        }
+      ) do
     %OU{
       ou_id: ou_id,
+      ou_name: ou_name,
+      ou_goal: ou_goal,
+      ou_description: ou_description,
       ou_status: :active,
       ou_membership: %{},
       ou_power: %{},
       ou_power_delegation: %{},
       ou_roles: %{}
+    }
+  end
+
+  def apply(
+        %OU{} = ou,
+        %OURenamed{
+          ou_name: ou_name
+        }
+      ) do
+    %OU{
+      ou
+      | ou_name: ou_name
+    }
+  end
+
+  def apply(
+        %OU{} = ou,
+        %OUGoalUpdated{
+          ou_goal: ou_goal
+        }
+      ) do
+    %OU{
+      ou
+      | ou_goal: ou_goal
     }
   end
 

@@ -4,6 +4,8 @@ defmodule AuroraGov.Router do
   alias AuroraGov.Command.{
     RegisterPerson,
     CreateOU,
+    RenameOU,
+    UpdateOUGoal,
     StartMembership,
     UpdatePower,
     PromoteMembership,
@@ -22,6 +24,8 @@ defmodule AuroraGov.Router do
   alias AuroraGov.CommandHandler.{
     RegisterPersonHandler,
     CreateOUHandler,
+    RenameOUHandler,
+    UpdateOUGoalHandler,
     StartMembershipHandler,
     UpdatePowerHandler,
     PromoteMembershipHandler,
@@ -41,22 +45,19 @@ defmodule AuroraGov.Router do
 
   dispatch(RegisterPerson, to: RegisterPersonHandler, aggregate: Person, identity: :person_id)
   dispatch(CreateOU, to: CreateOUHandler, aggregate: OU, identity: :ou_id)
+  dispatch(RenameOU, to: RenameOUHandler, aggregate: OU, identity: :ou_id)
+  dispatch(UpdateOUGoal, to: UpdateOUGoalHandler, aggregate: OU, identity: :ou_id)
   dispatch(StartMembership, to: StartMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(PromoteMembership, to: PromoteMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(UpdatePower, to: UpdatePowerHandler, aggregate: OU, identity: :ou_id)
-  dispatch(ActivatePowerDelegation, to: ActivatePowerDelegationHandler, aggregate: OU, identity: :ou_id)
-  dispatch(DeactivatePowerDelegation, to: DeactivatePowerDelegationHandler, aggregate: OU, identity: :ou_id)
+  dispatch(ActivatePowerDelegation, to: ActivatePowerDelegationHandler, aggregate: OU,identity: :ou_id)
+  dispatch(DeactivatePowerDelegation,to: DeactivatePowerDelegationHandler,aggregate: OU,identity: :ou_id)
   dispatch(CreateRole, to: CreateRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(AssignRole, to: AssignRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(UnassignRole, to: UnassignRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(ArchiveRole, to: ArchiveRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(CreateProposal, to: CreateProposalHandler, aggregate: Proposal, identity: :proposal_id)
-
-  dispatch(ApplyProposalVote,
-    to: ApplyProposalVoteHandler,
-    aggregate: Proposal,
-    identity: :proposal_id
-  )
+  dispatch(ApplyProposalVote,to: ApplyProposalVoteHandler,aggregate: Proposal, identity: :proposal_id)
 
   dispatch([ExecuteProposal, ConsumeProposal],
     to: AuroraGov.Aggregate.Proposal,
