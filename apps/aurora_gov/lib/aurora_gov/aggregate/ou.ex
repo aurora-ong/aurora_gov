@@ -95,30 +95,6 @@ end
         )
   }
 end
-    }
-  end
-
-  def apply(
-      %OU{} = ou,
-      %MembershipExpelled{
-        person_id: person_id
-      }
-    ) do
-  %OU{
-    ou
-    | ou_membership:
-        Map.update!(
-          ou.ou_membership,
-          person_id,
-          fn %Membership{} = membership ->
-            %Membership{
-              membership
-              | membership_status: :expelled
-            }
-          end
-        )
-  }
-end
 
   def apply(%OU{} = ou, %PowerUpdated{
         person_id: person_id,

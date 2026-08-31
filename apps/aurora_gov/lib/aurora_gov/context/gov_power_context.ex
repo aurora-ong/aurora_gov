@@ -9,6 +9,7 @@ defmodule AuroraGov.Context.GovPowerContext do
     Elixir.AuroraGov.Command.CreateOU,
     Elixir.AuroraGov.Command.PromoteMembership,
     Elixir.AuroraGov.Command.DemoteMembership,
+    Elixir.AuroraGov.Command.ExpelMembership,
     Elixir.AuroraGov.Command.CreateRole,
     Elixir.AuroraGov.Command.AssignRole,
     Elixir.AuroraGov.Command.UnassignRole,
