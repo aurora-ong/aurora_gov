@@ -17,6 +17,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(:delegated_votes_count, 0)
       |> assign(:ou_start_name, "")
       |> assign(:ou_end_name, "")
+      |> assign(:expel_affected_memberships, [])
 
     {:ok, socket}
   end
@@ -225,6 +226,49 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       phx-target={@myself}
       class="w-full space-y-8"
     >
+      <div
+  :if={
+    @proposal_data.proposal_power_id == "org.membership.expel" &&
+      @expel_affected_memberships != []
+  }
+  class="bg-amber-50 border border-amber-200 rounded-xl p-5"
+>
+  <div class="flex gap-3 items-start">
+    <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xl mt-1"></i>
+
+    <div class="space-y-3">
+      <div>
+        <h3 class="font-semibold text-amber-900">
+          Advertencia sobre la expulsión
+        </h3>
+
+        <p class="text-sm text-amber-800 mt-1">
+          Si esta propuesta es aprobada, el miembro será expulsado de la unidad seleccionada
+          y de todas sus subunidades descendientes en las que mantenga una membresía activa.
+        </p>
+      </div>
+
+      <div>
+        <p class="text-sm font-semibold text-amber-900">
+          Unidades afectadas:
+        </p>
+
+        <ul class="mt-2 space-y-1">
+          <li
+            :for={membership <- @expel_affected_memberships}
+            class="text-sm text-amber-800 flex items-center gap-2"
+          >
+            <i class="fa-solid fa-building text-xs"></i>
+
+            <span>
+              {membership.ou.ou_name}
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
       <.input field={@step_2_form[:proposal_title]} type="text" label="Título propuesta" />
       <.input
         field={@step_2_form[:proposal_description]}
@@ -481,11 +525,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> AuroraGov.Context.GovPowerContext.get_gov_power!()
       |> then(& &1.module)
 
-    proposal_context = %{
-      origin_ou_id: socket.assigns.app_context.current_ou_id,
-      end_ou_id: socket.assigns.app_context.current_ou_id,
-      current_person_id: socket.assigns.app_context.current_person.person_id
-    }
+ proposal_context = %{
+  origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
+  end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
+  current_person_id: socket.assigns.app_context.current_person.person_id
+}
 
     power_changeset =
       power_params
@@ -507,10 +551,10 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> then(& &1.module)
 
     proposal_context = %{
-      origin_ou_id: socket.assigns.app_context.current_ou_id,
-      end_ou_id: socket.assigns.app_context.current_ou_id,
-      current_person_id: socket.assigns.app_context.current_person.person_id
-    }
+  origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
+  end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
+  current_person_id: socket.assigns.app_context.current_person.person_id
+}
 
     power_changeset =
       power_params
@@ -521,6 +565,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       if power_changeset.valid? do
         socket
         |> assign(power_data: power_changeset.changes)
+        |> assign_expel_affected_memberships(power_changeset)
         |> assign_new(:step_2_form, fn ->
           form_proposal_params = socket.assigns[:proposal_params] || %{}
 
@@ -675,4 +720,21 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         put_flash(socket, :error, "Error al crear la propuesta. Intenta nuevamente.")
     end
   end
+
+  defp assign_expel_affected_memberships(socket, power_changeset) do
+  if socket.assigns.proposal_data.proposal_power_id == "org.membership.expel" do
+    person_id = Ecto.Changeset.get_field(power_changeset, :person_id)
+    ou_id = socket.assigns.proposal_data.proposal_ou_end
+
+    memberships =
+      AuroraGov.Context.MembershipContext.list_active_memberships_in_ou_subtree(
+        ou_id,
+        person_id
+      )
+
+    assign(socket, :expel_affected_memberships, memberships)
+  else
+    assign(socket, :expel_affected_memberships, [])
+  end
+end
 end

@@ -2,8 +2,8 @@ defmodule AuroraGov.Aggregate.OU do
   defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation, :ou_roles]
 
   defmodule Membership do
-    defstruct [:membership_rank]
-  end
+  defstruct [:membership_rank, :membership_status]
+end
 
   defmodule Power do
     defstruct [:membership_id, :power_id, :power_value, :power_updated_at]
@@ -20,6 +20,7 @@ defmodule AuroraGov.Aggregate.OU do
     MembershipStarted,
     MembershipPromoted,
     MembershipDemoted,
+    MembershipExpelled,
     PowerUpdated,
     PowerDelegationActivated,
     PowerDelegationDeactivated,
@@ -47,7 +48,8 @@ defmodule AuroraGov.Aggregate.OU do
       ou
       | ou_membership:
           Map.put(ou.ou_membership, person_id, %Membership{
-            membership_rank: "junior"
+            membership_rank: "junior",
+            membership_status: :active
           })
     }
   end
@@ -88,6 +90,30 @@ defmodule AuroraGov.Aggregate.OU do
             %Membership{
               membership
               | membership_rank: membership_rank
+            }
+          end
+        )
+  }
+end
+    }
+  end
+
+  def apply(
+      %OU{} = ou,
+      %MembershipExpelled{
+        person_id: person_id
+      }
+    ) do
+  %OU{
+    ou
+    | ou_membership:
+        Map.update!(
+          ou.ou_membership,
+          person_id,
+          fn %Membership{} = membership ->
+            %Membership{
+              membership
+              | membership_status: :expelled
             }
           end
         )

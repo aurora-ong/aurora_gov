@@ -37,4 +37,21 @@ defmodule AuroraGov.Context.MembershipContext do
     query = from(m in Membership, where: m.ou_id == ^ou_id and m.person_id == ^person_id)
     Repo.one(query)
   end
+
+
+  def list_active_memberships_in_ou_subtree(ou_id, person_id) do
+  subtree_pattern = "#{ou_id}.%"
+
+  Membership
+  |> where([m], m.person_id == ^person_id)
+  |> where([m], m.membership_status == :active)
+  |> where(
+    [m],
+    m.ou_id == ^ou_id or like(m.ou_id, ^subtree_pattern)
+  )
+  |> join(:left, [m], ou in assoc(m, :ou))
+  |> preload([m, ou], ou: ou)
+  |> order_by([m], asc: m.ou_id)
+  |> Repo.all()
+end
 end
