@@ -82,11 +82,11 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   end
 
   @impl true
-  def handle_async(:load_initial, {:ok, {blocks, page, has_more}}, socket) do
+  def handle_async(:load_initial, {:ok, {blocks, page, _has_more}}, socket) do
     ctx = %Context{
       activity_list: blocks,
       page: page,
-      has_more: has_more,
+      has_more: false,
       loading_more: false
     }
 
@@ -116,7 +116,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col h-full ">
       <.async_result :let={context} assign={@context}>
         <:loading>
           <div class="flex justify-center p-8"><.loading_spinner size="double_large" /></div>
@@ -131,7 +131,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
           </div>
         </:failed>
 
-        <h3 class="text-2xl font-semibold text-blue-700 mb-4 px-1 flex flex-row justify-between items-center">
+        <h3 class="text-xl font-semibold text-black mb-4 px-1 flex flex-row justify-between items-center">
           Última actividad
         </h3>
 
