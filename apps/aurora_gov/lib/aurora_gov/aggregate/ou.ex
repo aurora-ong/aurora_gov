@@ -136,6 +136,28 @@ end
     %OU{ou | ou_power: updated_power_map}
   end
 
+  def apply(
+      %OU{} = ou,
+      %MembershipExpelled{
+        person_id: person_id
+      }
+    ) do
+  %OU{
+    ou
+    | ou_membership:
+        Map.update!(
+          ou.ou_membership,
+          person_id,
+          fn %Membership{} = membership ->
+            %Membership{
+              membership
+              | membership_status: :expelled
+            }
+          end
+        )
+  }
+end
+
   def apply(%OU{} = ou, %PowerDelegationActivated{
         person_id: person_id,
         power_id: power_id
