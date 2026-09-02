@@ -32,6 +32,7 @@ defmodule AuroraGov.Web.Live.Panel.Header do
 
         <div class="flex flex-row gap-3 items-center justify-center h-full">
           <button
+            :if={@app_context.can_participate?}
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@ou.ou_id}
             class="text-lg primary outlined"

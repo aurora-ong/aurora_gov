@@ -1,8 +1,11 @@
 defmodule AuroraGov.Web.Live.Panel do
   use AuroraGov.Web, :live_view
 
+
+  alias AuroraGov.Context.MembershipContext
+
   defmodule AppContext do
-    defstruct [:current_ou_id, :current_person, :current_module]
+    defstruct [:current_ou_id, :current_person, :current_module, can_participate?: false]
   end
 
   defmodule AppView do
@@ -34,27 +37,44 @@ defmodule AuroraGov.Web.Live.Panel do
   end
 
   @impl true
-  def handle_params(params, _uri, socket) do
-    current_ou_id = get_current_ou_id(params)
-    current_module = get_module_from_action(socket.assigns.live_action, params)
+def handle_params(params, _uri, socket) do
+  current_ou_id = get_current_ou_id(params)
+  current_module = get_module_from_action(socket.assigns.live_action, params)
 
-    socket =
-      if current_ou_id != nil do
-        socket
-        |> assign(:app_modal, nil)
-        |> assign(:app_context, %{
-          socket.assigns.app_context
-          | current_module: current_module,
-            current_ou_id: current_ou_id
-        })
-        |> handle_deep_linking(socket.assigns.live_action, params)
-      else
-        socket
-        |> push_patch(to: "/install")
-      end
+  socket =
+    if current_ou_id != nil do
+      can_participate? =
+        active_member?(
+          current_ou_id,
+          socket.assigns.app_context.current_person
+        )
 
-    {:noreply, socket}
-  end
+      socket
+      |> assign(:app_modal, nil)
+      |> assign(:app_context, %{
+        socket.assigns.app_context
+        | current_module: current_module,
+          current_ou_id: current_ou_id,
+          can_participate?: can_participate?
+      })
+      |> handle_deep_linking(socket.assigns.live_action, params)
+    else
+      socket
+      |> push_patch(to: "/install")
+    end
+
+  {:noreply, socket}
+end
+# helper para calcular el estado del miembro, usado para bloqueo de funcionalidades de miembros expulsados
+defp active_member?(
+       ou_id,
+       %{person_id: person_id}
+     )
+     when is_binary(ou_id) and is_binary(person_id) do
+  MembershipContext.active_member?(ou_id, person_id)
+end
+
+defp active_member?(_ou_id, _person), do: false
 
   # Helper para normalizar el nombre del módulo
   defp get_module_from_action(:members_show, _), do: "members"
@@ -92,13 +112,46 @@ defmodule AuroraGov.Web.Live.Panel do
     end
   end
 
-  @impl true
-  def handle_info({:projector_update, event}, socket) do
-    IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
-    socket = AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
 
-    {:noreply, socket}
+ @impl true
+def handle_info({:projector_update, event}, socket) do
+  IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
+
+  socket =
+    socket
+    |> maybe_update_participation(event)
+    |> then(
+      &AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(
+        event,
+        &1
+      )
+    )
+
+  {:noreply, socket}
+end
+
+# actualizar en tiempo real el estado de un miembro expulsado
+defp maybe_update_participation(
+       socket,
+       {:membership_expelled, membership}
+     ) do
+  app_context = socket.assigns.app_context
+  current_person = app_context.current_person
+
+  if current_person != nil and
+       membership.person_id == current_person.person_id and
+       membership.ou_id == app_context.current_ou_id do
+    assign(
+      socket,
+      :app_context,
+      %{app_context | can_participate?: false}
+    )
+  else
+    socket
   end
+end
+
+defp maybe_update_participation(socket, _event), do: socket
 
   @impl true
   def handle_info({:open, view_id, %AppView{} = app_view}, socket) do
@@ -158,6 +211,29 @@ defmodule AuroraGov.Web.Live.Panel do
       {:noreply, socket}
     end
   end
+
+  # clausula para evitar abrir modal a miembro expelled
+
+  @impl true
+def handle_event(
+      "open_proposal_create_modal",
+      _params,
+      %{
+        assigns: %{
+          app_context: %AppContext{
+            can_participate?: false
+          }
+        }
+      } = socket
+    ) do
+  {:noreply,
+   put_flash(
+     socket,
+     :error,
+     "No podés crear propuestas porque no sos miembro activo de esta organización."
+   )}
+end
+
 
   @impl true
   def handle_event(

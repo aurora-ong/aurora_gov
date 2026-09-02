@@ -135,6 +135,7 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
         </div>
         <div class="flex flex-row gap-3">
           <button
+            :if={@app_context.can_participate?}
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
@@ -206,7 +207,7 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
           </:col>
 
           <:action :let={role}>
-            <%= if role.status == "active" do %>
+            <%= if role.status == "active" && @app_context.can_participate? do %>
               <button
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}

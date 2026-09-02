@@ -181,6 +181,7 @@ require Logger
           </form>
 
           <button
+            :if={@app_context.can_participate?}
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}

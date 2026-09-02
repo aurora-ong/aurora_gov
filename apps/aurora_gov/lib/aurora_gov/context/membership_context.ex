@@ -54,4 +54,18 @@ defmodule AuroraGov.Context.MembershipContext do
   |> order_by([m], asc: m.ou_id)
   |> Repo.all()
 end
+
+# funcion para detectar si un miembro esta activo true, expelled false
+
+def active_member?(ou_id, person_id)
+    when is_binary(ou_id) and is_binary(person_id) do
+  Membership
+  |> where(
+    [membership],
+    membership.ou_id == ^ou_id and
+      membership.person_id == ^person_id and
+      membership.membership_status == :active
+  )
+  |> Repo.exists?()
+end
 end
