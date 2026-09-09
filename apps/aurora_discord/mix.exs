@@ -17,16 +17,25 @@ defmodule AuroraDiscord.MixProject do
 
   # Run "mix help compile.app" to learn about applications.
   def application do
-    [
-      extra_applications: [:logger],
-      mod: {AuroraDiscord.Application, []}
-    ]
-  end
+  [
+    extra_applications: [
+      :logger,
+      :certifi,
+      :gun,
+      :inets,
+      :jason,
+      :mime
+    ],
+    included_applications: [:nostrum],
+    mod: {AuroraDiscord.Application, []}
+  ]
+end
 
   # Run "mix help deps" to learn about dependencies.
-  defp deps do
-    [
-      {:aurora_gov, in_umbrella: true}
-    ]
-  end
+ defp deps do
+  [
+    {:aurora_gov, in_umbrella: true},
+    {:nostrum, "~> 0.10.4", runtime: false}
+  ]
+end
 end
