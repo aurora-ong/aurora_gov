@@ -12,10 +12,14 @@ defmodule AuroraDiscord.Consumer do
 
   @impl true
   def handle_event({:READY, ready, _ws_state}) do
+
+
     Logger.info(
       "Discord bot conectado como #{ready.user.username} " <>
         "(#{ready.user.id})"
     )
+
+     AuroraDiscord.ChannelSynchronizer.sync()
 
     :ok
   end

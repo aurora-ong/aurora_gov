@@ -6,14 +6,16 @@ defmodule AuroraDiscord.Application do
   @impl true
   def start(_type, _args) do
     children =
-      if Application.get_env(:aurora_discord, :enabled, false) do
-        [
-          Nostrum.Application,
-          AuroraDiscord.Consumer
-        ]
-      else
-        []
-      end
+  if Application.get_env(:aurora_discord, :enabled, false) do
+    [
+      AuroraDiscord.Repo,
+      Nostrum.Application,
+      AuroraDiscord.Consumer,
+      AuroraDiscord.ChannelSynchronizer
+    ]
+  else
+    []
+  end
 
     opts = [
       strategy: :one_for_one,

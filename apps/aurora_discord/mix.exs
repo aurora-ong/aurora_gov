@@ -35,7 +35,9 @@ end
  defp deps do
   [
     {:aurora_gov, in_umbrella: true},
-    {:nostrum, "~> 0.10.4", runtime: false}
+    {:nostrum, "~> 0.10.4", runtime: false},
+    {:ecto_sql, "~> 3.10"},
+    {:postgrex, ">= 0.0.0"}
   ]
 end
 end

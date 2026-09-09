@@ -16,6 +16,10 @@ config :aurora_gov,
 
 config :flop, repo: AuroraGov.Projector.Repo
 
+
+config :aurora_discord,
+  ecto_repos: [AuroraDiscord.Repo]
+
 # Configures the mailer
 #
 # By default it uses the "Local" adapter which stores the emails

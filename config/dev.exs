@@ -23,6 +23,17 @@ config :aurora_gov, AuroraGov.Projector.Repo,
   show_sensitive_data_on_connection_error: true,
   pool_size: 10
 
+  # Configure Discord Integration Database
+config :aurora_discord, AuroraDiscord.Repo,
+  username: "postgres",
+  password: "aurora_gov",
+  hostname: "localhost",
+  database: "aurora_discord_dev",
+  stacktrace: true,
+  port: 4500,
+  show_sensitive_data_on_connection_error: true,
+  pool_size: 5
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #
