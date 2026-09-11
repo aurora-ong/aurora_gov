@@ -42,6 +42,21 @@ defmodule AuroraDiscord.ChannelSynchronizer do
     GenServer.cast(__MODULE__, :sync)
   end
 
+  @doc """
+Sincroniza una única OU con Discord.
+
+Se utiliza cuando AuroraGov publica un evento `OUCreated`,
+permitiendo crear el canal inmediatamente sin esperar
+una nueva sincronización completa del servidor.
+"""
+def sync_ou(%{ou_id: ou_id} = ou)
+    when is_binary(ou_id) do
+  GenServer.cast(
+    __MODULE__,
+    {:sync_ou, ou}
+  )
+end
+
   # ===========================================================================
   # SERVER
   # ===========================================================================
@@ -52,11 +67,31 @@ defmodule AuroraDiscord.ChannelSynchronizer do
   end
 
   @impl true
-  def handle_cast(:sync, state) do
-    synchronize_channels()
+def handle_cast(
+      {:sync_ou, ou},
+      state
+    ) do
+  with {:ok, guild_id_string} <- configured_guild_id(),
+       {:ok, guild_id} <- parse_snowflake(guild_id_string) do
+    Logger.info(
+      "#{__MODULE__}: sincronizando nueva OU #{ou.ou_id}"
+    )
 
-    {:noreply, state}
+    synchronize_ou(
+      guild_id,
+      guild_id_string,
+      ou
+    )
+  else
+    {:error, reason} ->
+      Logger.warning(
+        "#{__MODULE__}: no se pudo sincronizar OU #{ou.ou_id}: " <>
+          inspect(reason)
+      )
   end
+
+  {:noreply, state}
+end
 
   # ===========================================================================
   # SYNCHRONIZATION

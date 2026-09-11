@@ -11,7 +11,8 @@ defmodule AuroraDiscord.Application do
       AuroraDiscord.Repo,
       Nostrum.Application,
       AuroraDiscord.Consumer,
-      AuroraDiscord.ChannelSynchronizer
+      AuroraDiscord.ChannelSynchronizer,
+      AuroraDiscord.EventHandler.GovernanceNotifier
     ]
   else
     []
