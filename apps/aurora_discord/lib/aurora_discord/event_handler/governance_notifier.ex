@@ -28,6 +28,7 @@ defmodule AuroraDiscord.EventHandler.GovernanceNotifier do
 
   alias AuroraGov.Event.{
   OUCreated,
+  OURenamed,
   ProposalCreated
 }
 
@@ -124,6 +125,31 @@ def handle(
 
   Logger.info(
     "#{__MODULE__}: OUCreated #{ou_id} enviada al sincronizador de Discord"
+  )
+
+  :ok
+end
+
+
+# ===========================================================================
+# OU RENAMED
+# ===========================================================================
+
+@impl true
+def handle(
+      %OURenamed{
+        ou_id: ou_id,
+        ou_name: ou_name
+      },
+      _metadata
+    ) do
+  AuroraDiscord.ChannelSynchronizer.update_ou_metadata(%{
+    ou_id: ou_id,
+    ou_name: ou_name
+  })
+
+  Logger.info(
+    "#{__MODULE__}: OURenamed #{ou_id} enviada al sincronizador de Discord"
   )
 
   :ok

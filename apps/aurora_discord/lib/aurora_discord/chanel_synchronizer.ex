@@ -57,6 +57,21 @@ def sync_ou(%{ou_id: ou_id} = ou)
   )
 end
 
+
+@doc """
+Actualiza los metadatos del canal Discord asociado a una OU.
+
+Actualmente mantiene estable el nombre técnico del canal y actualiza
+su topic cuando cambia el nombre visible de la OU.
+"""
+def update_ou_metadata(%{ou_id: ou_id, ou_name: ou_name})
+    when is_binary(ou_id) and is_binary(ou_name) do
+  GenServer.cast(
+    __MODULE__,
+    {:update_ou_metadata, %{ou_id: ou_id, ou_name: ou_name}}
+  )
+end
+
   # ===========================================================================
   # SERVER
   # ===========================================================================
@@ -65,6 +80,13 @@ end
   def init(state) do
     {:ok, state}
   end
+
+  @impl true
+def handle_cast(:sync, state) do
+  synchronize_channels()
+
+  {:noreply, state}
+end
 
   @impl true
 def handle_cast(
@@ -86,6 +108,68 @@ def handle_cast(
     {:error, reason} ->
       Logger.warning(
         "#{__MODULE__}: no se pudo sincronizar OU #{ou.ou_id}: " <>
+          inspect(reason)
+      )
+  end
+
+  {:noreply, state}
+end
+
+@impl true
+def handle_cast(
+      {:update_ou_metadata, %{ou_id: ou_id, ou_name: ou_name}},
+      state
+    ) do
+  with {:ok, guild_id} <- configured_guild_id(),
+       binding when not is_nil(binding) <-
+         Integrations.get_channel_binding(guild_id, ou_id),
+       {:ok, channel_id} <- parse_snowflake(binding.channel_id) do
+    topic =
+      build_channel_topic(
+        ou_id,
+        ou_name
+      )
+
+    case Channel.modify(
+           channel_id,
+           topic: topic
+         ) do
+      {:ok, _channel} ->
+        Logger.info(
+          "#{__MODULE__}: topic actualizado para OU #{ou_id}"
+        )
+
+      {:error, %Nostrum.Error.ApiError{status_code: 404}} ->
+        Logger.warning(
+          "#{__MODULE__}: el canal asociado a #{ou_id} ya no existe; " <>
+            "se solicitará una nueva sincronización"
+        )
+
+        sync_ou(%{
+          ou_id: ou_id,
+          ou_name: ou_name
+        })
+
+      {:error, reason} ->
+        Logger.warning(
+          "#{__MODULE__}: no se pudo actualizar el canal de #{ou_id}: " <>
+            inspect(reason)
+        )
+    end
+  else
+    nil ->
+      Logger.warning(
+        "#{__MODULE__}: no existe binding Discord para #{ou_id}"
+      )
+
+      sync_ou(%{
+        ou_id: ou_id,
+        ou_name: ou_name
+      })
+
+    {:error, reason} ->
+      Logger.warning(
+        "#{__MODULE__}: no se pudo actualizar OU #{ou_id}: " <>
           inspect(reason)
       )
   end
@@ -315,8 +399,10 @@ end
          ou
        ) do
     topic =
-      "Canal de la unidad #{safe_value(ou.ou_name)} " <>
-        "(#{ou.ou_id})"
+  build_channel_topic(
+    ou.ou_id,
+    ou.ou_name
+  )
 
     Channel.create(
       guild_id,
@@ -353,6 +439,11 @@ end
         "#{String.slice(base_name, 0, 90)}-#{suffix}"
     end
   end
+
+  defp build_channel_topic(ou_id, ou_name) do
+  "Canal de la unidad #{safe_value(ou_name)} (#{ou_id})"
+  |> String.slice(0, 1024)
+end
 
   # ===========================================================================
   # CONFIGURATION
