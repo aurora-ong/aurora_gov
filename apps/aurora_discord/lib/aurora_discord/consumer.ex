@@ -12,10 +12,34 @@ defmodule AuroraDiscord.Consumer do
 
   alias AuroraDiscord.CommandRegistry
 
-  alias AuroraDiscord.Commands.Proposals
+  alias AuroraDiscord.Commands.{
+  Proposal,
+  Proposals
+}
 
 alias Nostrum.Struct.Interaction,
   as: DiscordInteraction
+
+
+@impl true
+def handle_event(
+      {
+        :INTERACTION_CREATE,
+        %DiscordInteraction{
+          type: 3,
+          data: %{
+            custom_id: <<"proposal_detail:", proposal_id::binary>>
+          }
+        } = interaction,
+        _ws_state
+      }
+    )
+    when proposal_id != "" do
+  Proposal.handle_button(
+    interaction,
+    proposal_id
+  )
+end
 
  @impl true
 def handle_event({:READY, ready, _ws_state}) do
