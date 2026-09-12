@@ -14,6 +14,40 @@ defmodule AuroraDiscord.Integrations do
 
   alias AuroraDiscord.Integrations.DiscordChannelBinding
 
+
+  @doc """
+Obtiene el binding activo correspondiente a un canal Discord.
+
+Permite resolver:
+
+Discord channel_id -> Aurora ou_id
+"""
+def get_channel_binding_by_channel_id(
+      guild_id,
+      channel_id
+    )
+    when is_binary(guild_id) and is_binary(channel_id) do
+  DiscordChannelBinding
+  |> where(
+    [binding],
+    binding.guild_id == ^guild_id and
+      binding.channel_id == ^channel_id and
+      binding.enabled == true
+  )
+  |> Repo.one()
+end
+
+def get_channel_binding_by_channel_id(
+      guild_id,
+      channel_id
+    )
+    when is_binary(guild_id) and is_integer(channel_id) do
+  get_channel_binding_by_channel_id(
+    guild_id,
+    Integer.to_string(channel_id)
+  )
+end
+
   @doc """
   Retorna todos los bindings correspondientes a un servidor Discord.
   """

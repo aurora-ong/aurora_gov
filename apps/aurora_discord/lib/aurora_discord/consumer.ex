@@ -10,19 +10,39 @@ defmodule AuroraDiscord.Consumer do
 
   require Logger
 
-  @impl true
-  def handle_event({:READY, ready, _ws_state}) do
+  alias AuroraDiscord.CommandRegistry
 
+  alias AuroraDiscord.Commands.Proposals
 
-    Logger.info(
-      "Discord bot conectado como #{ready.user.username} " <>
-        "(#{ready.user.id})"
-    )
+alias Nostrum.Struct.Interaction,
+  as: DiscordInteraction
 
-     AuroraDiscord.ChannelSynchronizer.sync()
+ @impl true
+def handle_event({:READY, ready, _ws_state}) do
+  Logger.info(
+    "Discord bot conectado como #{ready.user.username} " <>
+      "(#{ready.user.id})"
+  )
 
-    :ok
-  end
+  AuroraDiscord.ChannelSynchronizer.sync()
+
+  CommandRegistry.sync_guild_commands()
+
+  :ok
+end
+
+@impl true
+def handle_event(
+      {
+        :INTERACTION_CREATE,
+        %DiscordInteraction{
+          data: %{name: "propuestas"}
+        } = interaction,
+        _ws_state
+      }
+    ) do
+  Proposals.handle(interaction)
+end
 
   def handle_event(_event), do: :ok
 end
