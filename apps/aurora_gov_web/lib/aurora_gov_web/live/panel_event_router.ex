@@ -2,6 +2,46 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   require Logger
   import Phoenix.LiveView
 
+  def handle_event({:ou_renamed, ou}, socket) do
+    current_ou_id = socket.assigns.app_context.current_ou_id
+
+    if current_ou_id == ou.ou_id do
+      send_update(
+        AuroraGov.Web.Live.Panel.Header,
+        id: "header",
+        app_context: socket.assigns.app_context
+      )
+
+      socket
+      |> put_flash(
+        :info,
+        "La organización fue renombrada a #{ou.ou_name}."
+      )
+    else
+      socket
+    end
+  end
+
+  def handle_event({:ou_goal_updated, ou}, socket) do
+    current_ou_id = socket.assigns.app_context.current_ou_id
+
+    if current_ou_id == ou.ou_id do
+      send_update(
+        AuroraGov.Web.Live.Panel.Home,
+        id: "panel-home",
+        app_context: socket.assigns.app_context
+      )
+
+      socket
+      |> put_flash(
+        :info,
+        "Se actualizó el objetivo de #{ou.ou_name}."
+      )
+    else
+      socket
+    end
+  end
+
   def handle_event({:membership_started, %{person: person, ou: ou} = membership}, socket) do
     send_update(AuroraGov.Web.Live.Panel.Members,
       id: "panel-members",

@@ -26,6 +26,8 @@ defmodule AuroraGov.Aggregate.OU do
     OURoleAssigned,
     OURoleUnassigned,
     OURoleArchived,
+    OURenamed,
+    OUGoalUpdated,
     ProjectCreated,
     ProjectUpdated,
     ProjectArchived,
@@ -41,7 +43,12 @@ defmodule AuroraGov.Aggregate.OU do
 
   # State mutators
 
-  def apply(_uo, %OUCreated{ou_id: ou_id}) do
+  def apply(
+        _ou,
+        %OUCreated{
+          ou_id: ou_id
+        }
+      ) do
     %OU{
       ou_id: ou_id,
       ou_status: :active,
@@ -391,5 +398,13 @@ defmodule AuroraGov.Aggregate.OU do
     power_delegation
     |> Map.get(power_id, MapSet.new())
     |> MapSet.to_list()
+  end
+
+  def apply(%OU{} = ou, %OURenamed{}) do
+    ou
+  end
+
+  def apply(%OU{} = ou, %OUGoalUpdated{}) do
+    ou
   end
 end
