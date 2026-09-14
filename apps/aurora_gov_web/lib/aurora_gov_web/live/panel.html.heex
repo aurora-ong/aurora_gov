@@ -1,15 +1,14 @@
 <.flash_group flash={@flash} />
-<div class="w-1/6 h-full flex flex-col py-5 px-5">
-  <div class="py-5 flex flex-col justify-center items-center">
+<div class="w-64 shrink-0 self-start sticky top-0 h-screen bg-white border-r border-gray-200 flex flex-col px-4 py-5">
+  <div class="flex items-center gap-3 px-2 mb-6">
     <img
       src={~p"/images/brand/logotipo_fondo.webp"}
       alt="Aurora Logo"
-      class="w-16 mb-5 rounded-full"
+      class="w-10 h-10 rounded-full"
     />
-    <h1 class="text-4xl font-semibold text-center">Aurora<b>Gov</b></h1>
+    <h1 class="text-xl font-semibold">Aurora<b>Gov</b></h1>
   </div>
-   <hr class="border-gray-100 border-0.5 my-2 w-5/6" />
-  <div id="module-menu" class="overflow-auto">
+  <div id="module-menu">
     <ul class="gap-y-2 flex flex-col text-lg">
       <li class={"menu-item " <>
         if @app_context.current_module == "home",
@@ -48,6 +47,7 @@
       }>
         <.link patch={~p"/app/members?context=#{@app_context.current_ou_id}"} replace>
           <i class="fa-solid fa-users-between-lines"></i> Miembros
+          <span class="ml-auto text-xs font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-full">{AuroraGov.Context.MembershipContext.count_active_memberships_by_ou(@app_context.current_ou_id)}</span>
         </.link>
       </li>
 
@@ -78,6 +78,7 @@
       }>
         <.link patch={~p"/app/proposals?context=#{@app_context.current_ou_id}"} replace>
           <i class="fa-solid fa-hand"></i> Propuestas
+          <span class="ml-auto text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">{AuroraGov.Context.ProposalContext.count_active_proposals_by_ou(@app_context.current_ou_id)}</span>
         </.link>
       </li>
       
@@ -98,6 +99,9 @@
       }>
         <.link patch={~p"/app/projects?context=#{@app_context.current_ou_id}"} replace>
           <i class="fa-solid fa-briefcase"></i> Proyectos
+          <span class="ml-auto text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
+              {AuroraGov.Context.ProjectContext.count_active_tasks_by_ou(@app_context.current_ou_id)}
+            </span>
         </.link>
       </li>
       
@@ -134,9 +138,9 @@
   </div>
 </div>
 
-<div class="w-5/6 h-full flex px-5 py-5 gap-2 flex-col">
-  <div class="flex flex-row justify-center items-center">
-    <section class="grow flex flex-col py-5 px-0 h-fit">
+<div class="flex-1 min-w-0 flex flex-col px-6 pb-6 gap-6">
+  <div class="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-gray-200 -mx-6 px-6 py-3 flex flex-row items-center gap-4">
+    <section class="grow flex flex-col px-0">
       <form class="w-5/6">
         <label
           for="default-search"
@@ -167,21 +171,14 @@
           <input
             type="search"
             id="default-search"
-            class="block w-full p-4 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-aurora_orange focus:border-aurora_orange"
-            placeholder="Buscar aquí personas, organizaciones, y otros"
-            required
+            class="block w-full p-2.5 ps-10 text-sm text-gray-700 border border-transparent rounded-xl bg-gray-100 focus:bg-white focus:ring-0 focus:border-aurora_orange"
+            placeholder="Buscar personas, organizaciones y otros"
           />
-          <button
-            type="submit"
-            class="text-white absolute end-2.5 bottom-2.5 bg-aurora_orange hover:bg-aurora_orange/100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 "
-          >
-            Buscar
-          </button>
         </div>
       </form>
     </section>
     
-    <section id="panel-menu" class="w-auto flex flex-row items-center py-5 px-5 h-fit gap-3">
+    <section id="panel-menu" class="flex flex-row items-center gap-3">
       <%!-- <a href="#" class="iconbutton">
         <i class="fa-solid fa-list-check"></i>
       </a> --%>
@@ -197,7 +194,7 @@
       </a>
       
       <%= if @current_person do %>
-        <div class="bg-white flex-row flex gap-5 rounded-full px-10 py-2 border border-aurora_orange">
+        <div class="bg-white flex-row flex gap-3 rounded-full px-4 py-1.5 border border-gray-200">
           <div class="flex flex-col text-black justify-center items-start">
             <span class="font-bold">
               {@current_person.person_id}
@@ -227,8 +224,8 @@
     id="header"
     app_context={@app_context}
   />
-  <div class="flex flex-row gap-2 overflow-hidden h-full w-full">
-    <section class="card flex flex-col items-center bg-white shadow-lg rounded-lg overflow-y-auto flex-1">
+  <div class="flex flex-row gap-6 items-start w-full">
+    <section class=" flex flex-col items-center flex-1">
       <%= case @app_context.current_module do %>
         <% "home" -> %>
           <.live_component
@@ -283,7 +280,7 @@
     
     <section
       :if={@app_side_panel != nil}
-      class={"flex flex-col border-2 rounded-xl border-gray-200 overflow-y-auto relative " <> (@app_side_panel.view_options[:panel_size] || "w-4/12")}
+      class={"flex flex-col border rounded-lg border-gray-200 relative " <> (@app_side_panel.view_options[:panel_size] || "w-4/12")}
     >
      
       <.link
@@ -293,7 +290,7 @@
         <i class="fa-solid fa-xmark h-5 w-5"></i>
       </.link>
       
-      <div class="flex flex-col flex-1 w-full overflow-y-auto min-h-0 py-5 px-5">
+      <div class="flex flex-col flex-1 w-full py-5 px-5 bg-white rounded-lg shadow-sm border border-gray-200">
         <.live_component
           :if={@app_side_panel != nil}
           id={@app_side_panel.view_id}
