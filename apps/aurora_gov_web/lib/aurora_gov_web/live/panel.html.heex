@@ -99,6 +99,9 @@
       }>
         <.link patch={~p"/app/projects?context=#{@app_context.current_ou_id}"} replace>
           <i class="fa-solid fa-briefcase"></i> Proyectos
+          <span class="ml-auto text-xs font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
+              {AuroraGov.Context.ProjectContext.count_active_tasks_by_ou(@app_context.current_ou_id)}
+            </span>
         </.link>
       </li>
       
