@@ -267,4 +267,78 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
     </.progress>
     """
   end
+  @doc "Renders a task status badge"
+  def task_status_badge(assigns) do
+    {color_class, label} =
+      case assigns.status do
+        :backlog -> {"bg-gray-100 text-gray-700 border-gray-200", "Backlog (Sin Asignar)"}
+        :in_progress -> {"bg-amber-50 text-amber-700 border-amber-200", "En Progreso"}
+        :review -> {"bg-blue-50 text-blue-700 border-blue-200", "En Revisión"}
+        :completed -> {"bg-emerald-50 text-emerald-700 border-emerald-200", "Completada"}
+        :cancelled -> {"bg-red-50 text-red-700 border-red-200", "Anulada"}
+        _ -> {"bg-gray-50 text-gray-600 border-gray-200", to_string(assigns.status)}
+      end
+
+    assigns = assign(assigns, color_class: color_class, label: label)
+
+    ~H"""
+    <span class={["px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]", @color_class]}>
+      {@label}
+    </span>
+    """
+  end
+
+  @doc "Renders a project status badge"
+  def project_status_badge(assigns) do
+    {color_class, label} =
+      case assigns.status do
+        :active -> {"bg-emerald-50 text-emerald-700 border-emerald-200", "Activo"}
+        :archived -> {"bg-gray-100 text-gray-700 border-gray-200", "Archivado"}
+        :completed -> {"bg-blue-50 text-blue-700 border-blue-200", "Completado"}
+        _ -> {"bg-gray-50 text-gray-600 border-gray-200", to_string(assigns.status)}
+      end
+
+    assigns = assign(assigns, color_class: color_class, label: label)
+
+    ~H"""
+    <span class={["px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]", @color_class]}>
+      {@label}
+    </span>
+    """
+  end
+  @doc "Renders a task ID badge"
+  def task_id_badge(assigns) do
+    ~H"""
+    <span class="px-2 py-0.5 rounded border bg-gray-50 text-gray-500 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold">
+      <i class="fa-solid fa-square-check text-gray-400"></i> {@id}
+    </span>
+    """
+  end
+
+  @doc "Renders a project ID badge"
+  def project_id_badge(assigns) do
+    ~H"""
+    <span class="px-2 py-0.5 rounded border bg-gray-50 text-gray-500 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold">
+      <i class="fa-solid fa-folder text-gray-400"></i> {@id}
+    </span>
+    """
+  end
+
+  @doc "Renders an ledger ID badge"
+  def ledger_id_badge(assigns) do
+    ~H"""
+    <span class="px-2 py-0.5 rounded-full border bg-gray-100 text-gray-600 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold w-fit" title={@id}>
+      <i class="fa-solid fa-wallet text-gray-400"></i> {@id}
+    </span>
+    """
+  end
+
+  @doc "Renders a resource ID badge"
+  def resource_id_badge(assigns) do
+    ~H"""
+    <span class="px-2 py-0.5 rounded border bg-gray-50 text-gray-500 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold w-fit" title={@id}>
+      <i class="fa-solid fa-cube text-gray-400"></i> {@id}
+    </span>
+    """
+  end
 end

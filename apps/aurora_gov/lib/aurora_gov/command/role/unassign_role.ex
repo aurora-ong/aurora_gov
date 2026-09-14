@@ -16,13 +16,13 @@ defmodule AuroraGov.Command.UnassignRole do
       role_id: [
         command_type: :string,
         label: "ID del rol",
-        form_type: :text,
+        form_type: :role_search,
         source: :user
       ],
       person_id: [
         command_type: :string,
         label: "Persona",
-        form_type: :text,
+        form_type: :user_search,
         source: :user
       ]
     ]

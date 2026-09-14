@@ -16,7 +16,22 @@ defmodule AuroraGov.Router do
     CreateRole,
     AssignRole,
     UnassignRole,
-    ArchiveRole
+    ArchiveRole,
+    CreateProject,
+    UpdateProject,
+    ArchiveProject,
+    TransferProject,
+    CreateTask,
+    UpdateTask,
+    AssignTask,
+    CompleteTask,
+    AbandonTask,
+    CancelTask,
+    CreateResource,
+    UpdateResource,
+    CreateLedger,
+    RecordTransaction,
+    EvaluateTask
   }
 
   alias AuroraGov.CommandHandler.{
@@ -32,10 +47,11 @@ defmodule AuroraGov.Router do
     CreateRoleHandler,
     AssignRoleHandler,
     UnassignRoleHandler,
-    ArchiveRoleHandler
+    ArchiveRoleHandler,
+    ProjectHandler
   }
 
-  alias AuroraGov.Aggregate.{Person, OU, Proposal}
+  alias AuroraGov.Aggregate.{Person, OU, Proposal, Ledger}
 
   # middleware AuthorizeCommand TODO AÑADIR PARA VERIFICAR PODERES
 
@@ -50,6 +66,26 @@ defmodule AuroraGov.Router do
   dispatch(AssignRole, to: AssignRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(UnassignRole, to: UnassignRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(ArchiveRole, to: ArchiveRoleHandler, aggregate: OU, identity: :ou_id)
+
+  dispatch(
+    [
+      CreateProject,
+      UpdateProject,
+      ArchiveProject,
+      TransferProject,
+      CreateTask,
+      UpdateTask,
+      AssignTask,
+      CompleteTask,
+      AbandonTask,
+      CancelTask,
+      EvaluateTask
+    ],
+    to: ProjectHandler,
+    aggregate: OU,
+    identity: :ou_id
+  )
+
   dispatch(CreateProposal, to: CreateProposalHandler, aggregate: Proposal, identity: :proposal_id)
 
   dispatch(ApplyProposalVote,
@@ -62,5 +98,18 @@ defmodule AuroraGov.Router do
     to: AuroraGov.Aggregate.Proposal,
     identity: :proposal_id,
     lifespan: AuroraGov.Aggregate.Proposal.Lifespan
+  )
+
+  def global_ledger_identity(_cmd), do: "global_ledger"
+
+  dispatch(
+    [
+      CreateResource,
+    UpdateResource,
+    CreateLedger,
+      RecordTransaction
+    ],
+    to: Ledger,
+    identity: &__MODULE__.global_ledger_identity/1
   )
 end

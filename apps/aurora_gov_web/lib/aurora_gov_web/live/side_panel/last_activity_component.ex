@@ -16,7 +16,22 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     ProposalExecuted,
     ProposalConsumed,
     PowerDelegationActivated,
-    PowerDelegationDeactivated
+    PowerDelegationDeactivated,
+    ProjectCreated,
+    ProjectUpdated,
+    ProjectArchived,
+    ProjectTransferred,
+    TaskCreated,
+    TaskUpdated,
+    TaskAssigned,
+    TaskCompleted,
+    TaskAbandoned,
+    TaskCancelled,
+    TaskEvaluated,
+    ResourceCreated,
+    ResourceUpdated,
+    LedgerCreated,
+    TransactionRecorded
   }
 
   alias AuroraGov.Projector.Model.{Person, OU, Proposal}
@@ -299,6 +314,67 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
 
   defp render_description(%{data: %PersonRegistered{person_name: person_name}}) do
     "#{person_name} se ha registrado"
+  end
+
+
+  defp render_description(%{data: %ProjectCreated{name: name}}) do
+    "Proyecto '#{name}' ha sido creado."
+  end
+
+  defp render_description(%{data: %ProjectUpdated{name: name}}) do
+    "Proyecto '#{name}' actualizado."
+  end
+
+  defp render_description(%{data: %ProjectArchived{}}) do
+    "Proyecto archivado."
+  end
+
+  defp render_description(%{data: %ProjectTransferred{}}) do
+    "Proyecto transferido a otra unidad."
+  end
+
+  defp render_description(%{data: %TaskCreated{name: name}}) do
+    "Nueva tarea '#{name}' creada."
+  end
+
+  defp render_description(%{data: %TaskUpdated{name: name}}) do
+    "Tarea '#{name}' actualizada."
+  end
+
+  defp render_description(%{data: %TaskAssigned{}}) do
+    "Una tarea fue asignada a un miembro."
+  end
+
+  defp render_description(%{data: %TaskCompleted{}}) do
+    "Una tarea fue completada exitosamente."
+  end
+
+  defp render_description(%{data: %TaskAbandoned{}}) do
+    "Una tarea fue abandonada."
+  end
+
+  defp render_description(%{data: %TaskCancelled{}}) do
+    "Una tarea fue cancelada."
+  end
+
+  defp render_description(%{data: %TaskEvaluated{}}) do
+    "Una tarea fue evaluada."
+  end
+
+  defp render_description(%{data: %ResourceCreated{name: name}}) do
+    "Nuevo recurso contable '#{name}' creado."
+  end
+
+  defp render_description(%{data: %ResourceUpdated{name: name}}) do
+    "Recurso '#{name}' actualizado."
+  end
+
+  defp render_description(%{data: %LedgerCreated{}}) do
+    "Se ha aperturado una nueva cuenta contable."
+  end
+
+  defp render_description(%{data: %TransactionRecorded{}}) do
+    "Transacción registrada en el libro mayor."
   end
 
   defp render_description(%{data: %{__struct__: _} = data}) do

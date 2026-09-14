@@ -9,10 +9,8 @@ defmodule AuroraGov.Projector do
 
   alias AuroraGov.Projector.PowerDelegationProjector
   alias AuroraGov.Event.PowerDelegationActivated
-  alias AuroraGov.Projector.PowerDelegationProjector
-  alias AuroraGov.Event.PowerDelegationActivated
   alias AuroraGov.Event.VoteEmited
-  alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector, OURoleProjector}
+  alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector, OURoleProjector, ProjectProjector, LedgerProjector}
   alias AuroraGov.Event.PowerUpdated
 
   alias AuroraGov.Event.{
@@ -27,7 +25,22 @@ defmodule AuroraGov.Projector do
     OURoleCreated,
     OURoleAssigned,
     OURoleUnassigned,
-    OURoleArchived
+    OURoleArchived,
+    ProjectCreated,
+    ProjectUpdated,
+    ProjectArchived,
+    ProjectTransferred,
+    TaskCreated,
+    TaskUpdated,
+    TaskAssigned,
+    TaskCompleted,
+    TaskAbandoned,
+    TaskCancelled,
+    TaskEvaluated,
+    ResourceCreated,
+    ResourceUpdated,
+    LedgerCreated,
+    TransactionRecorded
   }
 
   alias AuroraGov.Projector.Model.{Person, OU}
@@ -98,6 +111,23 @@ defmodule AuroraGov.Projector do
 
   project(%OURoleArchived{} = evt, metadata, &OURoleProjector.project(evt, metadata, &1))
 
+  project(%ProjectCreated{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%ProjectUpdated{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%ProjectArchived{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%ProjectTransferred{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%TaskCreated{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%TaskUpdated{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%TaskAssigned{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%TaskCompleted{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%TaskAbandoned{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%TaskCancelled{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+  project(%TaskEvaluated{} = evt, metadata, &ProjectProjector.project(evt, metadata, &1))
+
+  # Ledger
+  project(%ResourceCreated{} = evt, metadata, &LedgerProjector.project(evt, metadata, &1))
+  project(%ResourceUpdated{} = evt, metadata, &LedgerProjector.project(evt, metadata, &1))
+  project(%LedgerCreated{} = evt, metadata, &LedgerProjector.project(evt, metadata, &1))
+  project(%TransactionRecorded{} = evt, metadata, &LedgerProjector.project(evt, metadata, &1))
   @impl Commanded.Projections.Ecto
   def after_update(event, _metadata, %{projector_update: projector_update}) do
     Logger.debug("PROYECTOR: Notificando (projector_update) #{inspect(projector_update)} para evento #{inspect(event.__struct__)}")

@@ -250,11 +250,28 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                 </div>
 
                 <%= if context.proposal.proposal_power_data && map_size(context.proposal.proposal_power_data) > 0 do %>
-                  <div>
-                    <h3 class="font-semibold text-gray-900 mb-2">Datos del Poder</h3>
-                     <pre class="bg-gray-100 p-3 rounded text-xs overflow-x-auto">
-                        {Jason.encode!(context.proposal.proposal_power_data, pretty: true)}
-                      </pre>
+                  <div class="mt-6 border-t border-gray-100 py-4">
+                    <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                      <i class="fa-solid fa-database text-gray-400"></i> Datos del Poder
+                    </h3>
+                    <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                      <dl class="divide-y divide-gray-200">
+                        <%= for {key, value} <- context.proposal.proposal_power_data do %>
+                          <div class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-4 items-center">
+                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                              {String.replace(to_string(key), "_", " ")}
+                            </dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 wrap-break-word font-mono bg-white px-2 py-1.5 rounded border border-gray-100">
+                              <%= if is_map(value) or is_list(value) do %>
+                                {inspect(value)}
+                              <% else %>
+                                {to_string(value)}
+                              <% end %>
+                            </dd>
+                          </div>
+                        <% end %>
+                      </dl>
+                    </div>
                   </div>
                 <% end %>
               </div>

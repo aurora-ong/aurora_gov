@@ -17,7 +17,7 @@ defmodule AuroraGov.Command.StartMembership do
         command_type: :string,
         label: "Persona",
         description: "Identificador de la persona que iniciará su membresía",
-        form_type: :text,
+        form_type: :global_user_search,
         source: :user
       ]
     ]

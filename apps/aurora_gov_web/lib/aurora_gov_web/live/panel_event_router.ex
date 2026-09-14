@@ -144,6 +144,58 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     socket |> put_flash(:info, msg)
   end
 
+  def handle_event({type, data} = event, socket)
+      when type in [
+             :project_created,
+             :project_updated,
+             :project_archived,
+             :project_transferred,
+             :task_created,
+             :task_updated,
+             :task_assigned,
+             :task_completed,
+             :task_abandoned,
+             :task_cancelled,
+             :effort_registered
+           ] do
+    send_update(AuroraGov.Web.Live.Panel.Projects,
+      id: "panel-projects",
+      project_event: event
+    )
+
+    project_id = data.project_id
+    send_update(AuroraGov.Web.Live.Panel.Side.ProjectDetail,
+      id: "panel-project-#{project_id}",
+      update: event
+    )
+
+    msg =
+      case type do
+        :project_created -> "Proyecto '#{data.name}' creado."
+        :project_updated -> "Proyecto '#{data.name}' actualizado."
+        :project_archived -> "Proyecto archivado."
+        :project_transferred -> "Proyecto transferido."
+        :task_created -> "Tarea '#{data.name}' creada."
+        :task_updated -> "Tarea '#{data.name}' actualizada."
+        :task_assigned -> "Tarea asignada al participante."
+        :task_completed -> "Tarea marcada como completada."
+        :task_abandoned -> "Tarea abandonada y devuelta al backlog."
+        :task_cancelled -> "Tarea anulada."
+        :effort_registered -> "Esfuerzo registrado por '#{data.creator_id}'."
+      end
+
+    socket |> put_flash(:info, msg)
+  end
+
+  def handle_event({:resource_updated, resource}, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Resources,
+      id: "panel-resources",
+      resource_event: {:resource_updated, resource}
+    )
+
+    socket |> put_flash(:info, "Recurso '#{resource.name}' actualizado.")
+  end
+
   def handle_event({event, _data}, socket) do
     Logger.info("No se encontró ruta para #{event}")
     socket

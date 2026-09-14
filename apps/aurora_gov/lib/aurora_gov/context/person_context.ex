@@ -146,6 +146,12 @@ defmodule AuroraGov.Context.PersonContext do
   """
   def get_person!(id), do: Repo.get!(Person, id)
 
+  @doc """
+  Gets a single person.
+  Returns nil if the Person does not exist.
+  """
+  def get_person(id), do: Repo.get(Person, id)
+
   ## Session
 
   @doc """

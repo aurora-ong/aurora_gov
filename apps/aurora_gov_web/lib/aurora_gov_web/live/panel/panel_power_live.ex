@@ -98,7 +98,9 @@ defmodule AuroraGov.Web.Live.Panel.Power do
             %{label: "Todos", value: "all"},
             %{label: "Unidad", value: "ou"},
             %{label: "Membresía", value: "membership"},
-            %{label: "Roles", value: "role"}
+            %{label: "Roles", value: "role"},
+            %{label: "Trabajo", value: "work"},
+            %{label: "Recursos", value: "ledger"}
           ]}
           selected={@filter}
           on_select="update_filter"

@@ -52,10 +52,12 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
   def error({:error, reason}, _failed_command, failure_context) do
     Logger.warning("El comando falló con razón: #{inspect(reason)}")
 
+    safe_reason = if is_binary(reason), do: reason, else: inspect(reason)
+
     command = %AuroraGov.Command.ConsumeProposal{
       proposal_id: failure_context.process_manager_state.proposal_id,
       proposal_execution_result: :failed,
-      proposal_execution_error: reason
+      proposal_execution_error: safe_reason
     }
 
     {:continue, [command], %{}}
@@ -75,12 +77,25 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
          proposal_power_id: power_id,
          proposal_power_data: power_data
        }) do
+    stringified_data = stringify_keys(power_data)
+
     with %AuroraGov.GovPower{module: command_module} <- AuroraGov.Context.GovPowerContext.get_gov_power!(power_id),
-         %Ecto.Changeset{valid?: true} = changeset <- command_module.new(power_data),
+         %Ecto.Changeset{valid?: true} = changeset <- command_module.new(stringified_data),
          {:ok, proposal_command} <- Ecto.Changeset.apply_action(changeset, :register) do
       {:ok, proposal_command}
     else
       _ -> {:error, :invalid_power_data}
     end
   end
+
+  defp stringify_keys(map) when is_map(map) do
+    # Do not stringify structs like DateTime, only plain maps
+    if Map.has_key?(map, :__struct__) do
+      map
+    else
+      Map.new(map, fn {k, v} -> {to_string(k), stringify_keys(v)} end)
+    end
+  end
+  defp stringify_keys(list) when is_list(list), do: Enum.map(list, &stringify_keys/1)
+  defp stringify_keys(value), do: value
 end

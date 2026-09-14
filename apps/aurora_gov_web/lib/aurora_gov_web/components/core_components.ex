@@ -683,4 +683,39 @@ defmodule AuroraGov.Web.CoreComponents do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
 
+  @doc """
+  Formats a number or Decimal with thousands separators.
+  """
+  def format_number(nil), do: "0"
+  def format_number(number) when is_integer(number) or is_binary(number) do
+    number |> to_string() |> format_int()
+  end
+  def format_number(%Decimal{} = decimal) do
+    decimal
+    |> Decimal.to_string(:normal)
+    |> String.split(".")
+    |> case do
+      [int] -> format_int(int)
+      [int, "0"] -> format_int(int)
+      [int, frac] -> format_int(int) <> "," <> frac
+    end
+  end
+  def format_number(other), do: other |> to_string() |> format_int()
+
+  defp format_int(string) do
+    is_neg = String.starts_with?(string, "-")
+    str = if is_neg, do: String.slice(string, 1..-1//1), else: string
+    
+    formatted = 
+      str
+      |> String.reverse()
+      |> String.codepoints()
+      |> Enum.chunk_every(3)
+      |> Enum.map(&Enum.join/1)
+      |> Enum.join(".")
+      |> String.reverse()
+      
+    if is_neg, do: "-" <> formatted, else: formatted
+  end
+
 end

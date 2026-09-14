@@ -17,7 +17,7 @@ defmodule AuroraGov.Command.PromoteMembership do
         command_type: :string,
         label: "Identificador persona",
         description: "Identificador de la persona a promover",
-        form_type: :text,
+        form_type: :user_search,
         source: :user
       ]
     ]

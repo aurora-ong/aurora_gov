@@ -83,15 +83,16 @@ defmodule AuroraGov.Web.Live.Panel.Header do
             </span>
             <span class="text-sm text-gray-500 group-hover:text-gray-700">Propuestas activas</span>
           </.link>
-          <button
-            type="button"
+          <.link
+            patch={~p"/app/projects?context=#{@ou.ou_id}"}
+            replace
             class="group flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200 cursor-pointer"
           >
             <span class="text-xs font-bold text-orange-700 bg-orange-50 px-2 py-0.5 rounded-full border border-orange-100 group-hover:bg-orange-100 transition-colors">
-              0
+              {AuroraGov.Context.ProjectContext.count_active_tasks_by_ou(@ou.ou_id)}
             </span>
             <span class="text-sm text-gray-500 group-hover:text-gray-700">Tareas activas</span>
-          </button>
+          </.link>
         </div>
 
         <div
