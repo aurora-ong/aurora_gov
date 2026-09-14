@@ -2,6 +2,46 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   require Logger
   import Phoenix.LiveView
 
+  def handle_event({:ou_renamed, ou}, socket) do
+    current_ou_id = socket.assigns.app_context.current_ou_id
+
+    if current_ou_id == ou.ou_id do
+      send_update(
+        AuroraGov.Web.Live.Panel.Header,
+        id: "header",
+        app_context: socket.assigns.app_context
+      )
+
+      socket
+      |> put_flash(
+        :info,
+        "La organización fue renombrada a #{ou.ou_name}."
+      )
+    else
+      socket
+    end
+  end
+
+  def handle_event({:ou_goal_updated, ou}, socket) do
+    current_ou_id = socket.assigns.app_context.current_ou_id
+
+    if current_ou_id == ou.ou_id do
+      send_update(
+        AuroraGov.Web.Live.Panel.Home,
+        id: "panel-home",
+        app_context: socket.assigns.app_context
+      )
+
+      socket
+      |> put_flash(
+        :info,
+        "Se actualizó el objetivo de #{ou.ou_name}."
+      )
+    else
+      socket
+    end
+  end
+
   def handle_event({:membership_started, %{person: person, ou: ou} = membership}, socket) do
     send_update(AuroraGov.Web.Live.Panel.Members,
       id: "panel-members",
@@ -28,7 +68,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
   end
 
-  def handle_event({:membership_demoted, membership}, socket) do
+  def handle_event({:membership_downgraded, membership}, socket) do
   send_update(
     AuroraGov.Web.Live.Panel.Members,
     id: "panel-members",
@@ -42,7 +82,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   )
 end
 
-def handle_event({:membership_expelled, membership}, socket) do
+def handle_event({:membership_revoked, membership}, socket) do
   send_update(
     AuroraGov.Web.Live.Panel.Members,
     id: "panel-members",
@@ -170,6 +210,58 @@ end
       end
 
     socket |> put_flash(:info, msg)
+  end
+
+  def handle_event({type, data} = event, socket)
+      when type in [
+             :project_created,
+             :project_updated,
+             :project_archived,
+             :project_transferred,
+             :task_created,
+             :task_updated,
+             :task_assigned,
+             :task_completed,
+             :task_abandoned,
+             :task_cancelled,
+             :effort_registered
+           ] do
+    send_update(AuroraGov.Web.Live.Panel.Projects,
+      id: "panel-projects",
+      project_event: event
+    )
+
+    project_id = data.project_id
+    send_update(AuroraGov.Web.Live.Panel.Side.ProjectDetail,
+      id: "panel-project-#{project_id}",
+      update: event
+    )
+
+    msg =
+      case type do
+        :project_created -> "Proyecto '#{data.name}' creado."
+        :project_updated -> "Proyecto '#{data.name}' actualizado."
+        :project_archived -> "Proyecto archivado."
+        :project_transferred -> "Proyecto transferido."
+        :task_created -> "Tarea '#{data.name}' creada."
+        :task_updated -> "Tarea '#{data.name}' actualizada."
+        :task_assigned -> "Tarea asignada al participante."
+        :task_completed -> "Tarea marcada como completada."
+        :task_abandoned -> "Tarea abandonada y devuelta al backlog."
+        :task_cancelled -> "Tarea anulada."
+        :effort_registered -> "Esfuerzo registrado por '#{data.creator_id}'."
+      end
+
+    socket |> put_flash(:info, msg)
+  end
+
+  def handle_event({:resource_updated, resource}, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Resources,
+      id: "panel-resources",
+      resource_event: {:resource_updated, resource}
+    )
+
+    socket |> put_flash(:info, "Recurso '#{resource.name}' actualizado.")
   end
 
   def handle_event({event, _data}, socket) do

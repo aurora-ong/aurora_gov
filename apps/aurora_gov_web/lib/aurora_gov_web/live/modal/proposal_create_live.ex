@@ -17,21 +17,35 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(:delegated_votes_count, 0)
       |> assign(:ou_start_name, "")
       |> assign(:ou_end_name, "")
-      |> assign(:expel_affected_memberships, [])
+      
 
     {:ok, socket}
   end
 
   @impl true
-  def update(%{info: {:ou_selected, field_name, ou_id}}, socket) do
-    current_params = socket.assigns.step_0_form.params
-    new_params = Map.put(current_params, to_string(field_name), ou_id)
+  def update(%{info: {select_type, field_name, val}}, socket) when select_type in [:ou_selected, :user_selected, :project_selected, :task_selected, :role_selected, :resource_selected] do
+    case socket.assigns.step do
+      0 ->
+        current_params = socket.assigns.step_0_form.params
+        new_params = Map.put(current_params, to_string(field_name), val)
 
-    # Re-validamos
-    {:noreply, updated_socket} =
-      handle_event("step_0_validate", %{"proposal" => new_params}, socket)
+        {:noreply, updated_socket} =
+          handle_event("step_0_validate", %{"proposal" => new_params}, socket)
 
-    {:ok, updated_socket}
+        {:ok, updated_socket}
+
+      1 ->
+        current_params = socket.assigns.step_1_form.params
+        new_params = Map.put(current_params, to_string(field_name), val)
+
+        {:noreply, updated_socket} =
+          handle_event("step_1_validate", %{"power" => new_params}, socket)
+
+        {:ok, updated_socket}
+
+      _ ->
+        {:ok, socket}
+    end
   end
 
   @impl true
@@ -161,15 +175,6 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
               <div class="mt-5">
                 <.live_component
-                  module={AuroraGov.Web.Components.Power.PowerCardComponent}
-                  id="power-card"
-                  show_actions={false}
-                  power_id={@step_0_form[:proposal_power_id].value}
-                  power_info={
-                    AuroraGov.Context.GovPowerContext.get_gov_power!(
-                      @step_0_form[:proposal_power_id].value
-                    )
-                  }
                   ou_power={ou_power}
                   parent_target={@myself}
                 />
@@ -202,11 +207,13 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         module={AuroraGov.Web.DynamicCommandFormComponent}
         id="proposal-power_form"
         form={@step_1_form}
+        app_context={@app_context}
         command_module={
           @proposal_data.proposal_power_id
           |> AuroraGov.Context.GovPowerContext.get_gov_power!()
           |> then(& &1.module)
         }
+        proposal_params={@proposal_data}
       />
       <:actions>
         <.back_button target={@myself} step={0} />
@@ -226,49 +233,6 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       phx-target={@myself}
       class="w-full space-y-8"
     >
-      <div
-  :if={
-    @proposal_data.proposal_power_id == "org.membership.expel" &&
-      @expel_affected_memberships != []
-  }
-  class="bg-amber-50 border border-amber-200 rounded-xl p-5"
->
-  <div class="flex gap-3 items-start">
-    <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xl mt-1"></i>
-
-    <div class="space-y-3">
-      <div>
-        <h3 class="font-semibold text-amber-900">
-          Advertencia sobre la expulsión
-        </h3>
-
-        <p class="text-sm text-amber-800 mt-1">
-          Si esta propuesta es aprobada, el miembro será expulsado de la unidad seleccionada
-          y de todas sus subunidades descendientes en las que mantenga una membresía activa.
-        </p>
-      </div>
-
-      <div>
-        <p class="text-sm font-semibold text-amber-900">
-          Unidades afectadas:
-        </p>
-
-        <ul class="mt-2 space-y-1">
-          <li
-            :for={membership <- @expel_affected_memberships}
-            class="text-sm text-amber-800 flex items-center gap-2"
-          >
-            <i class="fa-solid fa-building text-xs"></i>
-
-            <span>
-              {membership.ou.ou_name}
-            </span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </div>
-</div>
       <.input field={@step_2_form[:proposal_title]} type="text" label="Título propuesta" />
       <.input
         field={@step_2_form[:proposal_description]}
@@ -525,11 +489,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> AuroraGov.Context.GovPowerContext.get_gov_power!()
       |> then(& &1.module)
 
- proposal_context = %{
-  origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
-  end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
-  current_person_id: socket.assigns.app_context.current_person.person_id
-}
+    proposal_context = %{
+      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
+      end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
+      current_person_id: socket.assigns.app_context.current_person.person_id
+    }
 
     power_changeset =
       power_params
@@ -551,10 +515,10 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> then(& &1.module)
 
     proposal_context = %{
-  origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
-  end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
-  current_person_id: socket.assigns.app_context.current_person.person_id
-}
+      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
+      end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
+      current_person_id: socket.assigns.app_context.current_person.person_id
+    }
 
     power_changeset =
       power_params
@@ -565,7 +529,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       if power_changeset.valid? do
         socket
         |> assign(power_data: power_changeset.changes)
-        |> assign_expel_affected_memberships(power_changeset)
+        
         |> assign_new(:step_2_form, fn ->
           form_proposal_params = socket.assigns[:proposal_params] || %{}
 
@@ -721,20 +685,5 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
     end
   end
 
-  defp assign_expel_affected_memberships(socket, power_changeset) do
-  if socket.assigns.proposal_data.proposal_power_id == "org.membership.expel" do
-    person_id = Ecto.Changeset.get_field(power_changeset, :person_id)
-    ou_id = socket.assigns.proposal_data.proposal_ou_end
 
-    memberships =
-      AuroraGov.Context.MembershipContext.list_active_memberships_in_ou_subtree(
-        ou_id,
-        person_id
-      )
-
-    assign(socket, :expel_affected_memberships, memberships)
-  else
-    assign(socket, :expel_affected_memberships, [])
-  end
-end
 end

@@ -1,6 +1,6 @@
 defmodule AuroraGov.Projector.MembershipProjector do
   alias AuroraGov.Projector.Model.Membership
-  alias AuroraGov.Event.{MembershipStarted, MembershipPromoted,  MembershipDemoted, MembershipExpelled}
+  alias AuroraGov.Event.{MembershipStarted, MembershipPromoted,  MembershipDowngraded, MembershipRevoked}
 
   @spec project(
           %{
@@ -73,7 +73,7 @@ defmodule AuroraGov.Projector.MembershipProjector do
 
 
   def project(
-        %MembershipDemoted{
+        %MembershipDowngraded{
         person_id: person_id,
         ou_id: ou_id,
         membership_rank: membership_rank
@@ -99,13 +99,13 @@ defmodule AuroraGov.Projector.MembershipProjector do
       membership_demote_update: membership} ->
       membership
     |> repo.preload([:ou, :person])
-    |> then(&{:ok, {:membership_demoted, &1}})
+    |> then(&{:ok, {:membership_downgraded, &1}})
     end)
   end
 
 
    def project(
-      %MembershipExpelled{
+      %MembershipRevoked{
         person_id: person_id,
         ou_id: ou_id
       },
@@ -126,7 +126,7 @@ defmodule AuroraGov.Projector.MembershipProjector do
                                                        membership_expel_lookup: membership
                                                      } ->
     Membership.changeset(membership, %{
-      membership_status: :expelled,
+      membership_status: :revoked,
       updated_at: metadata.created_at
     })
   end)
@@ -135,7 +135,7 @@ defmodule AuroraGov.Projector.MembershipProjector do
                                           } ->
     membership
     |> repo.preload([:ou, :person])
-    |> then(&{:ok, {:membership_expelled, &1}})
+    |> then(&{:ok, {:membership_revoked, &1}})
   end)
 end
 end

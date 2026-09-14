@@ -7,13 +7,30 @@ defmodule AuroraGov.Context.GovPowerContext do
   @proposable_power [
     Elixir.AuroraGov.Command.StartMembership,
     Elixir.AuroraGov.Command.CreateOU,
+    Elixir.AuroraGov.Command.RenameOU,
+    Elixir.AuroraGov.Command.UpdateOUGoal,
     Elixir.AuroraGov.Command.PromoteMembership,
-    Elixir.AuroraGov.Command.DemoteMembership,
-    Elixir.AuroraGov.Command.ExpelMembership,
+    Elixir.AuroraGov.Command.DowngradeMembership,
+    Elixir.AuroraGov.Command.RevokeMembership,
     Elixir.AuroraGov.Command.CreateRole,
     Elixir.AuroraGov.Command.AssignRole,
     Elixir.AuroraGov.Command.UnassignRole,
-    Elixir.AuroraGov.Command.ArchiveRole
+    Elixir.AuroraGov.Command.ArchiveRole,
+    Elixir.AuroraGov.Command.CreateProject,
+    Elixir.AuroraGov.Command.UpdateProject,
+    Elixir.AuroraGov.Command.ArchiveProject,
+    Elixir.AuroraGov.Command.TransferProject,
+    Elixir.AuroraGov.Command.CreateTask,
+    Elixir.AuroraGov.Command.UpdateTask,
+    Elixir.AuroraGov.Command.AssignTask,
+    Elixir.AuroraGov.Command.CompleteTask,
+    Elixir.AuroraGov.Command.AbandonTask,
+    Elixir.AuroraGov.Command.CancelTask,
+    Elixir.AuroraGov.Command.EvaluateTask,
+    Elixir.AuroraGov.Command.CreateResource,
+    Elixir.AuroraGov.Command.UpdateResource,
+    Elixir.AuroraGov.Command.CreateLedger,
+    Elixir.AuroraGov.Command.RecordTransaction
   ]
 
   def list_gov_power do

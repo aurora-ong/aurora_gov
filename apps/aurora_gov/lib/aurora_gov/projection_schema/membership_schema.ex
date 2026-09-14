@@ -31,7 +31,7 @@ defmodule AuroraGov.Projector.Model.Membership do
     field :membership_rank, Ecto.Enum, values: [:junior, :regular, :senior]
 
     field :membership_status, Ecto.Enum,
-      values: [:active, :suspended, :expelled, :resigned, :deceased]
+      values: [:active, :suspended, :revoked]
 
     field :created_at, :utc_datetime_usec
     field :updated_at, :utc_datetime_usec

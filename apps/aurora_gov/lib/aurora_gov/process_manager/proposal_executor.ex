@@ -10,7 +10,7 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
 
   alias AuroraGov.Command.{
   ConsumeProposal,
-  ExpelMembership
+  RevokeMembership
 }
 
   alias AuroraGov.Context.{
@@ -71,10 +71,12 @@ end
   def error({:error, reason}, _failed_command, failure_context) do
     Logger.warning("El comando falló con razón: #{inspect(reason)}")
 
+    safe_reason = if is_binary(reason), do: reason, else: inspect(reason)
+
     command = %AuroraGov.Command.ConsumeProposal{
       proposal_id: failure_context.process_manager_state.proposal_id,
       proposal_execution_result: :failed,
-      proposal_execution_error: inspect(reason)
+      proposal_execution_error: safe_reason
     }
 
     {:continue, [command], %{}}
@@ -91,41 +93,7 @@ end
   end
 
 
-# cuando la propuesta aprobada corresponde solo a org.membership.expel ingresa aca
-defp build_proposal_commands(%ProposalExecuted{
-       proposal_power_id: "org.membership.expel",
-       proposal_power_data: power_data
-     }) do
-  with {:ok, ou_id} <- get_power_value(power_data, :ou_id),
-       {:ok, person_id} <- get_power_value(power_data, :person_id) do
-    memberships =
-      MembershipContext.list_active_memberships_in_ou_subtree(
-        ou_id,
-        person_id
-      )
 
-    case memberships do
-      [] ->
-        {:error, :no_active_memberships_in_subtree}
-
-      memberships ->
-        commands =
-          Enum.map(memberships, fn membership ->
-            %ExpelMembership{
-              ou_id: membership.ou_id,
-              person_id: person_id
-            }
-          end)
-
-        Logger.info(
-          "Expulsión en cascada de #{person_id}. " <>
-            "OU afectadas: #{inspect(Enum.map(commands, & &1.ou_id))}"
-        )
-
-        {:ok, commands}
-    end
-  end
-end
 
 defp build_proposal_commands(%ProposalExecuted{} = event) do
   case build_proposal_command(event) do
@@ -141,8 +109,10 @@ end
          proposal_power_id: power_id,
          proposal_power_data: power_data
        }) do
+    stringified_data = stringify_keys(power_data)
+
     with %AuroraGov.GovPower{module: command_module} <- AuroraGov.Context.GovPowerContext.get_gov_power!(power_id),
-         %Ecto.Changeset{valid?: true} = changeset <- command_module.new(power_data),
+         %Ecto.Changeset{valid?: true} = changeset <- command_module.new(stringified_data),
          {:ok, proposal_command} <- Ecto.Changeset.apply_action(changeset, :register) do
       {:ok, proposal_command}
     else
@@ -150,20 +120,14 @@ end
     end
   end
 
-  defp get_power_value(power_data, key) when is_map(power_data) do
-  value =
-    Map.get(power_data, key) ||
-      Map.get(power_data, Atom.to_string(key))
-
-  case value do
-    nil ->
-      {:error, {:missing_power_data, key}}
-
-    "" ->
-      {:error, {:missing_power_data, key}}
-
-    value ->
-      {:ok, value}
+  defp stringify_keys(map) when is_map(map) do
+    # Do not stringify structs like DateTime, only plain maps
+    if Map.has_key?(map, :__struct__) do
+      map
+    else
+      Map.new(map, fn {k, v} -> {to_string(k), stringify_keys(v)} end)
+    end
   end
-end
+  defp stringify_keys(list) when is_list(list), do: Enum.map(list, &stringify_keys/1)
+  defp stringify_keys(value), do: value
 end

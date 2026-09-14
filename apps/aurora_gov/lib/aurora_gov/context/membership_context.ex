@@ -55,7 +55,7 @@ defmodule AuroraGov.Context.MembershipContext do
   |> Repo.all()
 end
 
-# funcion para detectar si un miembro esta activo true, expelled false
+# funcion para detectar si un miembro esta activo true, revoked false
 
 def active_member?(ou_id, person_id)
     when is_binary(ou_id) and is_binary(person_id) do

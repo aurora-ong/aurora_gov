@@ -1,0 +1,168 @@
+defmodule AuroraGov.Web.Components.SmartInputs.ProjectSelector do
+  use AuroraGov.Web, :live_component
+  use Phoenix.Component
+  alias AuroraGov.Projector.Repo
+  alias AuroraGov.Projector.Model.Project
+  import Ecto.Query
+
+  @impl true
+  def update(assigns, socket) do
+    ou_id =
+      assigns[:ou_id] ||
+      (assigns[:app_context] && assigns.app_context.current_ou_id) ||
+      "barrio_vivo"
+
+    selected_project =
+      if assigns.field.value not in [nil, ""] do
+        Repo.get(Project, assigns.field.value)
+      end
+
+    socket =
+      socket
+      |> assign(assigns)
+      |> assign(:ou_id, ou_id)
+      |> assign_new(:query, fn -> "" end)
+      |> assign_new(:suggestions, fn -> [] end)
+      |> assign(:selected_project, selected_project)
+      |> assign(:errors, Enum.map(assigns.field.errors, &translate_error(&1)))
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def render(assigns) do
+    ~H"""
+    <div class="relative w-full">
+      <label class="block text-sm font-semibold text-gray-700 mb-1">{@label}</label>
+
+      <%= if @selected_project do %>
+        <!-- Tarjeta de Proyecto Seleccionado -->
+        <div class="flex items-center justify-between p-3.5 bg-yellow-50/40 border border-yellow-100 rounded-xl">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-lg bg-yellow-100 flex items-center justify-center text-yellow-600">
+              <i class="fa-solid fa-folder-open text-base"></i>
+            </div>
+            <div>
+              <div class="text-xs font-bold text-gray-800">{@selected_project.name}</div>
+              <div class="text-[10px] text-gray-400">ID: {@selected_project.project_id} | {@selected_project.status}</div>
+            </div>
+          </div>
+          <button
+            type="button"
+            phx-click="clear"
+            phx-target={@myself}
+            class="p-1.5 hover:bg-yellow-100/50 rounded-lg text-gray-400 hover:text-gray-600 transition"
+          >
+            <i class="fa-solid fa-xmark text-sm"></i>
+          </button>
+        </div>
+        <input type="hidden" name={@field.name} value={@selected_project.project_id} />
+      <% else %>
+        <!-- Input de Búsqueda -->
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+            <i class="fa-solid fa-magnifying-glass text-sm"></i>
+          </div>
+          <input
+            type="text"
+            phx-keyup="search"
+            phx-target={@myself}
+            value={@query}
+            placeholder="Escribe el nombre del proyecto..."
+            class="block w-full pl-9 pr-3 py-2.5 bg-gray-50/50 border border-gray-200 rounded-xl focus:bg-white focus:ring-1 focus:ring-aurora_orange focus:border-aurora_orange text-sm placeholder-gray-400"
+            autocomplete="off"
+          />
+          <input type="hidden" name={@field.name} value="" />
+        </div>
+
+        <!-- Sugerencias -->
+        <%= if not Enum.empty?(@suggestions) do %>
+          <div class="absolute z-20 w-full mt-1.5 bg-white border border-gray-150 rounded-xl shadow-xl max-h-48 overflow-y-auto py-1.5">
+            <%= for project <- @suggestions do %>
+              <button
+                type="button"
+                phx-click="select"
+                phx-value-project_id={project.project_id}
+                phx-target={@myself}
+                class="w-full px-4 py-2 hover:bg-gray-50 flex items-center justify-between text-left transition-colors"
+              >
+                <div>
+                  <div class="text-xs font-bold text-gray-800">{project.name}</div>
+                  <div class="text-[10px] text-gray-400">ID: {project.project_id}</div>
+                </div>
+                <span class="text-[9px] px-1.5 py-0.5 bg-emerald-50 text-emerald-700 rounded font-semibold uppercase tracking-wider">
+                  {project.status}
+                </span>
+              </button>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+
+      <!-- Mensajes de Error -->
+      <%= for err <- @errors do %>
+        <span class="text-xs text-red-500 mt-1 block">
+          <i class="fa-solid fa-circle-exclamation mr-1"></i>{err}
+        </span>
+      <% end %>
+    </div>
+    """
+  end
+
+  @impl true
+  def handle_event("search", %{"value" => query}, socket) do
+    suggestions =
+      if String.trim(query) == "" do
+        []
+      else
+        ou_id = socket.assigns.ou_id
+        db_projects = Repo.all(
+          from(p in Project,
+            where: p.ou_id == ^ou_id and p.status != :archived,
+            order_by: [asc: p.name]
+          )
+        )
+
+        db_projects
+        |> Enum.filter(fn p ->
+          String.contains?(String.downcase(p.name), String.downcase(query)) or
+            String.contains?(String.downcase(p.project_id), String.downcase(query))
+        end)
+      end
+
+    {:noreply, assign(socket, query: query, suggestions: suggestions, selected_project: nil)}
+  end
+
+  @impl true
+  def handle_event("select", %{"project_id" => project_id}, socket) do
+    selected = Repo.get(Project, project_id)
+    parent_module = socket.assigns[:parent_module] || AuroraGov.Web.Live.Panel.ProposalCreate
+    parent_id = socket.assigns[:parent_id] || "modal-proposal_create"
+
+    Phoenix.LiveView.send_update(
+      parent_module,
+      id: parent_id,
+      info: {:project_selected, socket.assigns.field.field, selected.project_id}
+    )
+
+    {:noreply,
+     socket
+     |> assign(selected_project: selected, suggestions: [], query: "")}
+  end
+
+  @impl true
+  def handle_event("clear", _params, socket) do
+    parent_module = socket.assigns[:parent_module] || AuroraGov.Web.Live.Panel.ProposalCreate
+    parent_id = socket.assigns[:parent_id] || "modal-proposal_create"
+
+    Phoenix.LiveView.send_update(
+      parent_module,
+      id: parent_id,
+      info: {:project_selected, socket.assigns.field.field, nil}
+    )
+
+    {:noreply,
+     socket
+     |> assign(selected_project: nil, query: "")}
+  end
+end

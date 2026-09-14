@@ -5,7 +5,7 @@ defmodule AuroraGov.Web.Live.Panel do
   alias AuroraGov.Context.MembershipContext
 
   defmodule AppContext do
-    defstruct [:current_ou_id, :current_person, :current_module, can_participate?: false]
+    defstruct [:current_ou_id, :current_person, :current_module]
   end
 
   defmodule AppView do
@@ -43,19 +43,13 @@ def handle_params(params, _uri, socket) do
 
   socket =
     if current_ou_id != nil do
-      can_participate? =
-        active_member?(
-          current_ou_id,
-          socket.assigns.app_context.current_person
-        )
 
       socket
       |> assign(:app_modal, nil)
       |> assign(:app_context, %{
         socket.assigns.app_context
         | current_module: current_module,
-          current_ou_id: current_ou_id,
-          can_participate?: can_participate?
+          current_ou_id: current_ou_id
       })
       |> handle_deep_linking(socket.assigns.live_action, params)
     else
@@ -65,22 +59,16 @@ def handle_params(params, _uri, socket) do
 
   {:noreply, socket}
 end
-# helper para calcular el estado del miembro, usado para bloqueo de funcionalidades de miembros expulsados
-defp active_member?(
-       ou_id,
-       %{person_id: person_id}
-     )
-     when is_binary(ou_id) and is_binary(person_id) do
-  MembershipContext.active_member?(ou_id, person_id)
-end
-
-defp active_member?(_ou_id, _person), do: false
 
   # Helper para normalizar el nombre del módulo
   defp get_module_from_action(:members_show, _), do: "members"
   defp get_module_from_action(:members_index, _), do: "members"
   defp get_module_from_action(:proposals_show, _), do: "proposals"
   defp get_module_from_action(:proposals_index, _), do: "proposals"
+  defp get_module_from_action(:projects_show, _), do: "projects"
+  defp get_module_from_action(:projects_index, _), do: "projects"
+  defp get_module_from_action(:tasks_show, _), do: "projects"
+  defp get_module_from_action(:ledger_show, _), do: "resources"
   defp get_module_from_action(_, %{"module" => module}), do: module
   # Fallback
   defp get_module_from_action(_, _), do: "home"
@@ -89,7 +77,41 @@ defp active_member?(_ou_id, _person), do: false
     app_panel = %AppView{
       view_id: "panel-proposal-#{id}",
       view_module: AuroraGov.Web.Live.Panel.Side.ProposalDetail,
-      view_params: %{proposal_id: id}
+      view_params: %{proposal_id: id},
+      view_options: %{panel_size: "w-5/12"}
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+
+  defp handle_deep_linking(socket, :projects_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-project-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.ProjectDetail,
+      view_params: %{project_id: id},
+      view_options: %{panel_size: "w-6/12"} # Give it slightly more space for products/tasks tree
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+
+  defp handle_deep_linking(socket, :tasks_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-task-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.TaskDetail,
+      view_params: %{task_id: id},
+      view_options: %{panel_size: "w-5/12"}
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+  
+  defp handle_deep_linking(socket, :ledger_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-ledger-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.LedgerDetail,
+      view_params: %{ledger_id: id},
+      view_options: %{panel_size: "w-5/12"}
     }
 
     assign(socket, :app_side_panel, app_panel)
@@ -119,7 +141,6 @@ def handle_info({:projector_update, event}, socket) do
 
   socket =
     socket
-    |> maybe_update_participation(event)
     |> then(
       &AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(
         event,
@@ -129,29 +150,6 @@ def handle_info({:projector_update, event}, socket) do
 
   {:noreply, socket}
 end
-
-# actualizar en tiempo real el estado de un miembro expulsado
-defp maybe_update_participation(
-       socket,
-       {:membership_expelled, membership}
-     ) do
-  app_context = socket.assigns.app_context
-  current_person = app_context.current_person
-
-  if current_person != nil and
-       membership.person_id == current_person.person_id and
-       membership.ou_id == app_context.current_ou_id do
-    assign(
-      socket,
-      :app_context,
-      %{app_context | can_participate?: false}
-    )
-  else
-    socket
-  end
-end
-
-defp maybe_update_participation(socket, _event), do: socket
 
   @impl true
   def handle_info({:open, view_id, %AppView{} = app_view}, socket) do
@@ -189,6 +187,16 @@ defp maybe_update_participation(socket, _event), do: socket
   end
 
   @impl true
+  def handle_event("push_navigate", %{"url" => url}, socket) do
+    {:noreply, push_navigate(socket, to: url)}
+  end
+
+  @impl true
+  def handle_event("push_patch", %{"url" => url}, socket) do
+    {:noreply, push_patch(socket, to: url)}
+  end
+
+  @impl true
   def handle_event("app_side_panel_close", %{"panel" => panel_id}, socket) do
     IO.inspect(panel_id, label: "Cerrando panel")
     {:noreply, assign(socket, app_side_panel: nil)}
@@ -211,28 +219,6 @@ defp maybe_update_participation(socket, _event), do: socket
       {:noreply, socket}
     end
   end
-
-  # clausula para evitar abrir modal a miembro expelled
-
-  @impl true
-def handle_event(
-      "open_proposal_create_modal",
-      _params,
-      %{
-        assigns: %{
-          app_context: %AppContext{
-            can_participate?: false
-          }
-        }
-      } = socket
-    ) do
-  {:noreply,
-   put_flash(
-     socket,
-     :error,
-     "No podés crear propuestas porque no sos miembro activo de esta organización."
-   )}
-end
 
 
   @impl true
