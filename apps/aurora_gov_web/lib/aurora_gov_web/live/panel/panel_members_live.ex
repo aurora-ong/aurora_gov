@@ -222,7 +222,11 @@ require Logger
             </div>
           </:empty_state>
 
-          <:col :let={membership} label="Id" field={:person_id}>{membership.person.person_id}</:col>
+          <:col :let={membership} label="Id" field={:person_id}>
+
+            <.person_id_badge id={membership.person.person_id} title={membership.person.person_name} patch={~p"/app/members/#{membership.person.person_id}"} />
+
+          </:col>
 
           <:col :let={membership} label="Nombre" field={:person_name}>
             {membership.person.person_name}

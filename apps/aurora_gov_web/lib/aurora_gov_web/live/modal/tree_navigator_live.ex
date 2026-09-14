@@ -35,18 +35,6 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
 
   # ============ UI SUBCOMPONENTS (HEEx) ============
 
-  # Chip / badge neutro (usa {} en lugar de <%= %>)
-  attr :icon_class, :string, default: nil
-  slot :inner_block, required: true
-
-  defp chip(assigns) do
-    ~H"""
-    <span class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700">
-      <i :if={@icon_class} class={@icon_class}></i> {render_slot(@inner_block)}
-    </span>
-    """
-  end
-
   # Badge de membresía (sin with_attrs; cálculo en Elixir + assigns)
   attr :status, :any, required: true
 
@@ -154,7 +142,7 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
                 }>
                   <div class="flex flex-col grow min-w-0">
                     <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
-                      <.ou_id_badge size="sm" ou_id={ou.ou_id} />
+                      <.ou_id_badge size="sm" id={ou.ou_id} />
                       <%!-- <.chip icon_class="fa-solid fa-calendar-days">
                         {Timex.lformat!(ou[:created_at], "{relative}", "es", :relative)}
                       </.chip> --%>

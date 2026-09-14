@@ -43,7 +43,8 @@ defmodule AuroraGov.Web.Components.FormWrapper do
   attr :class, :string,
     default: "space-y-8 bg-white p-6 rounded-lg shadow-sm border border-gray-100"
 
-  attr :rest, :global
+  attr :rest, :global,
+    include: ~w(autocomplete name rel action enctype method novalidate target multipart phx_change phx_submit phx_update)
 
   slot :inner_block, required: true
   slot :actions

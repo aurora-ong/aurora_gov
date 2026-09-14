@@ -174,23 +174,20 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
           <div class="flex flex-col">
             <div class="flex-row flex">
               <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
-                <.ou_id_badge
-                  ou_id={proposal.proposal_ou_start_id}
-                  ou_name={proposal.proposal_ou_start.ou_name}
+                <.ou_id_badge id={proposal.proposal_ou_start_id}
+                  title={proposal.proposal_ou_start.ou_name}
                   size="sm"
                 />
                 <span class="mx-2 text-gray-400 flex items-center">
                   <i class="fa fa-arrow-right"></i>
                 </span>
-                <.ou_id_badge
-                  ou_id={proposal.proposal_ou_end_id}
-                  ou_name={proposal.proposal_ou_end.ou_name}
+                <.ou_id_badge id={proposal.proposal_ou_end_id}
+                  title={proposal.proposal_ou_end.ou_name}
                   size="sm"
                 />
               <% else %>
-                <.ou_id_badge
-                  ou_id={proposal.proposal_ou_end_id}
-                  ou_name={proposal.proposal_ou_end.ou_name}
+                <.ou_id_badge id={proposal.proposal_ou_end_id}
+                  title={proposal.proposal_ou_end.ou_name}
                   size="sm"
                 />
               <% end %>
@@ -207,24 +204,11 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
         </:col>
 
         <:col :let={proposal} label="Responsable" align="center">
-          <.badge
-            icon="fa-user fa-solid"
-            size="sm"
-            class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 cursor-pointer"
-            patch={~p"/app/members/#{proposal.proposal_owner.person_id}"}
-          >
-            {proposal.proposal_owner.person_name}
-          </.badge>
+          <.person_id_badge id={proposal.proposal_owner.person_id} title={proposal.proposal_owner.person_name} patch={~p"/app/members/#{proposal.proposal_owner.person_id}"} />
         </:col>
 
         <:col :let={proposal} label="Poder" align="center">
-          <.badge
-            icon="fa-bolt fa-solid"
-            size="sm"
-            class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 cursor-pointer"
-          >
-            {AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name}
-          </.badge>
+          <.power_id_badge id={proposal.proposal_power_id} title={AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name} />
         </:col>
       </.table>
     </div>

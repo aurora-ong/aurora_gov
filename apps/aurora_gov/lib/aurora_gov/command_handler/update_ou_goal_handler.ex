@@ -12,7 +12,7 @@ defmodule AuroraGov.CommandHandler.UpdateOUGoalHandler do
 
   # La OU existe y está activa.
   def handle(
-        %OU{ou_status: :active} = ou,
+        %OU{ou_status: :active} = _ou,
         %UpdateOUGoal{
           ou_id: ou_id,
           ou_goal: ou_goal

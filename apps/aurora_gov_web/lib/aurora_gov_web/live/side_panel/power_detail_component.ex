@@ -205,8 +205,11 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
               <i class="fa-solid fa-bolt text-xl"></i>
             </div>
             <div>
-              <h2 class="text-xl font-bold text-gray-900 m-0">{context.power_info.name}</h2>
-              <p class="text-sm text-gray-500">{context.power_info.description}</p>
+              <div class="flex items-center gap-3">
+                <h2 class="text-xl font-bold text-gray-900 m-0">{context.power_info.name}</h2>
+                <.power_id_badge id={context.power_id} />
+              </div>
+              <p class="text-sm text-gray-500 mt-1">{context.power_info.description}</p>
             </div>
           </div>
 

@@ -25,18 +25,11 @@ defmodule AuroraGov.Web.Live.Panel.Header do
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-2">
         <div class="flex items-start gap-3">
           <div class="w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center text-aurora_orange shadow-sm border border-blue-100 shrink-0">
-            <i class="fa-solid fa-sitemap text-xl"></i>
+            <i class="fa-solid fa-sitemap text-2xl"></i>
           </div>
           <div>
           <div class="flex gap-4"><h1 class="text-2xl font-bold text-gray-900 truncate">{@ou.ou_name}</h1>
-          <.link
-                patch={~p"/app/home?context=#{@ou.ou_id}"}
-                replace
-                class="group flex items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200 cursor-pointer"
-              >
-                <i class="fa-solid fa-sitemap rotate-180 text-gray-400 group-hover:text-gray-600 transition-colors"></i>
-                <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900">{@ou.ou_id}</span>
-              </.link></div>
+          <.ou_id_badge id={@ou.ou_id} patch={~p"/app/home?context=#{@ou.ou_id}"} /></div>
             <div class="flex items-center gap-2 mt-2">
 
               <span class="text-gray-400 text-sm">Fundada el {@ou.created_at |> Calendar.strftime("%d/%m/%Y")}</span>

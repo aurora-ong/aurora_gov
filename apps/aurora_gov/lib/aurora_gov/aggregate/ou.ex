@@ -60,6 +60,14 @@ defmodule AuroraGov.Aggregate.OU do
     }
   end
 
+  def apply(%OU{} = ou, %OURenamed{}) do
+    ou
+  end
+
+  def apply(%OU{} = ou, %OUGoalUpdated{}) do
+    ou
+  end
+
   def apply(%OU{} = ou, %MembershipStarted{person_id: person_id}) do
     %OU{
       ou
@@ -398,13 +406,5 @@ defmodule AuroraGov.Aggregate.OU do
     power_delegation
     |> Map.get(power_id, MapSet.new())
     |> MapSet.to_list()
-  end
-
-  def apply(%OU{} = ou, %OURenamed{}) do
-    ou
-  end
-
-  def apply(%OU{} = ou, %OUGoalUpdated{}) do
-    ou
   end
 end

@@ -19,43 +19,28 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
   use Gettext, backend: AuroraGov.Web.Gettext
 
   import AuroraGov.Web.Components.Tooltip
-  import AuroraGov.Web.Components.Clipboard
   import AuroraGov.Web.Components.Spinner
   import AuroraGov.Web.Components.Progress
 
-  attr :ou_id, :string, required: true
-  attr :size, :string, default: "md"
-  attr :ou_name, :string, default: nil
-
-  def ou_id_badge(assigns) do
-    size_classes = %{
-      "sm" => "text-xs px-1.5 py-0.5",
-      "md" => "text-sm px-2 py-0.5",
-      "lg" => "text-base px-3 py-1",
-      "xl" => "text-lg px-4 py-1.5"
-    }
-
-    classes =
-      "text-white w-fit bg-black font-semibold rounded cursor-pointer " <>
-        Map.get(size_classes, assigns.size, size_classes["md"])
-
-    assigns = assign(assigns, :classes, classes)
-
+  @doc "Componente base para todos los identificadores del sistema"
+  attr :id, :string, required: true
+  attr :icon, :string, required: true
+  attr :title, :string, default: nil
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  def base_id_badge(assigns) do
     ~H"""
-    <.clipboard
-      text={@ou_id}
-      show_status_text={false}
-      class={@classes}
-      text_description={@ou_name || @ou_id}
-    >
-      <:trigger>
-        <div class="flex justify-center items-center flex-row gap-1.5">
-          <i class={"fa-solid fa-sitemap rotate-180 font-normal "<> "text-#{assigns.size}"}></i>
-          <span>{@ou_id}</span>
-        </div>
-      </:trigger>
-       <%!-- <.tooltip :if={@ou_name} text={@ou_name} /> --%>
-    </.clipboard>
+    <%= if @patch do %>
+      <.link patch={@patch} replace class={["group flex w-fit items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200 cursor-pointer", @class]} title={@title || @id}>
+        <i class={[@icon, "text-gray-400 group-hover:text-gray-600 transition-colors"]}></i>
+        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate max-w-[200px]">{@id}</span>
+      </.link>
+    <% else %>
+      <div class={["group flex w-fit items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200", @class]} title={@title || @id}>
+        <i class={[@icon, "text-gray-400 group-hover:text-gray-600 transition-colors"]}></i>
+        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate max-w-[200px]">{@id}</span>
+      </div>
+    <% end %>
     """
   end
 
@@ -267,6 +252,7 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
     </.progress>
     """
   end
+
   @doc "Renders a task status badge"
   def task_status_badge(assigns) do
     {color_class, label} =
@@ -282,7 +268,10 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
     assigns = assign(assigns, color_class: color_class, label: label)
 
     ~H"""
-    <span class={["px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]", @color_class]}>
+    <span class={[
+      "px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]",
+      @color_class
+    ]}>
       {@label}
     </span>
     """
@@ -301,44 +290,131 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
     assigns = assign(assigns, color_class: color_class, label: label)
 
     ~H"""
-    <span class={["px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]", @color_class]}>
+    <span class={[
+      "px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]",
+      @color_class
+    ]}>
       {@label}
     </span>
     """
   end
+
   @doc "Renders a task ID badge"
+
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :title, :string, default: nil
+
   def task_id_badge(assigns) do
     ~H"""
-    <span class="px-2 py-0.5 rounded border bg-gray-50 text-gray-500 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold">
-      <i class="fa-solid fa-square-check text-gray-400"></i> {@id}
-    </span>
+    <.base_id_badge
+      id={@id}
+      icon="fa-solid fa-square-check"
+      patch={@patch}
+      class={@class}
+      title={@title}
+    />
     """
   end
 
   @doc "Renders a project ID badge"
+
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :title, :string, default: nil
+
   def project_id_badge(assigns) do
     ~H"""
-    <span class="px-2 py-0.5 rounded border bg-gray-50 text-gray-500 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold">
-      <i class="fa-solid fa-folder text-gray-400"></i> {@id}
-    </span>
+    <.base_id_badge id={@id} icon="fa-regular fa-folder" patch={@patch} class={@class} title={@title} />
     """
   end
 
-  @doc "Renders an ledger ID badge"
+  @doc "Renders a ledger ID badge"
+
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :title, :string, default: nil
+
   def ledger_id_badge(assigns) do
     ~H"""
-    <span class="px-2 py-0.5 rounded-full border bg-gray-100 text-gray-600 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold w-fit" title={@id}>
-      <i class="fa-solid fa-wallet text-gray-400"></i> {@id}
-    </span>
+    <.base_id_badge id={@id} icon="fa-solid fa-wallet" patch={@patch} class={@class} title={@title} />
     """
   end
 
   @doc "Renders a resource ID badge"
+
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :title, :string, default: nil
+
   def resource_id_badge(assigns) do
     ~H"""
-    <span class="px-2 py-0.5 rounded border bg-gray-50 text-gray-500 border-gray-200 font-mono text-[10px] tracking-wider flex items-center gap-1.5 font-bold w-fit" title={@id}>
-      <i class="fa-solid fa-cube text-gray-400"></i> {@id}
-    </span>
+    <.base_id_badge id={@id} icon="fa-solid fa-cube" patch={@patch} class={@class} title={@title} />
+    """
+  end
+
+  @doc "Renders an OU ID badge"
+
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :size, :string, default: nil
+  attr :title, :string, default: nil
+
+  def ou_id_badge(assigns) do
+    ~H"""
+    <.base_id_badge
+      id={@id}
+      icon="fa-solid fa-sitemap rotate-180"
+      patch={@patch}
+      class={@class}
+      title={@title}
+    />
+    """
+  end
+
+  @doc "Renders a Person ID badge"
+
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :size, :string, default: nil
+  attr :title, :string, default: nil
+
+  def person_id_badge(assigns) do
+    ~H"""
+    <.base_id_badge id={@id} icon="fa-regular fa-user" patch={@patch} class={@class} title={@title} />
+    """
+  end
+
+  @doc "Renders a Proposal ID badge"
+
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :size, :string, default: nil
+  attr :title, :string, default: nil
+
+  def proposal_id_badge(assigns) do
+    ~H"""
+    <.base_id_badge id={@id} icon="fa-solid fa-hand" patch={@patch} class={@class} title={@title} />
+    """
+  end
+
+  @doc "Renders a Power ID badge"
+  attr :id, :string, required: true
+  attr :patch, :string, default: nil
+  attr :class, :string, default: ""
+  attr :size, :string, default: nil
+  attr :title, :string, default: nil
+
+  def power_id_badge(assigns) do
+    ~H"""
+    <.base_id_badge id={@id} icon="fa-solid fa-bolt" patch={@patch} class={@class} title={@title} />
     """
   end
 end

@@ -119,19 +119,6 @@ defmodule AuroraGov.Web.Components.Fieldset do
   end
 
   @doc type: :component
-  attr :for, :string, default: nil, doc: "Specifies the form which is associated with"
-  attr :class, :string, default: nil, doc: "Custom CSS class for additional styling"
-  slot :inner_block, required: true, doc: "Inner block that renders HEEx content"
-
-  defp label(assigns) do
-    ~H"""
-    <label for={@for} class={["block text-sm font-semibold leading-6", @class]}>
-      {render_slot(@inner_block)}
-    </label>
-    """
-  end
-
-  @doc type: :component
   attr :icon, :string, default: nil, doc: "Icon displayed alongside of an item"
   slot :inner_block, required: true, doc: "Inner block that renders HEEx content"
 

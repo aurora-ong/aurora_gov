@@ -124,20 +124,17 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
         <div class="mb-2">
           <div class="flex flex-wrap gap-2 mb-3">
             <%= if context.proposal.proposal_ou_start_id != context.proposal.proposal_ou_end_id do %>
-              <.ou_id_badge
-                ou_id={context.proposal.proposal_ou_start_id}
+              <.ou_id_badge id={context.proposal.proposal_ou_start_id}
                 size="sm"
               />
               <span class="text-gray-400 flex items-center text-sm">
                 <i class="fa fa-arrow-right"></i>
               </span>
-              <.ou_id_badge
-                ou_id={context.proposal.proposal_ou_end_id}
+              <.ou_id_badge id={context.proposal.proposal_ou_end_id}
                 size="sm"
               />
             <% else %>
-              <.ou_id_badge
-                ou_id={context.proposal.proposal_ou_end_id}
+              <.ou_id_badge id={context.proposal.proposal_ou_end_id}
                 size="sm"
               />
             <% end %>
@@ -145,13 +142,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
 
           <h2 class="text-xl font-bold text-gray-900 mb-2 m-0">{context.proposal.proposal_title}</h2>
 
-          <.badge
-            icon="fa-solid fa-hand"
-            class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 cursor-pointer"
-            size="xs"
-          >
-            {context.proposal.proposal_id}
-          </.badge>
+          <.proposal_id_badge id={context.proposal.proposal_id} />
         </div>
         <!-- Tabs -->
         <div class="flex border-b border-gray-200 mb-4">
@@ -281,7 +272,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                   <%= for {ou_id, status} <- context.voting_status do %>
                     <div class="bg-gray-50 p-3 rounded-lg border">
                       <div class="flex items-center justify-between mb-2">
-                        <.ou_id_badge ou_id={ou_id} size="sm" />
+                        <.ou_id_badge id={ou_id} size="sm" />
                         <span class="text-sm text-gray-600">
                           {status[:current_voters]} / {status[:total_voters]} votos
                         </span>

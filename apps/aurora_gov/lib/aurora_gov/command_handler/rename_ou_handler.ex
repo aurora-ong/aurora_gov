@@ -12,7 +12,7 @@ defmodule AuroraGov.CommandHandler.RenameOUHandler do
 
   # La OU existe y está activa.
   def handle(
-        %OU{ou_status: :active} = ou,
+        %OU{ou_status: :active} = _ou,
         %RenameOU{
           ou_id: ou_id,
           ou_name: ou_name
