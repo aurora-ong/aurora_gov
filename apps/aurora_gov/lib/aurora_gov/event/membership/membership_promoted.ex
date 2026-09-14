@@ -13,7 +13,7 @@ defmodule AuroraGov.Event.MembershipPromoted do
     field :ou_id, :string
 
     # Aquí defines el Enum para que haga la conversión automática String <-> Atom
-    field :membership_rank, Ecto.Enum, values: [:junior, :senior, :regular, :formal]
+    field :membership_rank, Ecto.Enum, values: [:junior, :senior, :regular]
 
     # Si tienes más campos, agrégalos aquí (ej: timestamps si los usas)
   end

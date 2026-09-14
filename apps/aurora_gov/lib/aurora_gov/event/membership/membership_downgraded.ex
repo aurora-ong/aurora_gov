@@ -10,7 +10,7 @@ defmodule AuroraGov.Event.MembershipDowngraded do
 
     # Se define el enum, para conversion automatica
     field :membership_rank, Ecto.Enum,
-      values: [:junior, :senior, :regular, :formal]
+      values: [:junior, :senior, :regular]
   end
 
   # constructor

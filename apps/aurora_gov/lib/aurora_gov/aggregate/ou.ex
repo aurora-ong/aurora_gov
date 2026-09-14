@@ -2,7 +2,7 @@ defmodule AuroraGov.Aggregate.OU do
   defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation, :ou_roles, :ou_projects]
 
   defmodule Membership do
-  defstruct [:membership_rank, :membership_status]
+  defstruct [:membership_rank]
 end
 
   defmodule Power do
@@ -67,9 +67,7 @@ end
       ou
       | ou_membership:
           Map.put(ou.ou_membership, person_id, %Membership{
-            membership_rank: "junior",
-            membership_status: :active
-          })
+            membership_rank: "junior"})
     }
   end
 
