@@ -1,6 +1,9 @@
 defmodule AuroraGov.Web.Live.Panel do
   use AuroraGov.Web, :live_view
 
+
+  alias AuroraGov.Context.MembershipContext
+
   defmodule AppContext do
     defstruct [:current_ou_id, :current_person, :current_module]
   end
@@ -34,27 +37,28 @@ defmodule AuroraGov.Web.Live.Panel do
   end
 
   @impl true
-  def handle_params(params, _uri, socket) do
-    current_ou_id = get_current_ou_id(params)
-    current_module = get_module_from_action(socket.assigns.live_action, params)
+def handle_params(params, _uri, socket) do
+  current_ou_id = get_current_ou_id(params)
+  current_module = get_module_from_action(socket.assigns.live_action, params)
 
-    socket =
-      if current_ou_id != nil do
-        socket
-        |> assign(:app_modal, nil)
-        |> assign(:app_context, %{
-          socket.assigns.app_context
-          | current_module: current_module,
-            current_ou_id: current_ou_id
-        })
-        |> handle_deep_linking(socket.assigns.live_action, params)
-      else
-        socket
-        |> push_patch(to: "/install")
-      end
+  socket =
+    if current_ou_id != nil do
 
-    {:noreply, socket}
-  end
+      socket
+      |> assign(:app_modal, nil)
+      |> assign(:app_context, %{
+        socket.assigns.app_context
+        | current_module: current_module,
+          current_ou_id: current_ou_id
+      })
+      |> handle_deep_linking(socket.assigns.live_action, params)
+    else
+      socket
+      |> push_patch(to: "/install")
+    end
+
+  {:noreply, socket}
+end
 
   # Helper para normalizar el nombre del módulo
   defp get_module_from_action(:members_show, _), do: "members"
@@ -130,13 +134,22 @@ defmodule AuroraGov.Web.Live.Panel do
     end
   end
 
-  @impl true
-  def handle_info({:projector_update, event}, socket) do
-    IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
-    socket = AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
 
-    {:noreply, socket}
-  end
+ @impl true
+def handle_info({:projector_update, event}, socket) do
+  IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
+
+  socket =
+    socket
+    |> then(
+      &AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(
+        event,
+        &1
+      )
+    )
+
+  {:noreply, socket}
+end
 
   @impl true
   def handle_info({:open, view_id, %AppView{} = app_view}, socket) do
@@ -206,6 +219,7 @@ defmodule AuroraGov.Web.Live.Panel do
       {:noreply, socket}
     end
   end
+
 
   @impl true
   def handle_event(

@@ -37,4 +37,35 @@ defmodule AuroraGov.Context.MembershipContext do
     query = from(m in Membership, where: m.ou_id == ^ou_id and m.person_id == ^person_id)
     Repo.one(query)
   end
+
+
+  def list_active_memberships_in_ou_subtree(ou_id, person_id) do
+  subtree_pattern = "#{ou_id}.%"
+
+  Membership
+  |> where([m], m.person_id == ^person_id)
+  |> where([m], m.membership_status == :active)
+  |> where(
+    [m],
+    m.ou_id == ^ou_id or like(m.ou_id, ^subtree_pattern)
+  )
+  |> join(:left, [m], ou in assoc(m, :ou))
+  |> preload([m, ou], ou: ou)
+  |> order_by([m], asc: m.ou_id)
+  |> Repo.all()
+end
+
+# funcion para detectar si un miembro esta activo true, revoked false
+
+def active_member?(ou_id, person_id)
+    when is_binary(ou_id) and is_binary(person_id) do
+  Membership
+  |> where(
+    [membership],
+    membership.ou_id == ^ou_id and
+      membership.person_id == ^person_id and
+      membership.membership_status == :active
+  )
+  |> Repo.exists?()
+end
 end

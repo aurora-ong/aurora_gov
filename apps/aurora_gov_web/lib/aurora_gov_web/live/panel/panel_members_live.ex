@@ -7,7 +7,7 @@ require Logger
   def mount(socket) do
     socket =
       socket
-      |> assign(:filter, "all")
+      |> assign(:filter, "active")
       |> assign(:search_query, "")
       |> assign(current_page: 1, total_pages: 0, total_count: 0)
       |> assign(:sort_by, :created_at)

@@ -17,6 +17,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(:delegated_votes_count, 0)
       |> assign(:ou_start_name, "")
       |> assign(:ou_end_name, "")
+      
 
     {:ok, socket}
   end
@@ -489,8 +490,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> then(& &1.module)
 
     proposal_context = %{
-      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin || socket.assigns.proposal_data["proposal_ou_origin"],
-      end_ou_id: socket.assigns.proposal_data.proposal_ou_end || socket.assigns.proposal_data["proposal_ou_end"],
+      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
+      end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
       current_person_id: socket.assigns.app_context.current_person.person_id
     }
 
@@ -514,8 +515,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> then(& &1.module)
 
     proposal_context = %{
-      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin || socket.assigns.proposal_data["proposal_ou_origin"],
-      end_ou_id: socket.assigns.proposal_data.proposal_ou_end || socket.assigns.proposal_data["proposal_ou_end"],
+      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin,
+      end_ou_id: socket.assigns.proposal_data.proposal_ou_end,
       current_person_id: socket.assigns.app_context.current_person.person_id
     }
 
@@ -528,6 +529,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       if power_changeset.valid? do
         socket
         |> assign(power_data: power_changeset.changes)
+        
         |> assign_new(:step_2_form, fn ->
           form_proposal_params = socket.assigns[:proposal_params] || %{}
 
@@ -682,4 +684,6 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         put_flash(socket, :error, "Error al crear la propuesta. Intenta nuevamente.")
     end
   end
+
+
 end

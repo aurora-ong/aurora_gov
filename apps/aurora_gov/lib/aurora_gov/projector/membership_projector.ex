@@ -1,7 +1,17 @@
 defmodule AuroraGov.Projector.MembershipProjector do
   alias AuroraGov.Projector.Model.Membership
-  alias AuroraGov.Event.{MembershipStarted, MembershipPromoted}
+  alias AuroraGov.Event.{MembershipStarted, MembershipPromoted,  MembershipDowngraded, MembershipRevoked}
 
+  @spec project(
+          %{
+            :__struct__ => AuroraGov.Event.MembershipPromoted | AuroraGov.Event.MembershipStarted,
+            :ou_id => any(),
+            :person_id => any(),
+            optional(any()) => any()
+          },
+          any(),
+          Ecto.Multi.t()
+        ) :: Ecto.Multi.t()
   def project(
         %MembershipStarted{ou_id: ou_id, person_id: person_id},
         metadata,
@@ -58,4 +68,74 @@ defmodule AuroraGov.Projector.MembershipProjector do
       |> then(&{:ok, {:membership_promoted, &1}})
     end)
   end
+
+
+
+
+  def project(
+        %MembershipDowngraded{
+        person_id: person_id,
+        ou_id: ou_id,
+        membership_rank: membership_rank
+      },
+        metadata,
+        multi
+      ) do
+    multi
+      |> Ecto.Multi.run(:membership_demote_lookup, fn repo, _changes ->
+      case repo.get_by(Membership, person_id: person_id, ou_id: ou_id) do
+      nil -> {:error, :membership_not_found}
+      membership -> {:ok, membership}
+      end
+    end)
+  |> Ecto.Multi.update(:membership_demote_update, fn %{
+      membership_demote_lookup: membership} ->
+      Membership.changeset(membership, %{
+      membership_rank: membership_rank,
+      updated_at: metadata.created_at
+    })
+    end)
+  |> Ecto.Multi.run(:projector_update, fn repo, %{
+      membership_demote_update: membership} ->
+      membership
+    |> repo.preload([:ou, :person])
+    |> then(&{:ok, {:membership_downgraded, &1}})
+    end)
+  end
+
+
+   def project(
+      %MembershipRevoked{
+        person_id: person_id,
+        ou_id: ou_id
+      },
+      metadata,
+      multi
+    ) do
+  multi
+  |> Ecto.Multi.run(:membership_expel_lookup, fn repo, _changes ->
+    case repo.get_by(Membership, person_id: person_id, ou_id: ou_id) do
+      nil ->
+        {:error, :membership_not_found}
+
+      membership ->
+        {:ok, membership}
+    end
+  end)
+  |> Ecto.Multi.update(:membership_expel_update, fn %{
+                                                       membership_expel_lookup: membership
+                                                     } ->
+    Membership.changeset(membership, %{
+      membership_status: :revoked,
+      updated_at: metadata.created_at
+    })
+  end)
+  |> Ecto.Multi.run(:projector_update, fn repo, %{
+                                            membership_expel_update: membership
+                                          } ->
+    membership
+    |> repo.preload([:ou, :person])
+    |> then(&{:ok, {:membership_revoked, &1}})
+  end)
+end
 end

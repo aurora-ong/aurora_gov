@@ -8,6 +8,17 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
   alias AuroraGov.Event.ProposalConsumed
   require Logger
 
+  alias AuroraGov.Command.{
+  ConsumeProposal,
+  RevokeMembership
+}
+
+  alias AuroraGov.Context.{
+  GovPowerContext,
+  MembershipContext
+}
+
+
   @derive Jason.Encoder
   defstruct [:proposal_id]
 
@@ -21,27 +32,35 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
   end
 
   # Manejamos el evento y retornamos el comando a despachar
-  def handle(_state, %ProposalExecuted{} = event) do
-    # Tu lógica de construcción de comando se mueve aquí
-    case build_proposal_command(event) do
-      {:ok, proposal_command} ->
-        # Al retornar el comando, Commanded hace el dispatch por ti
-        Logger.debug("#{__MODULE__} Retornando comando #{inspect(proposal_command)}")
+ def handle(_state, %ProposalExecuted{} = event) do
+  case build_proposal_commands(event) do
+    {:ok, proposal_commands} ->
+      Logger.debug(
+        "#{__MODULE__} Retornando comandos #{inspect(proposal_commands)}"
+      )
 
+      proposal_commands ++
         [
-          proposal_command,
-          %AuroraGov.Command.ConsumeProposal{
+          %ConsumeProposal{
             proposal_id: event.proposal_id,
             proposal_execution_result: :success
           }
         ]
 
-      {:error, reason} ->
-        # Opcional: Podrías emitir un comando para registrar la falla o compensar
-        Logger.warning("#{__MODULE__} Error al generar comando #{inspect(reason)}")
-        nil
-    end
+    {:error, reason} ->
+      Logger.warning(
+        "#{__MODULE__} Error al generar comandos #{inspect(reason)}"
+      )
+
+      [
+        %ConsumeProposal{
+          proposal_id: event.proposal_id,
+          proposal_execution_result: :failed,
+          proposal_execution_error: inspect(reason)
+        }
+      ]
   end
+end
 
   def error(error, %AuroraGov.Command.ConsumeProposal{}, _failure_context) do
     Logger.error("El comando ConsumeProposal falló con razón: #{inspect(error)}")
@@ -72,6 +91,19 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
     # Es más seguro que :stop si no sabes qué pasó.
     :skip
   end
+
+
+
+
+defp build_proposal_commands(%ProposalExecuted{} = event) do
+  case build_proposal_command(event) do
+    {:ok, command} ->
+      {:ok, [command]}
+
+    {:error, reason} ->
+      {:error, reason}
+  end
+end
 
   defp build_proposal_command(%ProposalExecuted{
          proposal_power_id: power_id,

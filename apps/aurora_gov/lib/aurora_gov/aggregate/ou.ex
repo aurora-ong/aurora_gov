@@ -2,8 +2,8 @@ defmodule AuroraGov.Aggregate.OU do
   defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation, :ou_roles, :ou_projects]
 
   defmodule Membership do
-    defstruct [:membership_rank]
-  end
+  defstruct [:membership_rank]
+end
 
   defmodule Power do
     defstruct [:membership_id, :power_id, :power_value, :power_updated_at]
@@ -19,6 +19,8 @@ defmodule AuroraGov.Aggregate.OU do
     OUCreated,
     MembershipStarted,
     MembershipPromoted,
+    MembershipDowngraded,
+    MembershipRevoked,
     PowerUpdated,
     PowerDelegationActivated,
     PowerDelegationDeactivated,
@@ -65,8 +67,7 @@ defmodule AuroraGov.Aggregate.OU do
       ou
       | ou_membership:
           Map.put(ou.ou_membership, person_id, %Membership{
-            membership_rank: "junior"
-          })
+            membership_rank: "junior"})
     }
   end
 
@@ -88,6 +89,29 @@ defmodule AuroraGov.Aggregate.OU do
           end)
     }
   end
+
+  def apply(
+      %OU{} = ou,
+      %MembershipDowngraded{
+        person_id: person_id,
+        membership_rank: membership_rank
+      }
+    ) do
+  %OU{
+    ou
+    | ou_membership:
+        Map.update!(
+          ou.ou_membership,
+          person_id,
+          fn %Membership{} = membership ->
+            %Membership{
+              membership
+              | membership_rank: membership_rank
+            }
+          end
+        )
+  }
+end
 
   def apply(%OU{} = ou, %PowerUpdated{
         person_id: person_id,
@@ -128,6 +152,24 @@ defmodule AuroraGov.Aggregate.OU do
 
     %OU{ou | ou_power: updated_power_map}
   end
+
+  def apply(
+        %OU{} = ou,
+        %MembershipRevoked{
+          person_id: person_id
+        }
+      ) do
+    updated_power =
+        Enum.reduce(ou.ou_power || %{}, %{}, fn {power_id, person_map}, acc ->
+          Map.put(acc, power_id, Map.delete(person_map, person_id))
+        end)
+
+      %OU{
+        ou
+        | ou_membership: Map.delete(ou.ou_membership, person_id),
+          ou_power: updated_power
+      }
+    end
 
   def apply(%OU{} = ou, %PowerDelegationActivated{
         person_id: person_id,
