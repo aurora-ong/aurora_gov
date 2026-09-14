@@ -10,6 +10,8 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     VoteEmited,
     ProposalCreated,
     OUCreated,
+    OURenamed,
+    OUGoalUpdated,
     MembershipStarted,
     PowerUpdated,
     PersonRegistered,
@@ -136,20 +138,20 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
         <:loading>
           <div class="flex justify-center p-8"><.loading_spinner size="double_large" /></div>
         </:loading>
-
+        
         <:failed :let={error}>
           <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
             <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No se pudo cargar</h3>
-
+            
             <p class="text-gray-500 text-xs truncate max-w-xs">{inspect(error)}</p>
           </div>
         </:failed>
-
+        
         <h3 class="text-2xl font-semibold text-blue-700 mb-4 px-1 flex flex-row justify-between items-center">
           Última actividad
         </h3>
-
+        
         <div
           id="activity-scroll-container"
           class="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1"
@@ -167,7 +169,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
                 >
                   <div class="absolute left-0 top-0.5 bottom-0.5 w-1 rounded-r bg-gray-300 group-hover:bg-blue-500">
                   </div>
-
+                  
                   <div class="pl-2 flex items-start justify-between gap-2">
                     <div class="flex-1 min-w-0">
                       <div class="flex items-center gap-2 mb-1">
@@ -178,12 +180,12 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
                           {humanize_event_type(block)}
                         </span>
                       </div>
-
+                      
                       <div class="text-sm text-gray-800 font-medium leading-tight line-clamp-3">
                         {render_description(block)}
                       </div>
                     </div>
-
+                    
                     <div class="flex flex-col items-end gap-0.5">
                       <span
                         class="text-xs font-semibold font-mono px-1 text-gray-600 group-hover:text-blue-400 transition-colors bg-gray-50 border rounded-sm"
@@ -202,7 +204,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
                 </div>
               </.link>
             <% end %>
-
+            
             <div
               :if={context.has_more}
               id="infinite-scroll-sentinel"
@@ -284,6 +286,14 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     "La propuesta #{proposal_id} fue consumida con error."
   end
 
+  defp render_description(%{data: %OURenamed{ou_name: name}}) do
+    "La unidad ha sido renombrada a '#{name}'"
+  end
+
+  defp render_description(%{data: %OUGoalUpdated{}}) do
+    "El objetivo de la unidad ha sido actualizado."
+  end
+
   defp render_description(%{data: %OUCreated{ou_id: ou_id, ou_name: name}}) do
     "Se ha creado una nueva unidad #{name} (#{ou_id})"
   end
@@ -315,7 +325,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   defp render_description(%{data: %PersonRegistered{person_name: person_name}}) do
     "#{person_name} se ha registrado"
   end
-
 
   defp render_description(%{data: %ProjectCreated{name: name}}) do
     "Proyecto '#{name}' ha sido creado."
