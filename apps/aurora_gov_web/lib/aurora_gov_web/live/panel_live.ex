@@ -61,6 +61,10 @@ defmodule AuroraGov.Web.Live.Panel do
   defp get_module_from_action(:members_index, _), do: "members"
   defp get_module_from_action(:proposals_show, _), do: "proposals"
   defp get_module_from_action(:proposals_index, _), do: "proposals"
+  defp get_module_from_action(:projects_show, _), do: "projects"
+  defp get_module_from_action(:projects_index, _), do: "projects"
+  defp get_module_from_action(:tasks_show, _), do: "projects"
+  defp get_module_from_action(:ledger_show, _), do: "resources"
   defp get_module_from_action(_, %{"module" => module}), do: module
   # Fallback
   defp get_module_from_action(_, _), do: "home"
@@ -69,7 +73,41 @@ defmodule AuroraGov.Web.Live.Panel do
     app_panel = %AppView{
       view_id: "panel-proposal-#{id}",
       view_module: AuroraGov.Web.Live.Panel.Side.ProposalDetail,
-      view_params: %{proposal_id: id}
+      view_params: %{proposal_id: id},
+      view_options: %{panel_size: "w-5/12"}
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+
+  defp handle_deep_linking(socket, :projects_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-project-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.ProjectDetail,
+      view_params: %{project_id: id},
+      view_options: %{panel_size: "w-6/12"} # Give it slightly more space for products/tasks tree
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+
+  defp handle_deep_linking(socket, :tasks_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-task-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.TaskDetail,
+      view_params: %{task_id: id},
+      view_options: %{panel_size: "w-5/12"}
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+  
+  defp handle_deep_linking(socket, :ledger_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-ledger-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.LedgerDetail,
+      view_params: %{ledger_id: id},
+      view_options: %{panel_size: "w-5/12"}
     }
 
     assign(socket, :app_side_panel, app_panel)
@@ -133,6 +171,16 @@ defmodule AuroraGov.Web.Live.Panel do
   def handle_event("app_modal_close", %{"modal" => modal_id}, socket) do
     IO.inspect(modal_id, label: "Cerrando modal")
     {:noreply, assign(socket, app_modal: nil)}
+  end
+
+  @impl true
+  def handle_event("push_navigate", %{"url" => url}, socket) do
+    {:noreply, push_navigate(socket, to: url)}
+  end
+
+  @impl true
+  def handle_event("push_patch", %{"url" => url}, socket) do
+    {:noreply, push_patch(socket, to: url)}
   end
 
   @impl true

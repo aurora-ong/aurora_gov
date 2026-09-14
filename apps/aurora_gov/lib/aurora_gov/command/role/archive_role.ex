@@ -16,7 +16,7 @@ defmodule AuroraGov.Command.ArchiveRole do
       role_id: [
         command_type: :string,
         label: "ID del rol",
-        form_type: :text,
+        form_type: :role_search,
         source: :user
       ]
     ]

@@ -1,9 +1,9 @@
 defmodule AuroraGov.Command.UpdateOUGoal do
   use AuroraGov.Command,
     gov_power: [
-      id: "org.ou.update_goal",
-      name: "Actualizar propósito de la unidad",
-      description: "Permite modificar el objetivo y la descripción de una unidad organizacional",
+      id: "org.ou.goal.update",
+      name: "Actualizar objetivo unidad",
+      description: "Permite modificar el objetivo",
       category: :ou
     ],
     fields: [

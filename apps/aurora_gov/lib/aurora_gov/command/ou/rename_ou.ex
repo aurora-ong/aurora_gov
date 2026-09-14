@@ -3,7 +3,7 @@ defmodule AuroraGov.Command.RenameOU do
     gov_power: [
       id: "org.ou.rename",
       name: "Renombrar unidad organizacional",
-      description: "Permite modificar el nombre visible de una unidad organizacional",
+      description: "Permite modificar el nombre de una unidad organizacional",
       category: :ou
     ],
     fields: [

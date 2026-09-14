@@ -68,6 +68,13 @@ defmodule AuroraGov.Web.Router do
       live "/proposals", Live.Panel, :proposals_index
       live "/proposals/:id", Live.Panel, :proposals_show
 
+      live "/projects", Live.Panel, :projects_index
+      live "/projects/:id", Live.Panel, :projects_show
+
+      live "/tasks/:id", Live.Panel, :tasks_show
+      
+      live "/ledger/:id", Live.Panel, :ledger_show
+
       live "/:module", Live.Panel, :module
     end
   end

@@ -18,18 +18,10 @@ defmodule AuroraGov.CommandHandler.UpdateOUGoalHandler do
           ou_goal: ou_goal
         }
       ) do
-    cond do
-      # Si objetivo es exactamente igual,
-      # no tiene sentido generar un nuevo evento.
-      ou.ou_goal == ou_goal ->
-        {:error, :ou_goal_unchanged}
-
-      true ->
-        %OUGoalUpdated{
-          ou_id: ou_id,
-          ou_goal: ou_goal
-        }
-    end
+    %OUGoalUpdated{
+      ou_id: ou_id,
+      ou_goal: ou_goal
+    }
   end
 
   # La OU existe, pero no está activa.

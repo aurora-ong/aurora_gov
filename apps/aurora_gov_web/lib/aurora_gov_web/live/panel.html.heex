@@ -254,6 +254,19 @@
             id="panel-proposal"
             app_context={@app_context}
           />
+        <% "projects" -> %>
+          <.live_component
+            module={AuroraGov.Web.Live.Panel.Projects}
+            id="panel-projects"
+            app_context={@app_context}
+          />
+        <% "resources" -> %>
+          <.live_component
+            module={AuroraGov.Web.Live.Panel.Resources}
+            id="panel-resources"
+            app_context={@app_context}
+            app_side_panel={@app_side_panel}
+          />
         <% _ -> %>
           <div class="w-full h-full flex flex-col justify-center items-center">
             <i class="fa-solid fa-person-digging text-6xl text-gray-300 mb-4"></i>

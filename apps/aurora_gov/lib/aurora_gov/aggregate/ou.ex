@@ -1,15 +1,5 @@
 defmodule AuroraGov.Aggregate.OU do
-  defstruct [
-    :ou_id,
-    :ou_name,
-    :ou_goal,
-    :ou_description,
-    :ou_status,
-    :ou_membership,
-    :ou_power,
-    :ou_power_delegation,
-    :ou_roles
-  ]
+  defstruct [:ou_id, :ou_status, :ou_membership, :ou_power, :ou_power_delegation, :ou_roles, :ou_projects]
 
   defmodule Membership do
     defstruct [:membership_rank]
@@ -27,8 +17,6 @@ defmodule AuroraGov.Aggregate.OU do
 
   alias AuroraGov.Event.{
     OUCreated,
-    OURenamed,
-    OUGoalUpdated,
     MembershipStarted,
     MembershipPromoted,
     PowerUpdated,
@@ -37,7 +25,20 @@ defmodule AuroraGov.Aggregate.OU do
     OURoleCreated,
     OURoleAssigned,
     OURoleUnassigned,
-    OURoleArchived
+    OURoleArchived,
+    OURenamed,
+    OUGoalUpdated,
+    ProjectCreated,
+    ProjectUpdated,
+    ProjectArchived,
+    ProjectTransferred,
+    TaskCreated,
+    TaskUpdated,
+    TaskAssigned,
+    TaskCompleted,
+    TaskAbandoned,
+    TaskCancelled,
+    TaskEvaluated
   }
 
   # State mutators
@@ -45,46 +46,17 @@ defmodule AuroraGov.Aggregate.OU do
   def apply(
         _ou,
         %OUCreated{
-          ou_id: ou_id,
-          ou_name: ou_name,
-          ou_goal: ou_goal,
-          ou_description: ou_description
+          ou_id: ou_id
         }
       ) do
     %OU{
       ou_id: ou_id,
-      ou_name: ou_name,
-      ou_goal: ou_goal,
-      ou_description: ou_description,
       ou_status: :active,
       ou_membership: %{},
       ou_power: %{},
       ou_power_delegation: %{},
-      ou_roles: %{}
-    }
-  end
-
-  def apply(
-        %OU{} = ou,
-        %OURenamed{
-          ou_name: ou_name
-        }
-      ) do
-    %OU{
-      ou
-      | ou_name: ou_name
-    }
-  end
-
-  def apply(
-        %OU{} = ou,
-        %OUGoalUpdated{
-          ou_goal: ou_goal
-        }
-      ) do
-    %OU{
-      ou
-      | ou_goal: ou_goal
+      ou_roles: %{},
+      ou_projects: %{}
     }
   end
 
@@ -230,6 +202,144 @@ defmodule AuroraGov.Aggregate.OU do
     %OU{ou | ou_roles: updated_roles}
   end
 
+  def apply(%OU{} = ou, %ProjectCreated{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    new_project = %{
+      project_id: event.project_id,
+      name: event.name,
+      description: event.description,
+      status: :active,
+      tasks: %{}
+    }
+    %OU{ou | ou_projects: Map.put(ou_projects, event.project_id, new_project)}
+  end
+
+  def apply(%OU{} = ou, %ProjectUpdated{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      p
+      |> Map.put(:name, event.name)
+      |> Map.put(:description, event.description)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %ProjectArchived{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      Map.put(p, :status, :archived)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %ProjectTransferred{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    %OU{ou | ou_projects: Map.delete(ou_projects, event.project_id)}
+  end
+
+  def apply(%OU{} = ou, %TaskCreated{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      tasks = p.tasks || %{}
+      new_task = %{
+        task_id: event.task_id,
+        name: event.name,
+        description: event.description,
+        goal: event.goal,
+        deliverable_evidence: nil,
+        person_id: nil,
+        estimated_delivery_at: nil,
+        status: :backlog
+      }
+      Map.put(p, :tasks, Map.put(tasks, event.task_id, new_task))
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %TaskUpdated{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      tasks = p.tasks || %{}
+      updated_tasks = Map.update!(tasks, event.task_id, fn t ->
+        t
+        |> Map.put(:name, event.name)
+        |> Map.put(:description, event.description)
+        |> Map.put(:goal, event.goal)
+      end)
+      Map.put(p, :tasks, updated_tasks)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %TaskAssigned{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      tasks = p.tasks || %{}
+      updated_tasks = Map.update!(tasks, event.task_id, fn t ->
+        t
+        |> Map.put(:person_id, event.person_id)
+        |> Map.put(:estimated_delivery_at, event.estimated_delivery_at)
+        |> Map.put(:status, :in_progress)
+      end)
+      Map.put(p, :tasks, updated_tasks)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %TaskCompleted{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      tasks = p.tasks || %{}
+      updated_tasks = Map.update!(tasks, event.task_id, fn t ->
+        Map.put(t, :status, :completed)
+      end)
+      Map.put(p, :tasks, updated_tasks)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %TaskAbandoned{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      tasks = p.tasks || %{}
+      updated_tasks = Map.update!(tasks, event.task_id, fn t ->
+        t
+        |> Map.put(:person_id, nil)
+        |> Map.put(:estimated_delivery_at, nil)
+        |> Map.put(:status, :backlog)
+      end)
+      Map.put(p, :tasks, updated_tasks)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %TaskCancelled{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      tasks = p.tasks || %{}
+      updated_tasks = Map.update!(tasks, event.task_id, fn t ->
+        Map.put(t, :status, :cancelled)
+      end)
+      Map.put(p, :tasks, updated_tasks)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+  def apply(%OU{} = ou, %TaskEvaluated{} = event) do
+    ou_projects = ou.ou_projects || %{}
+    updated_projects = Map.update!(ou_projects, event.project_id, fn p ->
+      tasks = p.tasks || %{}
+      updated_tasks = Map.update!(tasks, event.task_id, fn t ->
+        t
+        |> Map.put(:evaluation_review, event.review)
+        |> Map.put(:evaluation_score, event.score)
+      end)
+      Map.put(p, :tasks, updated_tasks)
+    end)
+    %OU{ou | ou_projects: updated_projects}
+  end
+
+
   # Functions
   def get_ou(ou_id) when is_nil(ou_id), do: {:error, :ou_not_exists}
 
@@ -288,5 +398,13 @@ defmodule AuroraGov.Aggregate.OU do
     power_delegation
     |> Map.get(power_id, MapSet.new())
     |> MapSet.to_list()
+  end
+
+  def apply(%OU{} = ou, %OURenamed{}) do
+    ou
+  end
+
+  def apply(%OU{} = ou, %OUGoalUpdated{}) do
+    ou
   end
 end

@@ -22,15 +22,29 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   end
 
   @impl true
-  def update(%{info: {:ou_selected, field_name, ou_id}}, socket) do
-    current_params = socket.assigns.step_0_form.params
-    new_params = Map.put(current_params, to_string(field_name), ou_id)
+  def update(%{info: {select_type, field_name, val}}, socket) when select_type in [:ou_selected, :user_selected, :project_selected, :task_selected, :role_selected, :resource_selected] do
+    case socket.assigns.step do
+      0 ->
+        current_params = socket.assigns.step_0_form.params
+        new_params = Map.put(current_params, to_string(field_name), val)
 
-    # Re-validamos
-    {:noreply, updated_socket} =
-      handle_event("step_0_validate", %{"proposal" => new_params}, socket)
+        {:noreply, updated_socket} =
+          handle_event("step_0_validate", %{"proposal" => new_params}, socket)
 
-    {:ok, updated_socket}
+        {:ok, updated_socket}
+
+      1 ->
+        current_params = socket.assigns.step_1_form.params
+        new_params = Map.put(current_params, to_string(field_name), val)
+
+        {:noreply, updated_socket} =
+          handle_event("step_1_validate", %{"power" => new_params}, socket)
+
+        {:ok, updated_socket}
+
+      _ ->
+        {:ok, socket}
+    end
   end
 
   @impl true
@@ -160,15 +174,6 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
               <div class="mt-5">
                 <.live_component
-                  module={AuroraGov.Web.Components.Power.PowerCardComponent}
-                  id="power-card"
-                  show_actions={false}
-                  power_id={@step_0_form[:proposal_power_id].value}
-                  power_info={
-                    AuroraGov.Context.GovPowerContext.get_gov_power!(
-                      @step_0_form[:proposal_power_id].value
-                    )
-                  }
                   ou_power={ou_power}
                   parent_target={@myself}
                 />
@@ -201,11 +206,13 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         module={AuroraGov.Web.DynamicCommandFormComponent}
         id="proposal-power_form"
         form={@step_1_form}
+        app_context={@app_context}
         command_module={
           @proposal_data.proposal_power_id
           |> AuroraGov.Context.GovPowerContext.get_gov_power!()
           |> then(& &1.module)
         }
+        proposal_params={@proposal_data}
       />
       <:actions>
         <.back_button target={@myself} step={0} />
@@ -482,8 +489,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> then(& &1.module)
 
     proposal_context = %{
-      origin_ou_id: socket.assigns.app_context.current_ou_id,
-      end_ou_id: socket.assigns.app_context.current_ou_id,
+      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin || socket.assigns.proposal_data["proposal_ou_origin"],
+      end_ou_id: socket.assigns.proposal_data.proposal_ou_end || socket.assigns.proposal_data["proposal_ou_end"],
       current_person_id: socket.assigns.app_context.current_person.person_id
     }
 
@@ -507,8 +514,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> then(& &1.module)
 
     proposal_context = %{
-      origin_ou_id: socket.assigns.app_context.current_ou_id,
-      end_ou_id: socket.assigns.app_context.current_ou_id,
+      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin || socket.assigns.proposal_data["proposal_ou_origin"],
+      end_ou_id: socket.assigns.proposal_data.proposal_ou_end || socket.assigns.proposal_data["proposal_ou_end"],
       current_person_id: socket.assigns.app_context.current_person.person_id
     }
 
