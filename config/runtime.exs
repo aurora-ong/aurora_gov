@@ -129,3 +129,26 @@ if config_env() == :prod do
 
   config :aurora_gov, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 end
+
+# ============================================================================
+# DISCORD BOT
+# ============================================================================
+
+discord_bot_enabled? =
+  System.get_env("DISCORD_BOT_ENABLED", "false")
+  |> String.downcase()
+  |> then(&(&1 in ["true", "1", "yes"]))
+
+config :aurora_discord,
+  enabled: discord_bot_enabled?,
+  application_id: System.get_env("DISCORD_APPLICATION_ID"),
+  guild_id: System.get_env("DISCORD_GUILD_ID")
+
+if discord_bot_enabled? do
+  discord_bot_token =
+    System.fetch_env!("DISCORD_BOT_TOKEN")
+
+  config :nostrum,
+    token: discord_bot_token,
+    gateway_intents: [:guilds]
+end
