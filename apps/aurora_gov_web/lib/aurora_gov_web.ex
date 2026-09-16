@@ -93,6 +93,7 @@ defmodule AuroraGov.Web do
       # import AuroraGov.Web.CoreComponents
       use AuroraGov.Web.Components.MishkaComponents
       import AuroraGov.Web.Components.AuroraComponents
+      import AuroraGov.Web.ToastHelper
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

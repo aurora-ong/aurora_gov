@@ -1,6 +1,7 @@
 defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   require Logger
   import Phoenix.LiveView
+  import AuroraGov.Web.ToastHelper
 
   def handle_event({:ou_renamed, ou}, socket) do
     current_ou_id = socket.assigns.app_context.current_ou_id
@@ -13,8 +14,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       )
 
       socket
-      |> put_flash(
-        :info,
+      |> put_toast(
+        "info",
         "La organización fue renombrada a #{ou.ou_name}."
       )
     else
@@ -33,8 +34,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       )
 
       socket
-      |> put_flash(
-        :info,
+      |> put_toast(
+        "info",
         "Se actualizó el objetivo de #{ou.ou_name}."
       )
     else
@@ -49,8 +50,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
-    |> put_flash(
-      :info,
+    |> put_toast(
+      "info",
       "#{person.person_name} (#{person.person_id}) ahora es miembro de #{ou.ou_name} (#{ou.ou_id})"
     )
   end
@@ -62,8 +63,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
-    |> put_flash(
-      :info,
+    |> put_toast(
+      "info",
       "#{person.person_name} (#{person.person_id}) ahora tiene rango #{membership.membership_rank} en #{ou.ou_name} (#{ou.ou_id})"
     )
   end
@@ -80,8 +81,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
-    |> put_flash(
-      :info,
+    |> put_toast(
+      "info",
       "#{power.power_id} se ha actualizado en (#{power.ou_id})"
     )
   end
@@ -93,8 +94,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
-    |> put_flash(
-      :info,
+    |> put_toast(
+      "info",
       "Se ha emitido un voto en (#{vote.proposal_id})"
     )
   end
@@ -106,8 +107,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
-    |> put_flash(
-      :info,
+    |> put_toast(
+      "info",
       "Propuesta creada (#{proposal.proposal_title})"
     )
   end
@@ -124,8 +125,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
-    |> put_flash(
-      :info,
+    |> put_toast(
+      "info",
       "Se está promulgando (#{proposal.proposal_title} #{proposal.proposal_id})"
     )
   end
@@ -142,8 +143,8 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     socket
-    |> put_flash(
-      :info,
+    |> put_toast(
+      "info",
       "Se ha promulgando (#{proposal.proposal_title} #{proposal.proposal_id})"
     )
   end
@@ -181,7 +182,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
         :role_archived -> "Rol archivado."
       end
 
-    socket |> put_flash(:info, msg)
+    socket |> put_toast("info", msg)
   end
 
   def handle_event({type, data} = event, socket)
@@ -195,8 +196,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
              :task_assigned,
              :task_completed,
              :task_abandoned,
-             :task_cancelled,
-             :effort_registered
+             :task_cancelled
            ] do
     send_update(AuroraGov.Web.Live.Panel.Projects,
       id: "panel-projects",
@@ -221,10 +221,9 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
         :task_completed -> "Tarea marcada como completada."
         :task_abandoned -> "Tarea abandonada y devuelta al backlog."
         :task_cancelled -> "Tarea anulada."
-        :effort_registered -> "Esfuerzo registrado por '#{data.creator_id}'."
       end
 
-    socket |> put_flash(:info, msg)
+    socket |> put_toast("info", msg)
   end
 
   def handle_event({:resource_updated, resource}, socket) do
@@ -233,7 +232,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       resource_event: {:resource_updated, resource}
     )
 
-    socket |> put_flash(:info, "Recurso '#{resource.name}' actualizado.")
+    socket |> put_toast("info", "Recurso '#{resource.name}' actualizado.")
   end
 
   def handle_event({event, _data}, socket) do

@@ -25,10 +25,14 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
   def update(%{update: {type, _data}}, socket) do
     socket =
       if type in [
-        :project_updated,
-        :task_created, :task_updated, :task_assigned, :task_completed, :task_abandoned, :task_cancelled,
-        :effort_registered
-      ] do
+           :project_updated,
+           :task_created,
+           :task_updated,
+           :task_assigned,
+           :task_completed,
+           :task_abandoned,
+           :task_cancelled
+         ] do
         load_project_details(socket)
       else
         socket
@@ -98,17 +102,20 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
           <div class="flex items-center gap-2 text-xs text-aurora_orange font-bold uppercase tracking-wider mb-2">
             <i class="fa-solid fa-briefcase"></i> Detalle de Proyecto
           </div>
+
           <div class="flex flex-col gap-2">
             <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <i class="fa-solid fa-folder-open text-yellow-500"></i>
-              {@project.name}
+              <i class="fa-solid fa-folder-open text-yellow-500"></i> {@project.name}
             </h2>
+
             <div class="flex items-center gap-2">
               <.project_id_badge id={@project.project_id} />
               <.project_status_badge status={@project.status} />
             </div>
           </div>
+
           <p class="text-sm text-gray-500 mt-4">{@project.description}</p>
+
           <div class="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-gray-600 bg-gray-50 rounded-xl p-3">
             <div class="flex items-center gap-2">
               <button
@@ -125,7 +132,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
               >
                 <i class="fa-solid fa-pen-to-square"></i> Actualizar
               </button>
-
               <button
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
@@ -138,7 +144,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
               >
                 <i class="fa-solid fa-arrow-right-arrow-left"></i> Transferir
               </button>
-
               <button
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
@@ -159,7 +164,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
                 phx-value-proposal_title={"Nueva Tarea para: #{@project.name}"}
-                phx-value-proposal_description={"Se propone la creación de una nueva tarea en el backlog del proyecto."}
+                phx-value-proposal_description="Se propone la creación de una nueva tarea en el backlog del proyecto."
                 phx-value-proposal_power_id="org.task.create"
                 phx-value-power-project_id={@project.project_id}
                 class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors font-bold flex items-center gap-1.5"
@@ -168,14 +173,35 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
               </button>
             </div>
           </div>
-
           <!-- Tabs Navigation -->
           <div class="mt-8 border-b border-gray-200">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
-              <button phx-click="set_tab" phx-value-tab="metrics" phx-target={@myself} class={if @active_tab == :metrics, do: "border-aurora_orange text-aurora_orange whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm", else: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"}>
+              <button
+                phx-click="set_tab"
+                phx-value-tab="metrics"
+                phx-target={@myself}
+                class={
+                  if @active_tab == :metrics,
+                    do:
+                      "border-aurora_orange text-aurora_orange whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm",
+                    else:
+                      "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                }
+              >
                 <i class="fa-solid fa-chart-pie mr-2"></i>Métricas
               </button>
-              <button phx-click="set_tab" phx-value-tab="tasks" phx-target={@myself} class={if @active_tab == :tasks, do: "border-aurora_orange text-aurora_orange whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm", else: "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"}>
+              <button
+                phx-click="set_tab"
+                phx-value-tab="tasks"
+                phx-target={@myself}
+                class={
+                  if @active_tab == :tasks,
+                    do:
+                      "border-aurora_orange text-aurora_orange whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm",
+                    else:
+                      "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm"
+                }
+              >
                 <i class="fa-solid fa-list-check mr-2"></i>Tareas ({length(@tasks)})
               </button>
             </nav>
@@ -192,30 +218,37 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                 <div class="grid grid-cols-4 gap-4">
                   <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
                     <div class="text-3xl font-black text-gray-800 mb-1">{length(@tasks)}</div>
+
                     <div class="text-[10px] uppercase font-bold text-gray-400 tracking-wider mt-1 text-center">
                       Tareas Totales
                     </div>
                   </div>
+
                   <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
                     <div class="text-3xl font-black text-aurora_orange mb-1">
                       {Enum.count(@tasks, fn t -> t.status == :in_progress end)}
                     </div>
+
                     <div class="text-[10px] uppercase font-bold text-gray-400 tracking-wider mt-1 text-center">
                       En Progreso
                     </div>
                   </div>
+
                   <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
                     <div class="text-3xl font-black text-emerald-600 mb-1">
                       {Enum.count(@tasks, fn t -> t.status == :completed end)}
                     </div>
+
                     <div class="text-[10px] uppercase font-bold text-emerald-600/70 tracking-wider mt-1 text-center">
                       Completadas
                     </div>
                   </div>
+
                   <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
                     <div class="text-3xl font-black text-purple-600 mb-1">
                       {Enum.count(@tasks, fn t -> t.status == :backlog end)}
                     </div>
+
                     <div class="text-[10px] uppercase font-bold text-purple-600/70 tracking-wider mt-1 text-center">
                       Sin Asignar (Backlog)
                     </div>
@@ -237,9 +270,11 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                         <div class="mt-1 bg-gray-50 p-2 rounded-lg text-gray-400 group-hover:text-aurora_orange group-hover:bg-orange-50 transition-colors">
                           <i class="fa-solid fa-check-square"></i>
                         </div>
+
                         <div class="flex-1">
                           <div class="flex justify-between items-start">
                             <h4 class="text-sm font-bold text-gray-900">{task.name}</h4>
+
                             <div class="flex items-center gap-2">
                               <.task_id_badge id={task.task_id} />
                               <.task_status_badge status={task.status} />
@@ -251,8 +286,18 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                           </p>
 
                           <div class="flex items-center gap-4 mt-4 text-[10px] text-gray-400 font-mono">
-                            <span class="flex items-center gap-1 font-sans"><i class="fa-solid fa-calendar-plus"></i> {Calendar.strftime(task.created_at, "%d/%m/%Y")}</span>
-                            <span class="flex items-center gap-1 font-sans"><i class="fa-solid fa-clock"></i> {Calendar.strftime(task.updated_at, "%d/%m/%Y")}</span>
+                            <span class="flex items-center gap-1 font-sans">
+                              <i class="fa-solid fa-calendar-plus"></i> {Calendar.strftime(
+                                task.created_at,
+                                "%d/%m/%Y"
+                              )}
+                            </span>
+                            <span class="flex items-center gap-1 font-sans">
+                              <i class="fa-solid fa-clock"></i> {Calendar.strftime(
+                                task.updated_at,
+                                "%d/%m/%Y"
+                              )}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -263,7 +308,9 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                 <%= if Enum.empty?(@tasks) do %>
                   <div class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
                     <i class="fa-solid fa-clipboard-list text-3xl text-gray-300 mb-3"></i>
-                    <p class="text-sm text-gray-500">Este proyecto no tiene tareas registradas aún.</p>
+                    <p class="text-sm text-gray-500">
+                      Este proyecto no tiene tareas registradas aún.
+                    </p>
                   </div>
                 <% end %>
               </div>
