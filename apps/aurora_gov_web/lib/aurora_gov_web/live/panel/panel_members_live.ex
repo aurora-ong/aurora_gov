@@ -237,11 +237,11 @@ require Logger
           </:col>
 
           <:col :let={membership} label="Rango" align="center" field={:membership_rank}>
-            {membership.membership_rank}
+            <.membership_rank_badge rank={membership.membership_rank} />
           </:col>
 
           <:col :let={membership} label="Estado" align="center" field={:membership_status}>
-            {membership.membership_status}
+            <.membership_status_badge status={membership.membership_status} />
           </:col>
         </.table>
       </div>

@@ -299,6 +299,52 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
     """
   end
 
+  @doc "Renders a membership rank badge"
+  def membership_rank_badge(assigns) do
+    {color_class, label} =
+      case assigns.rank do
+        :junior -> {"bg-blue-50 text-blue-700 border-blue-200", "Junior"}
+        :regular -> {"bg-emerald-50 text-emerald-700 border-emerald-200", "Regular"}
+        :senior -> {"bg-purple-50 text-purple-700 border-purple-200", "Senior"}
+        r -> {"bg-gray-50 text-gray-600 border-gray-200", to_string(r)}
+      end
+
+    assigns = assign(assigns, color_class: color_class, label: label)
+
+    ~H"""
+    <span class={[
+      "px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]",
+      @color_class
+    ]}>
+      {@label}
+    </span>
+    """
+  end
+
+  @doc "Renders a membership status badge"
+  def membership_status_badge(assigns) do
+    {color_class, label} =
+      case assigns.status do
+        :active -> {"bg-emerald-50 text-emerald-700 border-emerald-200", "Activo"}
+        :suspended -> {"bg-amber-50 text-amber-700 border-amber-200", "Suspendido"}
+        :expelled -> {"bg-red-50 text-red-700 border-red-200", "Expulsado"}
+        :resigned -> {"bg-gray-100 text-gray-700 border-gray-200", "Renunciado"}
+        :deceased -> {"bg-gray-800 text-gray-200 border-gray-600", "Fallecido"}
+        s -> {"bg-gray-50 text-gray-600 border-gray-200", to_string(s)}
+      end
+
+    assigns = assign(assigns, color_class: color_class, label: label)
+
+    ~H"""
+    <span class={[
+      "px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]",
+      @color_class
+    ]}>
+      {@label}
+    </span>
+    """
+  end
+
   @doc "Renders a task ID badge"
 
   attr :id, :string, required: true
