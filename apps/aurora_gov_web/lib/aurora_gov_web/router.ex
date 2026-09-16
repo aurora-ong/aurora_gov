@@ -26,7 +26,7 @@ defmodule AuroraGov.Web.Router do
     pipe_through :browser
 
     get "/", PageController, :home
-    get "/install", PageController, :install
+    live "/install", Live.InstallLive, :new
   end
 
   ## Authentication routes

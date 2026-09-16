@@ -66,16 +66,20 @@ defmodule AuroraGov.Command.CreateOU do
     end)
   end
 
-  defp build_full_ou_id(changeset, nil), do: changeset
-
   defp build_full_ou_id(changeset, parent_id) do
-    case get_change(changeset, :ou_slug) do
-      nil ->
+    case get_field(changeset, :ou_id) do
+      id when is_binary(id) and id != "" ->
         changeset
 
-      slug ->
-        full_id = OUTree.join(parent_id, slug)
-        put_change(changeset, :ou_id, full_id)
+      _ ->
+        case get_change(changeset, :ou_slug) do
+          nil ->
+            changeset
+
+          slug ->
+            full_id = if parent_id, do: OUTree.join(parent_id, slug), else: slug
+            put_change(changeset, :ou_id, full_id)
+        end
     end
   end
 end

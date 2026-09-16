@@ -50,7 +50,7 @@ defmodule AuroraGov.Web.Live.Panel do
         |> handle_deep_linking(socket.assigns.live_action, params)
       else
         socket
-        |> push_patch(to: "/install")
+        |> redirect(to: "/install")
       end
 
     {:noreply, socket}
@@ -121,12 +121,9 @@ defmodule AuroraGov.Web.Live.Panel do
   defp get_current_ou_id(%{"context" => context}) when context != "", do: context
 
   defp get_current_ou_id(_params) do
-    case (Enum.at(AuroraGov.Context.OUContext.list_ou(), 0) || %{}).ou_id do
-      ou_id when is_binary(ou_id) and ou_id != "" ->
-        ou_id
-
-      _ ->
-        nil
+    case AuroraGov.Context.OUContext.list_ou() do
+      [] -> nil
+      [first_ou | _] -> first_ou.ou_id
     end
   end
 
