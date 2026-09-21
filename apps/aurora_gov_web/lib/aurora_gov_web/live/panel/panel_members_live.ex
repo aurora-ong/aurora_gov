@@ -50,10 +50,14 @@ require Logger
 
   @impl true
   def update(assigns, socket) do
+    needs_reload = !Map.has_key?(socket.assigns, :app_context) or socket.assigns.app_context.current_ou_id != assigns.app_context.current_ou_id
+
     socket =
       socket
       |> assign(:app_context, assigns.app_context)
-      |> load_members()
+      |> assign(:app_side_panel, assigns[:app_side_panel])
+
+    socket = if needs_reload, do: load_members(socket), else: socket
 
     {:ok, socket}
   end
@@ -73,7 +77,7 @@ require Logger
     filters =
       case socket.assigns[:search_query] do
         query when query in [nil, ""] -> filters
-        query -> [%{"field" => "person_name", "op" => "like_and", "value" => query} | filters]
+        query -> [%{"field" => "search", "op" => "ilike_and", "value" => query} | filters]
       end
 
     params = %{
@@ -163,7 +167,7 @@ require Logger
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full p-6">
+    <div class="w-full h-full">
       <div class="flex w-full h-12 flex-row justify-between mb-5">
         <.filter_button_group
           options={[
@@ -176,11 +180,11 @@ require Logger
           phx_target={@myself}
         />
         <div class="flex flex-row gap-3">
-          <form phx-change="search" phx-target={@myself} class="flex items-center gap-2">
-            <.search_field name="search" value={@search_query} placeholder="Búsqueda rápida" />
+          <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2">
+            <.search_field name="search" value={@search_query} placeholder="Buscar miembros..." search_button />
           </form>
 
-          <button
+          <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
@@ -188,10 +192,11 @@ require Logger
             phx-value-power-person_id="999@test.com"
             phx-value-proposal_title="Titulo propuesta"
             phx-value-proposal_description="Descripcion de propuesta en detalle"
-            class="justify-center items-center text-lg primary"
+            variant="primary"
+            icon="fa-solid fa-hand"
           >
-            <i class="fa-solid fa-hand text-xl"></i> Nuevo miembro
-          </button>
+            Nuevo miembro
+          </.app_button>
         </div>
       </div>
 
@@ -204,6 +209,11 @@ require Logger
           total_pages={@total_pages}
           total_count={@total_count}
           target={@myself}
+          selected_dom_id={
+            if assigns[:app_side_panel] && assigns[:app_side_panel].view_id =~ "panel-member-", 
+            do: "member-" <> assigns[:app_side_panel].view_params.person_id,
+            else: nil
+          }
           on_paginate="paginate"
           on_sort="sort"
           on_row_click={

@@ -238,6 +238,7 @@
             module={AuroraGov.Web.Live.Panel.Members}
             id="panel-members"
             app_context={@app_context}
+            app_side_panel={@app_side_panel}
           />
         <% "roles" -> %>
           <.live_component
@@ -285,7 +286,7 @@
      
       <.link
         patch={get_close_path(@socket, @app_context)}
-        class="absolute top-5 right-5 z-10 rounded-full p-2 hover:bg-gray-100 transition cursor-pointer"
+        class="absolute top-5 right-5 z-50 rounded-full p-2 hover:bg-gray-100 transition cursor-pointer"
       >
         <i class="fa-solid fa-xmark h-5 w-5"></i>
       </.link>

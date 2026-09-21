@@ -18,6 +18,7 @@ defmodule AuroraGov.Web.Components.Table do
   attr :page, :integer, default: 1
   attr :total_pages, :integer, default: 0
   attr :total_count, :integer, default: 0
+  attr :selected_dom_id, :string, default: nil
   attr :sort_by, :any, default: nil
   attr :sort_order, :any, default: :asc
 
@@ -83,14 +84,17 @@ defmodule AuroraGov.Web.Components.Table do
                 </tr>
               </thead>
 
-              <tbody id={@id} phx-update="stream" class={["divide-y divide-gray-200 bg-white", @total_count == 0 && "hidden"]}>
-                <tr
-                  :for={{dom_id, item} <- @rows}
-                  id={dom_id}
-                  class={["group transition-colors hover:bg-gray-50", @on_row_click && "cursor-pointer"]}
-                  phx-click={@on_row_click && @on_row_click.(item)}
-                  phx-target={@target}
-                >
+              <tbody id={@id} phx-update="stream" data-selected-id={@selected_dom_id} phx-hook="TableSelection" class={["divide-y divide-gray-200 bg-white", @total_count == 0 && "hidden"]}>
+                  <tr
+                    :for={{dom_id, item} <- @rows}
+                    id={dom_id}
+                    class={[
+                      "group transition-colors hover:bg-gray-50",
+                      @on_row_click && "cursor-pointer"
+                    ]}
+                    phx-click={@on_row_click && @on_row_click.(item)}
+                    phx-target={@target}
+                  >
                   <%= if @custom_row != [] do %>
                     {render_slot(@custom_row, item)}
                   <% else %>

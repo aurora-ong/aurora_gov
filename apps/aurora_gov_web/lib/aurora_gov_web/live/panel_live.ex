@@ -69,6 +69,17 @@ defmodule AuroraGov.Web.Live.Panel do
   # Fallback
   defp get_module_from_action(_, _), do: "home"
 
+  defp handle_deep_linking(socket, :members_show, %{"id" => id}) do
+    app_panel = %AppView{
+      view_id: "panel-member-#{id}",
+      view_module: AuroraGov.Web.Live.Panel.Side.MemberDetail,
+      view_params: %{person_id: id},
+      view_options: %{panel_size: "w-4/12"}
+    }
+
+    assign(socket, :app_side_panel, app_panel)
+  end
+
   defp handle_deep_linking(socket, :proposals_show, %{"id" => id}) do
     app_panel = %AppView{
       view_id: "panel-proposal-#{id}",

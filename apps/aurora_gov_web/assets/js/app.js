@@ -35,6 +35,37 @@ Hooks.Tippy = {
   }
 }
 
+Hooks.FlashToast = {
+  mounted() { this.triggerToast() },
+  updated() { this.triggerToast() },
+  triggerToast() {
+    const msg = this.el.innerText.trim();
+    if(msg) {
+      showToast(this.el.dataset.kind, this.el.dataset.title, msg);
+      this.pushEvent("lv:clear-flash", {key: this.el.dataset.kind});
+    }
+  }
+}
+
+Hooks.TableSelection = {
+  mounted() { this.updateSelection() },
+  updated() { this.updateSelection() },
+  updateSelection() {
+    const selectedId = this.el.dataset.selectedId;
+    this.el.querySelectorAll('tr').forEach(tr => {
+      if (tr.id === selectedId) {
+        tr.classList.add("bg-blue-50/50");
+        tr.classList.remove("hover:bg-gray-50");
+        tr.style.boxShadow = "inset 4px 0 0 0 #FF5E00";
+      } else {
+        tr.classList.remove("bg-blue-50/50");
+        tr.classList.add("hover:bg-gray-50");
+        tr.style.boxShadow = "none";
+      }
+    });
+  }
+}
+
 Hooks.InfiniteScroll = {
   mounted() {
     this.observer = new IntersectionObserver(entries => {
@@ -89,21 +120,9 @@ liveSocket.connect()
 window.liveSocket = liveSocket
 
 
-Hooks.FlashToast = {
-  mounted() { this.triggerToast() },
-  updated() { this.triggerToast() },
-  triggerToast() {
-    const msg = this.el.innerText.trim();
-    if(msg) {
-      showToast(this.el.dataset.kind, this.el.dataset.title, msg);
-      this.pushEvent("lv:clear-flash", {key: this.el.dataset.kind});
-    }
-  }
-}
-
-window.addEventListener("phx:toast", (e) => {
-  showToast(e.detail.kind, e.detail.title, e.detail.msg);
-});
+  window.addEventListener("phx:toast", (e) => {
+    showToast(e.detail.kind, e.detail.title, e.detail.msg);
+  });
 
 function showToast(kind, title, msg) {
   let container = document.getElementById("toast-container");

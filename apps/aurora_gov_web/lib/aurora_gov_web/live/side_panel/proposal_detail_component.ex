@@ -309,7 +309,8 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
                   <%= for vote <- context.proposal.proposal_votes do %>
                     <div class="bg-gray-50 p-2 rounded text-sm">
                       <div class="flex justify-between items-center">
-                        <span class="font-semibold text-md">{vote.person_id}
+                        <span class="flex items-center gap-2">
+                         <.person_id_badge id={vote.person_id} patch={~p"/app/members/#{vote.person_id}?context=#{@app_context.current_ou_id}"} />
                          <.badge
                           :if={vote.vote_type == :delegated}
                           icon="fa-solid fa-handshake"

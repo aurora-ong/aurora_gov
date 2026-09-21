@@ -1,6 +1,14 @@
 defmodule AuroraGov.Projector.Model.Proposal do
   use Ecto.Schema
 
+  @derive {
+    Flop.Schema,
+    filterable: [:proposal_title, :proposal_status],
+    sortable: [:created_at, :proposal_status],
+    default_limit: 10,
+    default_order: %{order_by: [:created_at], order_directions: [:desc]}
+  }
+
   @primary_key {:proposal_id, :string, autogenerate: false}
   schema "proposal_table" do
     field :proposal_title, :string

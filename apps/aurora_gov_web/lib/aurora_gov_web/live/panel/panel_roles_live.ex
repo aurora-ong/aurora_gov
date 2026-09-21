@@ -119,7 +119,7 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full p-6">
+    <div class="w-full h-full">
       <div class="flex w-full h-12 flex-row justify-between mb-5 items-center">
         <div class="flex flex-row items-center gap-6">
           <.filter_button_group
@@ -134,15 +134,16 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
           />
         </div>
         <div class="flex flex-row gap-3">
-          <button
+          <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
             phx-value-proposal_power_id="org.role.create"
-            class="justify-center items-center text-lg primary"
+            variant="primary"
+            icon="fa-solid fa-plus"
           >
-            <i class="fa-solid fa-plus text-xl"></i> Nuevo rol
-          </button>
+            Nuevo rol
+          </.app_button>
         </div>
       </div>
 

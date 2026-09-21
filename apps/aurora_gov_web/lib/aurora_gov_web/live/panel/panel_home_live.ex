@@ -53,6 +53,15 @@ defmodule AuroraGov.Web.Live.Panel.Home do
         <p class="text-gray-600 text-base leading-relaxed flex-1">{@ou.ou_goal}</p>
       </div>
 
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-full">
+        <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
+          <i class="fa-solid fa-align-left text-blue-500"></i>
+          <h3 class="text-lg font-semibold text-gray-800">Descripción</h3>
+        </div>
+
+        <p class="text-gray-600 text-base leading-relaxed flex-1">{@ou.ou_description}</p>
+      </div>
+
       <div class="grid grid-cols-1 md:grid-cols-1 gap-6 w-full">
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 w-full">
           <div class="flex items-center justify-between mb-6 border-b border-gray-100 pb-3">
@@ -101,14 +110,6 @@ defmodule AuroraGov.Web.Live.Panel.Home do
           </div>
         </div>
 
-        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-full">
-          <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
-            <i class="fa-solid fa-align-left text-blue-500"></i>
-            <h3 class="text-lg font-semibold text-gray-800">Descripción</h3>
-          </div>
-
-          <p class="text-gray-600 text-base leading-relaxed flex-1">{@ou.ou_description}</p>
-        </div>
       </div>
     </div>
     """

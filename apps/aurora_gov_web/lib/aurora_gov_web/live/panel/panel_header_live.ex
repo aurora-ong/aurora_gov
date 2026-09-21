@@ -27,31 +27,36 @@ defmodule AuroraGov.Web.Live.Panel.Header do
           <div class="w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center text-aurora_orange shadow-sm border border-blue-100 shrink-0">
             <i class="fa-solid fa-sitemap text-2xl"></i>
           </div>
-          <div>
-          <div class="flex gap-4"><h1 class="text-2xl font-bold text-gray-900 truncate">{@ou.ou_name}</h1>
-          <.ou_id_badge id={@ou.ou_id} patch={~p"/app/home?context=#{@ou.ou_id}"} /></div>
-            <div class="flex items-center gap-2 mt-2">
-
-              <span class="text-gray-400 text-sm">Fundada el {@ou.created_at |> Calendar.strftime("%d/%m/%Y")}</span>
+          <div class="flex flex-col">
+            <h1 class="text-2xl font-bold text-gray-900">{@ou.ou_name}</h1>
+            <div class="flex items-center gap-3 mt-2">
+              <.ou_id_badge id={@ou.ou_id} patch={~p"/app/home?context=#{@ou.ou_id}"} />
+              <span class="text-gray-400 text-sm border-l border-gray-300 pl-3">
+                Fundada el {@ou.created_at |> Calendar.strftime("%d/%m/%Y")}
+              </span>
             </div>
           </div>
         </div>
 
         <div class="flex flex-row gap-3 items-center justify-center h-full">
-          <button
+          <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@ou.ou_id}
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 font-medium hover:bg-gray-50 text-sm"
+            variant="secondary"
+            icon="fa-solid fa-hand"
+            size="lg"
           >
-            <i class="fa-solid fa-hand"></i> Gobernar
-          </button>
-          <button
+            Gobernar
+          </.app_button>
+          <.app_button
             phx-click="open_tree_navigator_modal"
             phx-target={@myself}
-            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-aurora_orange text-white font-medium hover:opacity-90 text-sm"
+            variant="primary"
+            icon="fa-solid fa-sitemap rotate-180"
+            size="lg"
           >
-            <i class="fa-solid fa-sitemap rotate-180"></i> Navegar
-          </button>
+            Navegar
+          </.app_button>
         </div>
       </div>
     </div>

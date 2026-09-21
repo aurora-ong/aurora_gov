@@ -70,22 +70,23 @@ defmodule AuroraGov.Web.Live.Panel.Projects do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full p-6">
+    <div class="w-full h-full">
       <div class="flex w-full h-12 flex-row justify-between mb-8 items-center border-b border-gray-100 pb-4">
         <div>
           <h2 class="text-2xl font-bold text-gray-800">Proyectos</h2>
           <p class="text-sm text-gray-500">Gestión de carpetas de productos y esfuerzos institucionales</p>
         </div>
         <div class="flex flex-row gap-3">
-          <button
+          <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
             phx-value-proposal_power_id="org.project.create"
-            class="justify-center items-center text-lg primary flex gap-2"
+            variant="primary"
+            icon="fa-solid fa-plus"
           >
-            <i class="fa-solid fa-plus text-xl"></i> Nuevo Proyecto
-          </button>
+            Nuevo Proyecto
+          </.app_button>
         </div>
       </div>
 

@@ -35,11 +35,11 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
       resources = LedgerContext.list_resources_by_ou(ou_id)
       ledgers = LedgerContext.list_ledgers_by_ou(ou_id)
       external_ledgers = LedgerContext.list_external_ledgers()
-      
+
       ledgers_with_balance = Enum.map(ledgers ++ external_ledgers, fn acc ->
         %{ledger: acc, balance: LedgerContext.get_ledger_balance(acc.ledger_id)}
       end)
-      
+
       {resources, ledgers_with_balance}
     end)
   end
@@ -77,42 +77,45 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full p-6">
+    <div class="w-full h-full">
       <div class="flex w-full h-12 flex-row justify-between mb-8 items-center border-b border-gray-100 pb-4">
         <div>
           <h2 class="text-2xl font-bold text-gray-800">Recursos y Cuentas</h2>
           <p class="text-sm text-gray-500">Gestión contable e inventario base de la unidad organizativa</p>
         </div>
         <div class="flex flex-row gap-3">
-          <button
+          <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
             phx-value-proposal_power_id="org.transaction.record"
-            class="justify-center items-center text-sm px-4 py-2 border-2 font-semibold border-aurora_orange text-aurora_orange rounded-lg hover:bg-aurora_orange hover:text-white transition-colors"
+            variant="outline"
+            icon="fa-solid fa-money-bill-transfer"
           >
-            <i class="fa-solid fa-money-bill-transfer mr-1"></i> Nueva Transacción
-          </button>
-          
-          <button
+            Nueva Transacción
+          </.app_button>
+
+          <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
             phx-value-proposal_power_id="org.resource.create"
-            class="justify-center items-center text-sm px-4 py-2 border-2 font-semibold border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
+            variant="secondary"
+            icon="fa-solid fa-plus"
           >
-            <i class="fa-solid fa-plus mr-1"></i> Nuevo Recurso
-          </button>
-          
-          <button
+            Nuevo Recurso
+          </.app_button>
+
+          <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
             phx-value-proposal_power_id="org.ledger.create"
-            class="justify-center items-center text-sm px-4 py-2 font-semibold bg-aurora_orange text-white rounded-lg hover:bg-orange-600 transition-colors shadow"
+            variant="primary"
+            icon="fa-solid fa-plus"
           >
-            <i class="fa-solid fa-plus mr-1"></i> Nueva Cuenta
-          </button>
+            Nueva Cuenta
+          </.app_button>
         </div>
       </div>
 
@@ -192,7 +195,7 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
                   </div>
                 <% end %>
               </div>
-              
+
             <% "recursos" -> %>
               <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <%= for resource <- @resources do %>

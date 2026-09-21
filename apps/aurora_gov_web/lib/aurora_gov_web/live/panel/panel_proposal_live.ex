@@ -60,24 +60,38 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
     query =
       Proposal
       |> where([p], p.proposal_ou_start_id == ^current_ou_id or p.proposal_ou_end_id == ^current_ou_id)
-      |> order_by(desc: :created_at)
       |> preload([:proposal_ou_start, :proposal_ou_end, :proposal_owner])
+
+    filters = []
 
     filters =
       case filter_status do
-        "all" -> []
-        status -> [%{field: :proposal_status, op: :==, value: String.to_existing_atom(status)}]
+        "all" -> filters
+        status -> [%{"field" => "proposal_status", "op" => "==", "value" => status} | filters]
       end
 
     filters =
-      if search != "",
-        do: filters ++ [%{field: :proposal_title, op: :ilike, value: "%" <> search <> "%"}],
-        else: filters
+      if search != "" do
+        [%{"field" => "proposal_title", "op" => "ilike_and", "value" => search} | filters]
+      else
+        filters
+      end
 
-    params = Map.put(params, :filters, filters)
+    page = Map.get(params, :page, 1)
 
-    case Flop.validate_and_run(query, params) do
+    flop_params = %{
+      "page" => page,
+      "filters" => filters,
+      "order_by" => ["created_at"],
+      "order_directions" => ["desc"]
+    }
+
+    case Flop.validate_and_run(query, flop_params) do
       {:ok, {proposals, meta}} -> {proposals, meta}
+      {:error, meta} ->
+         require Logger
+         Logger.error("Flop validation failed: #{inspect(meta)}")
+         {[], %{current_page: 1, total_pages: 0, total_count: 0}}
     end
   end
 
@@ -97,7 +111,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full p-6">
+    <div class="w-full h-full">
       <.table
         id="proposal-table"
         rows={@streams.proposal_list}
@@ -130,13 +144,12 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
               />
             </div>
 
-            <form phx-change="search" phx-target={@myself} class="flex items-center gap-2">
+            <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2">
               <.search_field
                 search_button
                 name="search"
                 value={@search}
-                placeholder="Búsqueda rápida"
-                class="bg-amber-200"
+                placeholder="Buscar propuestas..."
               />
             </form>
           </div>
@@ -204,11 +217,11 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
         </:col>
 
         <:col :let={proposal} label="Responsable" align="center">
-          <.person_id_badge id={proposal.proposal_owner.person_id} title={proposal.proposal_owner.person_name} patch={~p"/app/members/#{proposal.proposal_owner.person_id}"} />
+          <.person_id_badge class="mx-auto" id={proposal.proposal_owner.person_id} title={proposal.proposal_owner.person_name} patch={~p"/app/members/#{proposal.proposal_owner.person_id}"} />
         </:col>
 
         <:col :let={proposal} label="Poder" align="center">
-          <.power_id_badge id={proposal.proposal_power_id} title={AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name} />
+          <.power_id_badge class="mx-auto" id={proposal.proposal_power_id} title={AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name} />
         </:col>
       </.table>
     </div>
@@ -227,7 +240,9 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
   end
 
   @impl true
-  def handle_event("search", %{"search" => search}, socket) do
+  def handle_event("search", params, socket) do
+    search = Map.get(params, "search", "")
+
     socket =
       socket
       |> assign(:search, search)

@@ -33,12 +33,12 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
     <%= if @patch do %>
       <.link patch={@patch} replace class={["group flex w-fit items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200 cursor-pointer", @class]} title={@title || @id}>
         <i class={[@icon, "text-gray-400 group-hover:text-gray-600 transition-colors"]}></i>
-        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate max-w-[200px]">{@id}</span>
+        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate">{@id}</span>
       </.link>
     <% else %>
       <div class={["group flex w-fit items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200", @class]} title={@title || @id}>
         <i class={[@icon, "text-gray-400 group-hover:text-gray-600 transition-colors"]}></i>
-        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate max-w-[200px]">{@id}</span>
+        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate">{@id}</span>
       </div>
     <% end %>
     """
@@ -104,63 +104,53 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
   end
 
   @doc """
-  Botón de acción con ícono, tooltip y soporte para tamaños y estado activado/desactivado.
-
-  ## Ejemplo
-      <.action_button size="md" active={true} icon_class="fa-solid fa-hand" tooltip_text="Agregar miembro">Nuevo miembro</.action_button>
+  Botón estándar de la aplicación.
   """
-  attr :size, :string, default: "md", doc: "Tamaño: sm | md | lg | xl"
-  attr :active, :boolean, default: true, doc: "Si el botón está activado"
-  attr :icon_class, :string, default: "fa-solid fa-hand", doc: "Clase del ícono FontAwesome"
-  attr :tooltip_text, :string, default: nil, doc: "Texto del tooltip (opcional)"
+  attr :variant, :string, default: "primary", doc: "Variante: primary | secondary | outline"
+  attr :size, :string, default: "md", doc: "Tamaño: sm | md | lg"
+  attr :icon, :string, default: nil, doc: "Clase del ícono FontAwesome"
+  attr :tooltip_text, :string, default: nil, doc: "Texto del tooltip"
   attr :class, :string, default: nil, doc: "Clases CSS adicionales"
+  attr :disabled, :boolean, default: false
   attr :rest, :global
   slot :inner_block, required: true
 
-  def action_button(assigns) do
+  def app_button(assigns) do
+    base_classes = "inline-flex justify-center items-center font-semibold rounded-lg transition-colors focus:outline-none"
+
     size_classes = %{
-      "sm" => "text-xs px-2 py-1 gap-1",
-      "md" => "text-sm px-3 py-1.5 gap-1.5",
-      "lg" => "text-base px-4 py-2 gap-2",
-      "xl" => "text-lg px-6 py-3 gap-2.5"
+      "sm" => "text-xs px-3 py-1.5 gap-1.5",
+      "md" => "text-sm px-4 py-2 gap-1.5",
+      "lg" => "text-base px-5 py-2.5 gap-2"
     }
 
-    icon_size_classes = %{
-      "sm" => "text-base",
-      "md" => "text-lg",
-      "lg" => "text-xl",
-      "xl" => "text-2xl"
+    variant_classes = %{
+      "primary" => "bg-aurora_orange text-white hover:bg-orange-600 border-2 border-transparent shadow",
+      "outline" => "border-2 border-aurora_orange text-aurora_orange hover:bg-aurora_orange hover:text-white bg-transparent",
+      "secondary" => "border-2 border-gray-300 text-gray-700 bg-white hover:bg-gray-100"
     }
 
-    assigns =
-      assign(
-        assigns,
-        :btn_classes,
-        [
-          "inline-flex items-center font-semibold rounded-lg transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-aurora_orange",
-          size_classes[assigns.size] || size_classes["md"],
-          (assigns.active && "bg-aurora_orange text-white hover:bg-black") ||
-            "bg-gray-300 text-gray-500 cursor-not-allowed opacity-60",
-          assigns.class
-        ]
-      )
+    disabled_classes = "opacity-60 cursor-not-allowed pointer-events-none"
 
     assigns =
-      assign(
-        assigns,
-        :icon_size_class,
-        icon_size_classes[assigns.size] || icon_size_classes["md"]
-      )
+      assign(assigns, :classes, [
+        base_classes,
+        size_classes[assigns.size] || size_classes["md"],
+        variant_classes[assigns.variant] || variant_classes["primary"],
+        assigns.disabled && disabled_classes,
+        assigns.class
+      ])
 
     ~H"""
     <.tooltip :if={@tooltip_text} text={@tooltip_text}>
-      <button class={@btn_classes} disabled={!@active} type="button" {@rest}>
-        <i class={[@icon_class, @icon_size_class]}></i> <span>{render_slot(@inner_block)}</span>
+      <button class={@classes} disabled={@disabled} type="button" {@rest}>
+        <i :if={@icon} class={@icon}></i>
+        {render_slot(@inner_block)}
       </button>
     </.tooltip>
-
-    <button :if={!@tooltip_text} class={@btn_classes} disabled={!@active} type="button" {@rest}>
-      <i class={[@icon_class, @icon_size_class]}></i> <span>{render_slot(@inner_block)}</span>
+    <button :if={!@tooltip_text} class={@classes} disabled={@disabled} type="button" {@rest}>
+      <i :if={@icon} class={@icon}></i>
+      {render_slot(@inner_block)}
     </button>
     """
   end
