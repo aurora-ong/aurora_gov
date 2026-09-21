@@ -14,7 +14,7 @@ metadata:
 spec:
   containers:
   - name: docker
-    image: docker:24-cli
+    image: docker:25-cli
     tty: true
     command: ["cat"]
     securityContext:
