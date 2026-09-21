@@ -140,43 +140,61 @@
 
 <div class="flex-1 min-w-0 flex flex-col px-6 pb-6 gap-6">
   <div class="sticky top-0 z-20 bg-white/95 backdrop-blur border-b border-gray-200 -mx-6 px-6 py-3 flex flex-row items-center gap-4">
-    <section class="grow flex flex-col px-0">
-      <form class="w-5/6">
-        <label
-          for="default-search"
-          class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white"
-        >
-          Search
-        </label>
-        
-        <div class="relative">
-          <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-            <svg
-              class="w-4 h-4 text-gray-500 dark:text-gray-400"
-              aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 20 20"
-            >
-              <path
-                stroke="currentColor"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-              />
-            </svg>
+      <section class="grow flex flex-col px-0" phx-click-away="hide_global_search">
+        <form class="w-5/6 relative group" phx-change="global_search" phx-submit="global_search">
+          <label for="default-search" class="mb-2 text-sm font-medium text-gray-900 sr-only">Search</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none group-[.phx-change-loading]:opacity-50">
+              <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+              </svg>
+            </div>
+            <input
+              type="search"
+              name="value"
+              id="default-search"
+              value={@app_global_search.query}
+              autocomplete="off"
+              phx-debounce="300"
+              phx-focus="show_global_search"
+              class="block w-full p-2.5 ps-10 text-sm text-gray-700 border border-transparent rounded-xl bg-gray-100 focus:bg-white focus:ring-0 focus:border-aurora_orange"
+              placeholder="Buscar personas, organizaciones y otros"
+            />
+            <div class="absolute inset-y-0 end-0 items-center pe-3 pointer-events-none hidden group-[.phx-change-loading]:flex">
+              <i class="fa-solid fa-circle-notch fa-spin text-aurora_orange"></i>
+            </div>
           </div>
-          
-          <input
-            type="search"
-            id="default-search"
-            class="block w-full p-2.5 ps-10 text-sm text-gray-700 border border-transparent rounded-xl bg-gray-100 focus:bg-white focus:ring-0 focus:border-aurora_orange"
-            placeholder="Buscar personas, organizaciones y otros"
-          />
-        </div>
-      </form>
-    </section>
+
+          <%= if @app_global_search.show_dropdown do %>
+            <div class="absolute top-full left-0 mt-2 w-full bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-50 max-h-96 overflow-y-auto">
+              <%= if Enum.empty?(@app_global_search.results) do %>
+                <div class="p-4 text-sm text-gray-500 text-center">No se encontraron resultados para "{@app_global_search.query}"</div>
+              <% else %>
+                <%= for {category, items} <- @app_global_search.results do %>
+                  <div class="px-4 py-2 bg-gray-50 border-b border-gray-100 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    {category}
+                  </div>
+                  <ul class="divide-y divide-gray-100">
+                    <%= for item <- items do %>
+                      <li>
+                        <.link patch={item.url} class="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors" phx-click="hide_global_search">
+                          <div class="w-8 h-8 rounded-full bg-blue-50 text-aurora_blue flex items-center justify-center shrink-0">
+                            <i class={"fa-solid #{item.icon}"}></i>
+                          </div>
+                          <div class="min-w-0 flex-1">
+                            <div class="text-sm font-medium text-gray-900 truncate">{item.title}</div>
+                            <div class="text-xs text-gray-500 truncate">{item.subtitle}</div>
+                          </div>
+                        </.link>
+                      </li>
+                    <% end %>
+                  </ul>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </form>
+      </section>
     
     <section id="panel-menu" class="flex flex-row items-center gap-3">
       <%!-- <a href="#" class="iconbutton">

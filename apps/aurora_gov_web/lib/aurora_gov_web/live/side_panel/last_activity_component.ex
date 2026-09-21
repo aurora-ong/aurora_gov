@@ -33,7 +33,9 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     ResourceCreated,
     ResourceUpdated,
     LedgerCreated,
-    TransactionRecorded
+    TransactionRecorded,
+    OURoleCreated,
+    OURoleAssigned
   }
 
   alias AuroraGov.Projector.Model.{Person, OU, Proposal}
@@ -384,6 +386,19 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
 
   defp render_description(%{data: %TransactionRecorded{}}) do
     "Transacción registrada en el libro mayor."
+  end
+
+  defp render_description(%{
+         data: %OURoleCreated{role_name: role_name},
+         ou: %OU{ou_name: ou_name}
+       }) do
+    "Nuevo rol '#{role_name}' creado en #{ou_name}."
+  end
+
+  defp render_description(%{
+         data: %OURoleAssigned{person_id: person_id}
+       }) do
+    "Un rol fue asignado a #{person_id}."
   end
 
   defp render_description(%{data: %{__struct__: _} = data}) do

@@ -482,3 +482,46 @@ AuroraGov.dispatch(AuroraGov.Command.RecordTransaction.new(%{
     "name" => "Bolsa de Rondas Nocturnas",
     "description" => "Registro general del tiempo aportado por los vigilantes de cuadra."
   }) |> Ecto.Changeset.apply_action!(:insert))
+
+role_1_id = Ecto.ShortUUID.generate()
+AuroraGov.dispatch(%AuroraGov.Command.CreateRole{
+  ou_id: "barrio_vivo",
+  role_id: role_1_id,
+  role_name: "Coordinador General",
+  role_description: "Encargado de coordinar las actividades entre las diferentes comisiones del barrio."
+})
+
+role_2_id = Ecto.ShortUUID.generate()
+AuroraGov.dispatch(%AuroraGov.Command.CreateRole{
+  ou_id: "barrio_vivo.seguridad",
+  role_id: role_2_id,
+  role_name: "Lider de Patrulla",
+  role_description: "Persona responsable de organizar los turnos de patrullaje vecinal."
+})
+
+role_3_id = Ecto.ShortUUID.generate()
+AuroraGov.dispatch(%AuroraGov.Command.CreateRole{
+  ou_id: "barrio_vivo.espacios_publicos",
+  role_id: role_3_id,
+  role_name: "Tesorero de Comision",
+  role_description: "Administra los fondos recolectados para la compra de herramientas e insumos."
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.AssignRole{
+  ou_id: "barrio_vivo",
+  role_id: role_1_id,
+  person_id: "000@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.AssignRole{
+  ou_id: "barrio_vivo.seguridad",
+  role_id: role_2_id,
+  person_id: "111@test.com"
+})
+
+AuroraGov.dispatch(%AuroraGov.Command.AssignRole{
+  ou_id: "barrio_vivo.espacios_publicos",
+  role_id: role_3_id,
+  person_id: "222@test.com"
+})
+

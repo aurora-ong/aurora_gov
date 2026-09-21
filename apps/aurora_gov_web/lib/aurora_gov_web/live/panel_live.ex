@@ -27,7 +27,12 @@ defmodule AuroraGov.Web.Live.Panel do
       assign(socket,
         app_context: %AppContext{current_person: socket.assigns.current_person},
         app_modal: nil,
-        app_side_panel: nil
+        app_side_panel: nil,
+        app_global_search: %{
+          query: "",
+          results: %{},
+          show_dropdown: false
+        }
       )
 
     {:ok, socket}
@@ -40,8 +45,14 @@ defmodule AuroraGov.Web.Live.Panel do
 
     socket =
       if current_ou_id != nil do
+        ou = AuroraGov.Context.OUContext.get_ou(current_ou_id)
+        ou_name = if ou, do: ou.ou_name, else: "AuroraGov"
+        page_title = "#{ou_name} · #{module_name_es(current_module)}"
+
         socket
+        |> assign(:page_title, page_title)
         |> assign(:app_modal, nil)
+        |> assign(:app_global_search, %{socket.assigns.app_global_search | show_dropdown: false})
         |> assign(:app_context, %{
           socket.assigns.app_context
           | current_module: current_module,
@@ -68,6 +79,15 @@ defmodule AuroraGov.Web.Live.Panel do
   defp get_module_from_action(_, %{"module" => module}), do: module
   # Fallback
   defp get_module_from_action(_, _), do: "home"
+
+  defp module_name_es("home"), do: "Inicio"
+  defp module_name_es("culture"), do: "Cultura"
+  defp module_name_es("members"), do: "Miembros"
+  defp module_name_es("proposals"), do: "Propuestas"
+  defp module_name_es("projects"), do: "Proyectos"
+  defp module_name_es("resources"), do: "Recursos"
+  defp module_name_es("settings"), do: "Configuración"
+  defp module_name_es(name), do: String.capitalize(name)
 
   defp handle_deep_linking(socket, :members_show, %{"id" => id}) do
     app_panel = %AppView{
@@ -112,7 +132,7 @@ defmodule AuroraGov.Web.Live.Panel do
 
     assign(socket, :app_side_panel, app_panel)
   end
-  
+
   defp handle_deep_linking(socket, :ledger_show, %{"id" => id}) do
     app_panel = %AppView{
       view_id: "panel-ledger-#{id}",
@@ -179,6 +199,30 @@ defmodule AuroraGov.Web.Live.Panel do
   def handle_event("app_modal_close", %{"modal" => modal_id}, socket) do
     IO.inspect(modal_id, label: "Cerrando modal")
     {:noreply, assign(socket, app_modal: nil)}
+  end
+
+  @impl true
+  def handle_event("global_search", %{"value" => query}, socket) do
+    if byte_size(query) > 1 do
+      results = AuroraGov.Context.GlobalSearch.search(query)
+      {:noreply, assign(socket, app_global_search: %{query: query, results: results, show_dropdown: true})}
+    else
+      {:noreply, assign(socket, app_global_search: %{query: query, results: %{}, show_dropdown: false})}
+    end
+  end
+
+  @impl true
+  def handle_event("hide_global_search", _params, socket) do
+    {:noreply, assign(socket, app_global_search: %{socket.assigns.app_global_search | show_dropdown: false})}
+  end
+
+  @impl true
+  def handle_event("show_global_search", _params, socket) do
+    if byte_size(socket.assigns.app_global_search.query) > 1 do
+      {:noreply, assign(socket, app_global_search: %{socket.assigns.app_global_search | show_dropdown: true})}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true

@@ -15,6 +15,11 @@ defmodule AuroraGov.Web.Live.Panel.Home do
     assignments = AuroraGov.Context.RoleContext.list_assignments_by_ou(ou_id)
     grouped_assignments = Enum.group_by(assignments, & &1.role_id)
 
+    active_members_count = AuroraGov.Context.MembershipContext.count_active_memberships_by_ou(ou_id)
+    active_proposals_count = AuroraGov.Context.ProposalContext.count_active_proposals_by_ou(ou_id)
+    active_tasks_count = AuroraGov.Context.ProjectContext.count_active_tasks_by_ou(ou_id)
+    active_roles_count = map_size(grouped_assignments)
+
     socket =
       socket
       |> assign(:app_context, assigns.app_context)
@@ -22,6 +27,12 @@ defmodule AuroraGov.Web.Live.Panel.Home do
       |> assign(:ou, AuroraGov.Context.OUContext.get_ou(ou_id))
       |> assign(:roles, roles)
       |> assign(:assignments, grouped_assignments)
+      |> assign(:stats, %{
+        members: active_members_count,
+        proposals: active_proposals_count,
+        tasks: active_tasks_count,
+        roles: active_roles_count
+      })
 
     show_activity_panel(assigns.app_context)
 
@@ -44,6 +55,37 @@ defmodule AuroraGov.Web.Live.Panel.Home do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full flex flex-col gap-6  overflow-y-auto">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col items-center justify-center gap-2 hover:border-blue-300 hover:shadow-md transition-all group">
+          <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xl mb-1 group-hover:bg-blue-100 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-users"></i>
+          </div>
+          <span class="text-3xl font-bold text-gray-900">{@stats.members}</span>
+          <span class="text-sm font-medium text-gray-500 text-center">Miembros<br/>Activos</span>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col items-center justify-center gap-2 hover:border-emerald-300 hover:shadow-md transition-all group">
+          <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-500 flex items-center justify-center text-xl mb-1 group-hover:bg-emerald-100 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-hand-paper"></i>
+          </div>
+          <span class="text-3xl font-bold text-gray-900">{@stats.proposals}</span>
+          <span class="text-sm font-medium text-gray-500 text-center">Propuestas<br/>Activas</span>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col items-center justify-center gap-2 hover:border-amber-300 hover:shadow-md transition-all group">
+          <div class="w-12 h-12 rounded-full bg-amber-50 text-amber-500 flex items-center justify-center text-xl mb-1 group-hover:bg-amber-100 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-check-square"></i>
+          </div>
+          <span class="text-3xl font-bold text-gray-900">{@stats.tasks}</span>
+          <span class="text-sm font-medium text-gray-500 text-center">Tareas<br/>en Curso</span>
+        </div>
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col items-center justify-center gap-2 hover:border-purple-300 hover:shadow-md transition-all group">
+          <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-xl mb-1 group-hover:bg-purple-100 group-hover:scale-110 transition-transform">
+            <i class="fa-solid fa-id-card-clip"></i>
+          </div>
+          <span class="text-3xl font-bold text-gray-900">{@stats.roles}</span>
+          <span class="text-sm font-medium text-gray-500 text-center">Roles<br/>Asignados</span>
+        </div>
+      </div>
+
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex flex-col h-full">
         <div class="flex items-center gap-2 mb-4 border-b border-gray-100 pb-3">
           <i class="fa-solid fa-bullseye text-blue-500"></i>
