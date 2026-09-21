@@ -17,9 +17,6 @@
     {Application.get_env(:live_debugger, :live_debugger_tags)}
   </head>
   <body class="antialiased p-0 m-0 h-screen text-black fill-black font-montserrat">
-    <div class="mx-auto max-w-2xl absolute">
-      <.flash_group flash={@flash} />
-    </div>
     {@inner_content}
   </body>
 </html>
