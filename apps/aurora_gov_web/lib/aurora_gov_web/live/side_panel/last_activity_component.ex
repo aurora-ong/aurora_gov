@@ -101,11 +101,11 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   end
 
   @impl true
-  def handle_async(:load_initial, {:ok, {blocks, page, _has_more}}, socket) do
+  def handle_async(:load_initial, {:ok, {blocks, page, has_more}}, socket) do
     ctx = %Context{
       activity_list: blocks,
       page: page,
-      has_more: false,
+      has_more: has_more,
       loading_more: false
     }
 
@@ -141,12 +141,12 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
           <div class="flex justify-center p-8"><.loading_spinner size="double_large" /></div>
         </:loading>
 
-        <:failed :let={error}>
+        <:failed :let={_error}>
           <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
             <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
             <h3 class="text-lg font-medium text-gray-900 mb-2">No se pudo cargar</h3>
 
-            <p class="text-gray-500 text-xs truncate max-w-xs">{inspect(error)}</p>
+            <p class="text-gray-500 text-xs truncate max-w-xs">Cierra y vuelve a abrir el panel para reintentar.</p>
           </div>
         </:failed>
 
@@ -164,12 +164,12 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
             </div>
           <% else %>
             <%= for block <- context.activity_list do %>
-              <.link navigate={render_link(block)}>
+              <.activity_link to={render_link(block)}>
                 <div
                   id={"block-#{block.index}"}
-                  class="bg-white rounded-lg shadow-sm p-3 border border-gray-200 transition hover:shadow-md hover:border-blue-300 relative group cursor-pointer"
+                  class={["bg-white rounded-lg shadow-sm p-3 border border-gray-200 transition hover:shadow-md hover:border-aurora_blue_light/40 relative group", render_link(block) != "" && "cursor-pointer"]}
                 >
-                  <div class="absolute left-0 top-0.5 bottom-0.5 w-1 rounded-r bg-gray-300 group-hover:bg-blue-500">
+                  <div class="absolute left-0 top-0.5 bottom-0.5 w-1 rounded-r bg-gray-300 group-hover:bg-aurora_blue_light">
                   </div>
 
                   <div class="pl-2 flex items-start justify-between gap-2">
@@ -178,7 +178,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
                         <span class="text-xs text-gray-400 font-mono">
                           {format_date(block.occurred_at)}
                         </span>
-                        <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 opacity-0 group-hover:opacity-100 group-hover:text-blue-400 transition-colors">
+                        <span class="text-xs px-1.5 py-0.5 rounded-full font-medium bg-gray-100 text-gray-600 opacity-0 group-hover:opacity-100 group-hover:text-aurora_blue_light transition-colors">
                           {humanize_event_type(block)}
                         </span>
                       </div>
@@ -190,21 +190,21 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
 
                     <div class="flex flex-col items-end gap-0.5">
                       <span
-                        class="text-xs font-semibold font-mono px-1 text-gray-600 group-hover:text-blue-400 transition-colors bg-gray-50 border rounded-sm"
+                        class="text-xs font-semibold font-mono px-1 text-gray-600 group-hover:text-aurora_blue_light transition-colors bg-gray-50 border rounded-sm"
                         title="Block Height"
                       >
                         #{block.index}
                       </span>
                       <span
-                        class="text-xs font-semibold font-mono px-1 text-gray-600 group-hover:text-blue-400 transition-colors bg-gray-50 border rounded-sm"
+                        class="text-xs font-semibold font-mono px-1 text-gray-600 group-hover:text-aurora_blue_light transition-colors bg-gray-50 border rounded-sm"
                         title={String.downcase(block.hash)}
                       >
-                        {String.slice(String.downcase(block.hash), 1..10)}
+                        {String.slice(String.downcase(block.hash), 0..9)}
                       </span>
                     </div>
                   </div>
                 </div>
-              </.link>
+              </.activity_link>
             <% end %>
 
             <div
@@ -223,10 +223,29 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     """
   end
 
+  attr :to, :string, required: true
+  slot :inner_block, required: true
+
+  defp activity_link(%{to: ""} = assigns) do
+    ~H"""
+    <div>{render_slot(@inner_block)}</div>
+    """
+  end
+
+  defp activity_link(assigns) do
+    ~H"""
+    <.link navigate={@to}>{render_slot(@inner_block)}</.link>
+    """
+  end
+
   defp format_date(nil), do: "-"
 
   defp format_date(date) do
-    Calendar.strftime(date, "%d %b · %H:%M")
+    Calendar.strftime(date, "%d %b · %H:%M",
+      abbreviated_month_names: fn month ->
+        Enum.at(~w(ene feb mar abr may jun jul ago sep oct nov dic), month - 1)
+      end
+    )
   end
 
   defp render_description(%{
@@ -425,11 +444,45 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
 
   defp render_link(_), do: ""
 
+  @event_labels %{
+    "VoteEmited" => "Voto",
+    "ProposalCreated" => "Propuesta",
+    "ProposalExecuted" => "Promulgación",
+    "ProposalConsumed" => "Promulgación",
+    "OUCreated" => "Organización",
+    "OURenamed" => "Organización",
+    "OUGoalUpdated" => "Objetivo",
+    "MembershipStarted" => "Membresía",
+    "MembershipPromoted" => "Rango",
+    "PowerUpdated" => "Poder",
+    "PowerDelegationActivated" => "Delegación",
+    "PowerDelegationDeactivated" => "Delegación",
+    "PersonRegistered" => "Registro",
+    "ProjectCreated" => "Proyecto",
+    "ProjectUpdated" => "Proyecto",
+    "ProjectArchived" => "Proyecto",
+    "ProjectTransferred" => "Proyecto",
+    "TaskCreated" => "Tarea",
+    "TaskUpdated" => "Tarea",
+    "TaskAssigned" => "Tarea",
+    "TaskCompleted" => "Tarea",
+    "TaskAbandoned" => "Tarea",
+    "TaskCancelled" => "Tarea",
+    "TaskEvaluated" => "Tarea",
+    "ResourceCreated" => "Recurso",
+    "ResourceUpdated" => "Recurso",
+    "LedgerCreated" => "Cuenta",
+    "TransactionRecorded" => "Transacción",
+    "OURoleCreated" => "Rol",
+    "OURoleAssigned" => "Rol"
+  }
+
   defp humanize_event_type(block) do
     block.event_type
     |> String.split(".")
     |> List.last()
     |> String.replace("Event", "")
+    |> then(&Map.get(@event_labels, &1, &1))
   end
 
   defp truncate(text, len) do
