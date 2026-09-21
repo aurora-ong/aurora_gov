@@ -43,6 +43,26 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     end
   end
 
+  def handle_event({:ou_avatar_updated, ou}, socket) do
+    current_ou_id = socket.assigns.app_context.current_ou_id
+
+    if current_ou_id == ou.ou_id do
+      send_update(
+        AuroraGov.Web.Live.Panel.Header,
+        id: "header",
+        app_context: socket.assigns.app_context
+      )
+
+      socket
+      |> put_toast(
+        "info",
+        "Se actualizó el avatar de la unidad."
+      )
+    else
+      socket
+    end
+  end
+
   def handle_event({:membership_started, %{person: person, ou: ou} = membership}, socket) do
     send_update(AuroraGov.Web.Live.Panel.Members,
       id: "panel-members",

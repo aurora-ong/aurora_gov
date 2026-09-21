@@ -7,6 +7,8 @@ defmodule AuroraGov.Projector.Model.OU do
     field :ou_goal, :string
     field :ou_description, :string
     field :ou_status, Ecto.Enum, values: [:active]
+    field :ou_avatar_url, :string
+    field :ou_avatar_hash, :string
     field :created_at, :utc_datetime_usec
     field :updated_at, :utc_datetime_usec
   end

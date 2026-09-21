@@ -6,6 +6,7 @@ defmodule AuroraGov.Router do
     CreateOU,
     RenameOU,
     UpdateOUGoal,
+    UpdateOUAvatar,
     StartMembership,
     UpdatePower,
     PromoteMembership,
@@ -41,6 +42,7 @@ defmodule AuroraGov.Router do
     CreateOUHandler,
     RenameOUHandler,
     UpdateOUGoalHandler,
+    UpdateOUAvatarHandler,
     StartMembershipHandler,
     UpdatePowerHandler,
     PromoteMembershipHandler,
@@ -63,6 +65,7 @@ defmodule AuroraGov.Router do
   dispatch(CreateOU, to: CreateOUHandler, aggregate: OU, identity: :ou_id)
   dispatch(RenameOU, to: RenameOUHandler, aggregate: OU, identity: :ou_id)
   dispatch(UpdateOUGoal, to: UpdateOUGoalHandler, aggregate: OU, identity: :ou_id)
+  dispatch(UpdateOUAvatar, to: UpdateOUAvatarHandler, aggregate: OU, identity: :ou_id)
   dispatch(StartMembership, to: StartMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(PromoteMembership, to: PromoteMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(UpdatePower, to: UpdatePowerHandler, aggregate: OU, identity: :ou_id)

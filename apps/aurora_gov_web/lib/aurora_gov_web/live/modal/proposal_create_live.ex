@@ -207,6 +207,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         id="proposal-power_form"
         form={@step_1_form}
         app_context={@app_context}
+        uploads={assigns[:uploads] || %{}}
+        target={@myself}
         command_module={
           @proposal_data.proposal_power_id
           |> AuroraGov.Context.GovPowerContext.get_gov_power!()
@@ -448,17 +450,24 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         updated_proposal_data =
           Map.merge(socket.assigns.proposal_data, proposal_changeset.changes)
 
+        proposal_power = proposal_changeset.changes.proposal_power_id
+        command_module =
+          proposal_power
+          |> AuroraGov.Context.GovPowerContext.get_gov_power!()
+          |> then(& &1.module)
+
+        upload_fields = Enum.filter(command_module.field_definitions(), &(&1.form_type == :image_upload))
+        
+        socket =
+          Enum.reduce(upload_fields, socket, fn field, acc ->
+            upload_opts = Keyword.get(field.opts, :upload_options, [accept: ~w(.png .jpg .jpeg), max_entries: 1, auto_upload: true])
+            allow_upload(acc, field.name, upload_opts)
+          end)
+
         socket
         |> assign(step: 1)
         |> assign(proposal_data: updated_proposal_data)
         |> assign_new(:step_1_form, fn ->
-          proposal_power = proposal_changeset.changes.proposal_power_id
-
-          command_module =
-            proposal_power
-            |> AuroraGov.Context.GovPowerContext.get_gov_power!()
-            |> then(& &1.module)
-
           power_changeset =
             command_module.new(socket.assigns.power_params || %{})
 
@@ -479,6 +488,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(step: String.to_integer(step))
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_1_validate", params, socket) when not is_map_key(params, "power") do
+    handle_event("step_1_validate", %{"power" => %{}}, socket)
   end
 
   @impl true
@@ -504,6 +518,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(step_1_form: to_form(power_changeset, as: "power"))
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_1_next", params, socket) when not is_map_key(params, "power") do
+    handle_event("step_1_next", %{"power" => %{}}, socket)
   end
 
   @impl true
@@ -659,10 +678,50 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
     end
   end
 
+  @impl true
+  def handle_event("cancel-upload", %{"ref" => ref, "upload-name" => upload_name}, socket) do
+    {:noreply, cancel_upload(socket, String.to_existing_atom(upload_name), ref)}
+  end
+
   defp proposal_submit(socket) do
+    command_module =
+      socket.assigns.proposal_data.proposal_power_id
+      |> AuroraGov.Context.GovPowerContext.get_gov_power!()
+      |> then(& &1.module)
+      
+    upload_fields = Enum.filter(command_module.field_definitions(), &(&1.form_type == :image_upload))
+
+    # Consume dynamically all uploaded entries from configured fields
+    uploaded_files =
+      Enum.flat_map(upload_fields, fn field ->
+        consume_uploaded_entries(socket, field.name, fn %{path: path}, entry ->
+          binary_content = File.read!(path)
+          file_hash = :crypto.hash(:sha256, binary_content) |> Base.encode16(case: :lower)
+          
+          file_extension = Path.extname(entry.client_name)
+          new_filename = "#{Ecto.UUID.generate()}#{file_extension}"
+          
+          case AuroraGov.Storage.put_file(binary_content, new_filename, entry.client_type) do
+            {:ok, url} -> {:ok, {field.name, url, file_hash}}
+            {:error, _} -> {:postpone, "No se pudo guardar el archivo"}
+          end
+        end)
+      end)
+
+    # Re-validate power command injecting the uploads directly via context
+    proposal_context = %{
+      end_ou_id: socket.assigns.proposal_data["proposal_ou_end"] || socket.assigns.proposal_data[:proposal_ou_end]
+    }
+
+    power_changeset =
+      socket.assigns.power_data
+      |> command_module.new(context: proposal_context, uploads: uploaded_files)
+
+    power_data = Ecto.Changeset.apply_changes(power_changeset) |> Map.from_struct()
+
     full_params =
       socket.assigns.proposal_data
-      |> Map.put(:proposal_power_data, socket.assigns.power_data)
+      |> Map.put(:proposal_power_data, power_data)
       |> Map.put(:proposal_person_id, socket.assigns.app_context.current_person.person_id)
 
     case AuroraGov.Context.ProposalContext.create_proposal!(full_params) do

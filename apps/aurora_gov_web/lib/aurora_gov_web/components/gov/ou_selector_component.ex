@@ -33,14 +33,25 @@ defmodule AuroraGov.Web.OUSelectorComponent do
     <div id={@id} class="relative">
       <label for={@id} class="block text-sm text-gray-700 mb-1 font-semibold">
         {@label || "Unidad"}
-      </label> <%!-- <.label for={@id}>{@label}</.label> --%>
+      </label>
       <%= if @selected_ou do %>
         <div class="flex flex-row border py-2 px-4 rounded-lg items-center bg-gray-100 shadow-md">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gray-200 border border-gray-300 mr-3">
+             <%= if @selected_ou[:ou_avatar_url] do %>
+               <img src={@selected_ou.ou_avatar_url} class="w-full h-full object-cover" />
+             <% else %>
+               <i class="fa-solid fa-sitemap text-aurora_orange text-lg rotate-180"></i>
+             <% end %>
+          </div>
+
           <div class="flex flex-col grow">
-            <span class="text-white w-fit bg-black px-2 py-0.5 font-semibold text-sm rounded">
-              {@selected_ou.ou_id}
-            </span>
-             <span>{@selected_ou.ou_name}</span>
+             <span class="font-bold">{@selected_ou.ou_name}</span>
+             <div class="flex flex-row gap-2 items-center mt-1">
+               <.ou_id_badge id={@selected_ou.ou_id} size="sm" />
+               <%= if Map.get(@selected_ou, :membership_rank) do %>
+                 <.membership_rank_badge rank={@selected_ou.membership_rank} />
+               <% end %>
+             </div>
           </div>
 
           <button phx-click="clear" type="button" class="" phx-target={@myself}>
@@ -81,20 +92,26 @@ defmodule AuroraGov.Web.OUSelectorComponent do
               phx-click="select"
               phx-value-ou_id={ou.ou_id}
               phx-target={@myself}
-              class="px-4 py-2 hover:bg-blue-100 cursor-pointer flex justify-between items-center text-sm"
+              class="px-4 py-3 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
             >
-              <div>
-                <div class="font-semibold">{ou.ou_name}</div>
-
-                <div class="text-xs text-gray-500">ID: {ou.ou_id}</div>
-              </div>
-
-              <div class="text-xs font-medium">
-                <%= if ou.membership_rank do %>
-                  <span class="text-green-600">{ou.membership_rank}</span>
-                <% else %>
-                  <span class="text-gray-400 italic">No miembro</span>
-                <% end %>
+              <div class="flex flex-row items-center gap-3">
+                <div class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gray-200 border border-gray-300">
+                   <%= if Map.get(ou, :ou_avatar_url) do %>
+                     <img src={ou.ou_avatar_url} class="w-full h-full object-cover" />
+                   <% else %>
+                     <i class="fa-solid fa-sitemap text-aurora_orange text-sm rotate-180"></i>
+                   <% end %>
+                </div>
+                
+                <div class="flex flex-col">
+                  <div class="font-semibold text-sm">{ou.ou_name}</div>
+                  <div class="flex flex-row gap-2 mt-1 items-center">
+                    <.ou_id_badge id={ou.ou_id} size="sm" />
+                    <%= if Map.get(ou, :membership_rank) do %>
+                      <.membership_rank_badge rank={ou.membership_rank} />
+                    <% end %>
+                  </div>
+                </div>
               </div>
             </li>
           <% end %>

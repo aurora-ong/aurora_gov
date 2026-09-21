@@ -33,6 +33,7 @@ defmodule AuroraGov.Context.OUContext do
           ou_id: ou.ou_id,
           ou_name: ou.ou_name,
           ou_goal: ou.ou_goal,
+          ou_avatar_url: ou.ou_avatar_url,
           created_at: ou.created_at,
           membership_rank: m.membership_rank,
           membership_created_at: m.created_at

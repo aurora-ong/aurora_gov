@@ -20,7 +20,7 @@ defmodule AuroraGov.Web.OUVisualTreeComponent do
 
     ~H"""
     <ul class="list-none">
-      <%= for {ou, children} <- @tree do %>
+      <%= for {ou, children} <- Enum.sort_by(@tree, fn {ou, _} -> ou.ou_id end) do %>
         <li class={if AuroraGov.Utils.OUTree.is_root?(ou.ou_id), do: "", else: "pl-16"}>
           <div>
             <%= if @ou_item != [] do %>
@@ -42,7 +42,9 @@ defmodule AuroraGov.Web.OUVisualTreeComponent do
   end
 
   defp build_nested_tree(ous) do
-    Enum.reduce(ous, %{}, fn ou, acc ->
+    ous
+    |> Enum.sort_by(fn ou -> String.length(ou.ou_id) end)
+    |> Enum.reduce(%{}, fn ou, acc ->
       parts = String.split(ou.ou_id, ".")
       insert_in_tree(parts, ou, acc)
     end)

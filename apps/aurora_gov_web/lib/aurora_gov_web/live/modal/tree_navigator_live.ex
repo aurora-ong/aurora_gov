@@ -33,74 +33,6 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
     {:ok, socket}
   end
 
-  # ============ UI SUBCOMPONENTS (HEEx) ============
-
-  # Badge de membresía (sin with_attrs; cálculo en Elixir + assigns)
-  attr :status, :any, required: true
-
-  defp membership_badge(assigns) do
-    assigns =
-      if is_nil(assigns.status) do
-        assigns
-      else
-        {label, icon} = membership_style(assigns.status)
-
-        assigns
-        |> assign(:m_label, label)
-        |> assign(:m_icon, icon)
-      end
-
-    ~H"""
-    <!-- Caso: no pertenece a ninguna unidad -->
-    <span
-      :if={false}
-      class="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-2 py-0.5 text-[11px] font-semibold text-gray-600"
-      title="No perteneces a esta unidad"
-    >
-      <i class="fa-solid fa-user-slash text-[12px]"></i>
-    </span>
-    <!-- Caso: pertenece (usa assigns calculados arriba) -->
-    <span
-      :if={!is_nil(@status)}
-      class="inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[11px] font-semibold border border-green-200 bg-green-50 text-green-700"
-    >
-      <i class={"text-[12px] " <> @m_icon}></i> {@m_label}
-    </span>
-    """
-  end
-
-  # ============ HELPERS ============
-
-  defp membership_style(level) do
-    case normalize_level(level) do
-      :junior ->
-        {"Junior", "fa-solid fa-user"}
-
-      :regular ->
-        {"Regular", "fa-solid fa-user-check"}
-
-      :senior ->
-        {"Senior", "fa-solid fa-user-tie"}
-
-      _ ->
-        {"Miembro", "fa-solid fa-user-check"}
-    end
-  end
-
-  defp normalize_level(nil), do: nil
-
-  defp normalize_level(lvl) when is_binary(lvl) do
-    case String.downcase(lvl) do
-      "junior" -> :junior
-      "regular" -> :regular
-      "senior" -> :senior
-      _ -> nil
-    end
-  end
-
-  defp normalize_level(lvl) when is_atom(lvl), do: lvl
-  defp normalize_level(_), do: nil
-
   # ============ RENDER ============
 
   @impl true
@@ -140,20 +72,26 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
                   "cursor-pointer hover:bg-gray-50 px-4 sm:px-5 py-3 rounded-lg my-1 flex flex-row items-center border transition " <>
                   if @app_context.current_ou_id == ou.ou_id, do: "border-2 border-aurora_orange bg-aurora_orange/10", else: "border-gray-200"
                 }>
-                  <div class="flex flex-col grow min-w-0">
-                    <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
-                      <.ou_id_badge size="sm" id={ou.ou_id} />
-                      <%!-- <.chip icon_class="fa-solid fa-calendar-days">
-                        {Timex.lformat!(ou[:created_at], "{relative}", "es", :relative)}
-                      </.chip> --%>
-                      <.membership_badge status={ou[:membership_rank]} />
-                    </div>
+                  <!-- Avatar -->
+                  <div class="flex items-center justify-center w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200 mr-4">
+                    <%= if ou[:ou_avatar_url] do %>
+                      <img src={ou.ou_avatar_url} class="w-full h-full object-cover" />
+                    <% else %>
+                      <i class="fa-solid fa-sitemap text-aurora_orange text-xl rotate-180"></i>
+                    <% end %>
+                  </div>
 
+                  <div class="flex flex-col grow min-w-0">
                     <div
                       class="text-aurora_orange font-bold text-base sm:text-lg truncate flex flex-row items-center"
                       title={ou.ou_name}
                     >
                       {ou.ou_name}
+                    </div>
+
+                    <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
+                      <.ou_id_badge size="sm" id={ou.ou_id} />
+                      <.membership_rank_badge :if={!is_nil(ou[:membership_rank])} rank={ou[:membership_rank]} />
                     </div>
                   </div>
                   <!-- Indicador de pertenencia -->

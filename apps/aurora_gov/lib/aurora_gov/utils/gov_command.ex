@@ -38,7 +38,7 @@ defmodule AuroraGov.Command do
                        end)
 
       def new(user_params \\ %{}, opts \\ []) do
-        params = Enum.into(user_params, %{})
+        params = Map.new(user_params, fn {k, v} -> {to_string(k), v} end)
         context = Keyword.get(opts, :context, %{})
 
         enriched_params =

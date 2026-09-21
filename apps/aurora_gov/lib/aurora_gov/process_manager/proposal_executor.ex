@@ -39,7 +39,7 @@ defmodule AuroraGov.ProcessManagers.ProposalExecutor do
       {:error, reason} ->
         # Opcional: Podrías emitir un comando para registrar la falla o compensar
         Logger.warning("#{__MODULE__} Error al generar comando #{inspect(reason)}")
-        nil
+        {:error, reason}
     end
   end
 

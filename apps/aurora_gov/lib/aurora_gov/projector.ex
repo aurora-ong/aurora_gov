@@ -102,6 +102,8 @@ defmodule AuroraGov.Projector do
 
   project(%OUGoalUpdated{} = evt, metadata, &OUProjector.project(evt, metadata, &1))
 
+  project(%AuroraGov.Event.OUAvatarUpdated{} = evt, metadata, &OUProjector.project(evt, metadata, &1))
+
   project(%MembershipStarted{} = evt, metadata, &MembershipProjector.project(evt, metadata, &1))
 
   project(%ProposalCreated{} = evt, metadata, &ProposalProjector.project(evt, metadata, &1))

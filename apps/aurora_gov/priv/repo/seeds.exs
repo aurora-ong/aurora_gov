@@ -215,7 +215,8 @@ proposal_params = %{
   proposal_ou_end: "barrio_vivo.cultura_participacion",
   proposal_power_id: "org.ou.create",
   proposal_power_data: %{
-    ou_id: "barrio_vivo.d",
+    ou_slug: "d",
+    ou_id: "barrio_vivo.cultura_participacion.d",
     ou_name: "Nuevo OU",
     ou_goal: "Objetivo de la unidad",
     ou_description: "Descripción de la unidad"

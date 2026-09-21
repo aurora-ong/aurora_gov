@@ -64,6 +64,10 @@ defmodule AuroraGov.Aggregate.OU do
     ou
   end
 
+  def apply(%OU{} = ou, %AuroraGov.Event.OUAvatarUpdated{}) do
+    ou
+  end
+
   def apply(%OU{} = ou, %OUGoalUpdated{}) do
     ou
   end

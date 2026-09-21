@@ -24,8 +24,12 @@ defmodule AuroraGov.Web.Live.Panel.Header do
 
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-2">
         <div class="flex items-start gap-3">
-          <div class="w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center text-aurora_orange shadow-sm border border-blue-100 shrink-0">
-            <i class="fa-solid fa-sitemap text-2xl"></i>
+          <div class="w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center text-aurora_orange shadow-sm border border-blue-100 shrink-0 overflow-hidden">
+            <%= if Map.get(@ou, :ou_avatar_url) && @ou.ou_avatar_url != "" do %>
+              <img src={@ou.ou_avatar_url} class="w-full h-full object-cover" />
+            <% else %>
+              <i class="fa-solid fa-sitemap text-2xl"></i>
+            <% end %>
           </div>
           <div class="flex flex-col">
             <h1 class="text-2xl font-bold text-gray-900">{@ou.ou_name}</h1>

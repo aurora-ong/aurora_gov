@@ -25,20 +25,31 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
   @doc "Componente base para todos los identificadores del sistema"
   attr :id, :string, required: true
   attr :icon, :string, required: true
-  attr :title, :string, default: nil
   attr :patch, :string, default: nil
   attr :class, :string, default: ""
+  attr :title, :string, default: nil
+  attr :size, :string, default: "md"
+
   def base_id_badge(assigns) do
+    size_classes =
+      case assigns.size do
+        "sm" -> "gap-1.5 px-2 py-0.5 text-[10px] rounded-md"
+        "md" -> "gap-2 px-3 py-1.5 text-xs rounded-lg"
+        _ -> "gap-2 px-3 py-1.5 text-xs rounded-lg"
+      end
+
+    assigns = assign(assigns, :size_classes, size_classes)
+
     ~H"""
     <%= if @patch do %>
-      <.link patch={@patch} replace class={["group flex w-fit items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200 cursor-pointer", @class]} title={@title || @id}>
+      <.link patch={@patch} replace class={["group flex w-fit items-center bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 shadow-sm transition-all duration-200 cursor-pointer", @size_classes, @class]} title={@title || @id}>
         <i class={[@icon, "text-gray-400 group-hover:text-gray-600 transition-colors"]}></i>
-        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate">{@id}</span>
+        <span class="font-mono font-semibold text-gray-600 group-hover:text-gray-900 truncate">{@id}</span>
       </.link>
     <% else %>
-      <div class={["group flex w-fit items-center gap-2 px-3 py-1.5 bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 rounded-lg shadow-sm transition-all duration-200", @class]} title={@title || @id}>
+      <div class={["group flex w-fit items-center bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300 shadow-sm transition-all duration-200", @size_classes, @class]} title={@title || @id}>
         <i class={[@icon, "text-gray-400 group-hover:text-gray-600 transition-colors"]}></i>
-        <span class="font-mono text-xs font-semibold text-gray-600 group-hover:text-gray-900 truncate">{@id}</span>
+        <span class="font-mono font-semibold text-gray-600 group-hover:text-gray-900 truncate">{@id}</span>
       </div>
     <% end %>
     """
@@ -409,6 +420,7 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
       patch={@patch}
       class={@class}
       title={@title}
+      size={@size}
     />
     """
   end
@@ -423,7 +435,7 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
 
   def person_id_badge(assigns) do
     ~H"""
-    <.base_id_badge id={@id} icon="fa-regular fa-user" patch={@patch} class={@class} title={@title} />
+    <.base_id_badge id={@id} icon="fa-regular fa-user" patch={@patch} class={@class} title={@title} size={@size} />
     """
   end
 
@@ -437,7 +449,7 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
 
   def proposal_id_badge(assigns) do
     ~H"""
-    <.base_id_badge id={@id} icon="fa-solid fa-hand" patch={@patch} class={@class} title={@title} />
+    <.base_id_badge id={@id} icon="fa-solid fa-hand" patch={@patch} class={@class} title={@title} size={@size} />
     """
   end
 
@@ -450,7 +462,7 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
 
   def power_id_badge(assigns) do
     ~H"""
-    <.base_id_badge id={@id} icon="fa-solid fa-bolt" patch={@patch} class={@class} title={@title} />
+    <.base_id_badge id={@id} icon="fa-solid fa-bolt" patch={@patch} class={@class} title={@title} size={@size} />
     """
   end
 end
