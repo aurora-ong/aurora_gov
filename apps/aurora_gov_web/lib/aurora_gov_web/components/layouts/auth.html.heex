@@ -1,0 +1,6 @@
+<main class="w-full min-h-screen">
+  <div id="flash-toast-info" phx-hook="FlashToast" data-kind="info" class="hidden">{Phoenix.Flash.get(@flash, :info)}</div>
+  <div id="flash-toast-error" phx-hook="FlashToast" data-kind="error" class="hidden">{Phoenix.Flash.get(@flash, :error)}</div>
+  <div id="connection-toast" phx-hook="ConnectionToast" class="hidden"></div>
+  {@inner_content}
+</main>
