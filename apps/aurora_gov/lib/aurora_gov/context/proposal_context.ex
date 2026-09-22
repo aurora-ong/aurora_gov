@@ -74,6 +74,23 @@ defmodule AuroraGov.Context.ProposalContext do
     |> Repo.aggregate(:count, :proposal_id)
   end
 
+  def list_active_proposals_by_ou(ou_id)
+    when is_binary(ou_id) do
+  Proposal
+  |> where(
+    [p],
+    p.proposal_ou_end_id == ^ou_id and
+      p.proposal_status == :active
+  )
+  |> order_by(desc: :created_at)
+  |> preload([
+    :proposal_ou_start,
+    :proposal_ou_end,
+    :proposal_owner
+  ])
+  |> Repo.all()
+  end
+
   def list_proposals(params \\ %{}) do
     q =
       Proposal
