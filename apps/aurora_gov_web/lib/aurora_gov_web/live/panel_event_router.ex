@@ -16,7 +16,9 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       socket
       |> put_toast(
         "info",
-        "La organización fue renombrada a #{ou.ou_name}."
+        "Ahora se llama #{ou.ou_name}.",
+        "Organización renombrada",
+        "fa-sitemap"
       )
     else
       socket
@@ -36,7 +38,9 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       socket
       |> put_toast(
         "info",
-        "Se actualizó el objetivo de #{ou.ou_name}."
+        "#{ou.ou_name} tiene un nuevo objetivo.",
+        "Objetivo actualizado",
+        "fa-bullseye"
       )
     else
       socket
@@ -71,8 +75,10 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
 
     socket
     |> put_toast(
-      "info",
-      "#{person.person_name} (#{person.person_id}) ahora es miembro de #{ou.ou_name} (#{ou.ou_id})"
+      "success",
+      "#{person.person_name} se unió a #{ou.ou_name}.",
+      "Nuevo miembro",
+      "fa-users-between-lines"
     )
   end
 
@@ -85,7 +91,9 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     socket
     |> put_toast(
       "info",
-      "#{person.person_name} (#{person.person_id}) ahora tiene rango #{membership.membership_rank} en #{ou.ou_name} (#{ou.ou_id})"
+      "#{person.person_name} ahora es #{membership.membership_rank} en #{ou.ou_name}.",
+      "Cambio de rango",
+      "fa-users-between-lines"
     )
   end
 
@@ -103,7 +111,9 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     socket
     |> put_toast(
       "info",
-      "#{power.power_id} se ha actualizado en (#{power.ou_id})"
+      "#{power.power_id}",
+      "Poder actualizado",
+      "fa-bolt"
     )
   end
 
@@ -116,7 +126,9 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     socket
     |> put_toast(
       "info",
-      "Se ha emitido un voto en (#{vote.proposal_id})"
+      "Se emitió un voto en una propuesta.",
+      "Nuevo voto",
+      "fa-check-to-slot"
     )
   end
 
@@ -128,8 +140,10 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
 
     socket
     |> put_toast(
-      "info",
-      "Propuesta creada (#{proposal.proposal_title})"
+      "success",
+      "#{proposal.proposal_title}",
+      "Nueva propuesta",
+      "fa-hand"
     )
   end
 
@@ -147,7 +161,9 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     socket
     |> put_toast(
       "info",
-      "Se está promulgando (#{proposal.proposal_title} #{proposal.proposal_id})"
+      "#{proposal.proposal_title}",
+      "Promulgando propuesta",
+      "fa-hand"
     )
   end
 
@@ -162,10 +178,17 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       proposal_event: update
     )
 
+    {kind, title, icon} =
+      if Map.get(proposal, :proposal_execution_result) == "failed",
+        do: {"error", "Error al promulgar", nil},
+        else: {"success", "Propuesta promulgada", "fa-hand"}
+
     socket
     |> put_toast(
-      "info",
-      "Se ha promulgando (#{proposal.proposal_title} #{proposal.proposal_id})"
+      kind,
+      "#{proposal.proposal_title}",
+      title,
+      icon
     )
   end
 
@@ -194,15 +217,15 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       role_event: event
     )
 
-    msg =
+    {kind, title, msg} =
       case type do
-        :role_created -> "Rol '#{data.role_name}' creado."
-        :role_assigned -> "Rol asignado a #{data.person_id}."
-        :role_unassigned -> "Rol quitado a #{data.person_id}."
-        :role_archived -> "Rol archivado."
+        :role_created -> {"success", "Rol creado", "#{data.role_name}"}
+        :role_assigned -> {"info", "Rol asignado", "Se asignó a #{data.person_id}."}
+        :role_unassigned -> {"info", "Rol quitado", "Se quitó a #{data.person_id}."}
+        :role_archived -> {"info", nil, "Rol archivado."}
       end
 
-    socket |> put_toast("info", msg)
+    socket |> put_toast(kind, msg, title, "fa-id-card-clip")
   end
 
   def handle_event({type, data} = event, socket)
@@ -229,21 +252,21 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       update: event
     )
 
-    msg =
+    {kind, title, msg} =
       case type do
-        :project_created -> "Proyecto '#{data.name}' creado."
-        :project_updated -> "Proyecto '#{data.name}' actualizado."
-        :project_archived -> "Proyecto archivado."
-        :project_transferred -> "Proyecto transferido."
-        :task_created -> "Tarea '#{data.name}' creada."
-        :task_updated -> "Tarea '#{data.name}' actualizada."
-        :task_assigned -> "Tarea asignada al participante."
-        :task_completed -> "Tarea marcada como completada."
-        :task_abandoned -> "Tarea abandonada y devuelta al backlog."
-        :task_cancelled -> "Tarea anulada."
+        :project_created -> {"success", "Proyecto creado", "#{data.name}"}
+        :project_updated -> {"info", "Proyecto actualizado", "#{data.name}"}
+        :project_archived -> {"info", nil, "Proyecto archivado."}
+        :project_transferred -> {"info", nil, "Proyecto transferido."}
+        :task_created -> {"success", "Tarea creada", "#{data.name}"}
+        :task_updated -> {"info", "Tarea actualizada", "#{data.name}"}
+        :task_assigned -> {"info", nil, "Tarea asignada al participante."}
+        :task_completed -> {"success", nil, "Tarea marcada como completada."}
+        :task_abandoned -> {"info", nil, "Tarea abandonada y devuelta al backlog."}
+        :task_cancelled -> {"info", nil, "Tarea anulada."}
       end
 
-    socket |> put_toast("info", msg)
+    socket |> put_toast(kind, msg, title, "fa-briefcase")
   end
 
   def handle_event({:resource_updated, resource}, socket) do
@@ -252,7 +275,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       resource_event: {:resource_updated, resource}
     )
 
-    socket |> put_toast("info", "Recurso '#{resource.name}' actualizado.")
+    socket |> put_toast("info", "#{resource.name}", "Recurso actualizado", "fa-piggy-bank")
   end
 
   def handle_event({event, _data}, socket) do

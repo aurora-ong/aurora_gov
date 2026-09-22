@@ -28,6 +28,7 @@ defmodule AuroraGov.Web.Live.Panel do
         app_context: %AppContext{current_person: socket.assigns.current_person},
         app_modal: nil,
         app_side_panel: nil,
+        unread_activity: 0,
         app_global_search: %{
           query: "",
           results: %{},
@@ -162,6 +163,7 @@ defmodule AuroraGov.Web.Live.Panel do
   def handle_info({:projector_update, event}, socket) do
     IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
     socket = AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
+    socket = update(socket, :unread_activity, &(&1 + 1))
 
     {:noreply, socket}
   end
@@ -255,7 +257,7 @@ defmodule AuroraGov.Web.Live.Panel do
       }
 
       send(self(), {:open, :app_side_panel, app_panel})
-      {:noreply, socket}
+      {:noreply, assign(socket, unread_activity: 0)}
     end
   end
 

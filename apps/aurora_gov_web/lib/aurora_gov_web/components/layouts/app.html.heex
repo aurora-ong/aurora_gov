@@ -1,4 +1,7 @@
 <main class="w-full flex flex-col min-h-screen">
+  <div id="flash-toast-info" phx-hook="FlashToast" data-kind="info" class="hidden">{Phoenix.Flash.get(@flash, :info)}</div>
+  <div id="flash-toast-error" phx-hook="FlashToast" data-kind="error" class="hidden">{Phoenix.Flash.get(@flash, :error)}</div>
+  <div id="connection-toast" phx-hook="ConnectionToast" class="hidden"></div>
   <div class="w-full flex-1 flex flex-row items-start bg-gray-50">
     {@inner_content}
   </div>
