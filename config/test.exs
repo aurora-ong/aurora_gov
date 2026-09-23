@@ -24,8 +24,7 @@ config :aurora_gov, AuroraGov.Projector.Repo,
   hostname: "localhost",
   database: "aurora_gov_projector_test#{System.get_env("MIX_TEST_PARTITION")}",
   stacktrace: true,
-  pool: Ecto.Adapters.SQL.Sandbox,
-  pool_size: 1,
+  pool_size: 2,
   port: 4500
 
 config :aurora_gov, consistency: :strong

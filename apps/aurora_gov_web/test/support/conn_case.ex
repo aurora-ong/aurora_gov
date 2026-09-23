@@ -1,4 +1,4 @@
-defmodule AuroraGov.Web.ConnCase do
+defmodule AuroraGov.Web.Test.ConnCase do
   @moduledoc """
   This module defines the test case to be used by
   tests that require setting up a connection.
@@ -11,7 +11,7 @@ defmodule AuroraGov.Web.ConnCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use AuroraGov.Web.ConnCase, async: true`, although
+  by setting `use AuroraGov.Web.Test.ConnCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -27,12 +27,20 @@ defmodule AuroraGov.Web.ConnCase do
       # Import conveniences for testing with connections
       import Plug.Conn
       import Phoenix.ConnTest
-      import AuroraGov.Web.ConnCase
+      import AuroraGov.Web.Test.ConnCase
     end
   end
 
-  setup tags do
-    AuroraGov.DataCase.setup_sandbox(tags)
+  setup _tags do
+    _ = Application.stop(:aurora_gov)
+    AuroraGov.Test.Storage.reset!()
+    {:ok, _} = Application.ensure_all_started(:aurora_gov)
+
+    on_exit(fn ->
+      :ok = Application.stop(:aurora_gov)
+      AuroraGov.Test.Storage.reset!()
+    end)
+
     {:ok, conn: Phoenix.ConnTest.build_conn()}
   end
 end

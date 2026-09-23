@@ -1,4 +1,4 @@
-defmodule AuroraGov.CommandCase do
+defmodule AuroraGov.Test.CommandCase do
   use ExUnit.CaseTemplate
 
   using do
@@ -14,12 +14,15 @@ defmodule AuroraGov.CommandCase do
     end
   end
 
-  setup tags do
-    :ok = Application.stop(:aurora_gov)
+  setup _tags do
+    _ = Application.stop(:aurora_gov)
+    AuroraGov.Test.Storage.reset!()
     {:ok, _} = Application.ensure_all_started(:aurora_gov)
 
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(AuroraGov.Projector.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    on_exit(fn ->
+      :ok = Application.stop(:aurora_gov)
+      AuroraGov.Test.Storage.reset!()
+    end)
 
     :ok
   end

@@ -1,5 +1,5 @@
-defmodule AuroraGov.Utils.OUTreeTest do
-  use ExUnit.Case, async: true
+defmodule AuroraGov.Test.Utils.OUTreeTest do
+  use ExUnit.Case, async: false
   alias AuroraGov.Utils.OUTree
 
   describe "valid_slug?/1" do

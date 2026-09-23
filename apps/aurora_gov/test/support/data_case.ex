@@ -1,4 +1,4 @@
-defmodule AuroraGov.DataCase do
+defmodule AuroraGov.Test.DataCase do
   @moduledoc """
   This module defines the setup for tests requiring
   access to the application's data layer.
@@ -10,7 +10,7 @@ defmodule AuroraGov.DataCase do
   we enable the SQL sandbox, so changes done to the database
   are reverted at the end of every test. If you are using
   PostgreSQL, you can even run database tests asynchronously
-  by setting `use AuroraGov.DataCase, async: true`, although
+  by setting `use AuroraGov.Test.DataCase, async: true`, although
   this option is not recommended for other databases.
   """
 
@@ -27,24 +27,17 @@ defmodule AuroraGov.DataCase do
     end
   end
 
-  setup do
+  setup _tags do
+    _ = Application.stop(:aurora_gov)
+    AuroraGov.Test.Storage.reset!()
     {:ok, _} = Application.ensure_all_started(:aurora_gov)
 
     on_exit(fn ->
       :ok = Application.stop(:aurora_gov)
-
-      AuroraGov.Storage.reset!()
+      AuroraGov.Test.Storage.reset!()
     end)
 
     :ok
-  end
-
-  @doc """
-  Sets up the sandbox based on the test tags.
-  """
-  def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(AuroraGov.Projector.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
   end
 
   @doc """

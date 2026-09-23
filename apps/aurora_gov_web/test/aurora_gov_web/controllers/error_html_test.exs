@@ -1,5 +1,5 @@
-defmodule AuroraGov.Web.ErrorHTMLTest do
-  use AuroraGov.Web.ConnCase, async: true
+defmodule AuroraGov.Web.Test.ErrorHTMLTest do
+  use AuroraGov.Web.Test.ConnCase, async: false
 
   # Bring render_to_string/4 for testing custom views
   import Phoenix.Template

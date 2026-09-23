@@ -1,5 +1,5 @@
-defmodule AuroraGov.Command.CreateOUTest do
-  use AuroraGov.CommandCase, async: false
+defmodule AuroraGov.Test.Command.CreateOUTest do
+  use AuroraGov.Test.CommandCase, async: false
 
   describe "CreateOU command" do
     test "successfully creates a root OU" do
