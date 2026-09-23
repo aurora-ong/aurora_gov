@@ -215,31 +215,31 @@ defmodule AuroraGov.Web.PersonRegisterLive do
   defp strength_segment_class(strength, position) do
     filled =
       case strength do
-        :debil -> 1
-        :buena -> 2
-        :fuerte -> 3
+        :weak -> 1
+        :good -> 2
+        :strong -> 3
         _otro -> 0
       end
 
     cond do
       position > filled -> "bg-aurora_gray_light"
-      strength == :debil -> "bg-rose-600"
+      strength == :weak -> "bg-rose-600"
       true -> "bg-emerald-600"
     end
   end
 
-  defp strength_label(:debil), do: "Débil"
-  defp strength_label(:buena), do: "Buena"
-  defp strength_label(:fuerte), do: "Fuerte"
+  defp strength_label(:weak), do: "Débil"
+  defp strength_label(:good), do: "Buena"
+  defp strength_label(:strong), do: "Fuerte"
   defp strength_label(_otro), do: ""
 
-  defp strength_label_class(:debil), do: "text-rose-600"
-  defp strength_label_class(:buena), do: "text-emerald-700"
-  defp strength_label_class(:fuerte), do: "text-emerald-700"
+  defp strength_label_class(:weak), do: "text-rose-600"
+  defp strength_label_class(:good), do: "text-emerald-700"
+  defp strength_label_class(:strong), do: "text-emerald-700"
   defp strength_label_class(_otro), do: "text-gray-400"
 
-  defp strength_hint(:buena), do: "Agrega más caracteres o símbolos para hacerla fuerte."
-  defp strength_hint(:fuerte), do: "Contraseña fuerte."
+  defp strength_hint(:good), do: "Agrega más caracteres o símbolos para hacerla fuerte."
+  defp strength_hint(:strong), do: "Contraseña fuerte."
 
   defp strength_hint(_otro),
     do:
@@ -249,7 +249,7 @@ defmodule AuroraGov.Web.PersonRegisterLive do
     email = Phoenix.Flash.get(socket.assigns.flash, :email)
     form = to_form(%{"email" => email}, as: "person")
 
-    {:ok, assign(socket, form: form, password_strength: :vacia, show_password_hint: false),
+    {:ok, assign(socket, form: form, password_strength: :empty, show_password_hint: false),
      temporary_assigns: [form: form]}
   end
 

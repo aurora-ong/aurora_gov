@@ -2,7 +2,7 @@ defmodule AuroraGov.Web.PasswordStrength do
   @moduledoc """
   Evalúa la fuerza de una contraseña para mostrarla en tiempo real en el registro.
 
-  Devuelve `:vacia`, `:debil`, `:buena` o `:fuerte`. El indicador es solo
+  Devuelve `:empty`, `:weak`, `:good` o `:strong`. El indicador es solo
   informativo: la regla que acepta o rechaza la contraseña sigue siendo
   `AuroraGov.Command.RegisterPerson.handle_validate/1`.
 
@@ -22,17 +22,17 @@ defmodule AuroraGov.Web.PasswordStrength do
   """
   def score(password) when is_binary(password) do
     cond do
-      password == "" -> :vacia
-      String.length(password) < @minimum_length -> :debil
-      String.downcase(password) in @common_passwords -> :debil
-      single_character?(password) -> :debil
-      String.length(password) >= 12 and character_classes(password) >= 3 -> :fuerte
-      character_classes(password) >= 2 -> :buena
-      true -> :debil
+      password == "" -> :empty
+      String.length(password) < @minimum_length -> :weak
+      String.downcase(password) in @common_passwords -> :weak
+      single_character?(password) -> :weak
+      String.length(password) >= 12 and character_classes(password) >= 3 -> :strong
+      character_classes(password) >= 2 -> :good
+      true -> :weak
     end
   end
 
-  def score(_password), do: :vacia
+  def score(_password), do: :empty
 
   @doc """
   Largo mínimo usado por el indicador.
