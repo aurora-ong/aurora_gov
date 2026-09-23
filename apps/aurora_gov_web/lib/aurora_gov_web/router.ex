@@ -35,6 +35,7 @@ defmodule AuroraGov.Web.Router do
     pipe_through [:browser, :redirect_if_person_is_authenticated]
 
     live_session :redirect_if_person_is_authenticated,
+      layout: {AuroraGov.Web.Layouts, :auth},
       on_mount: [{AuroraGov.Web.Auth, :redirect_if_person_is_authenticated}] do
       live "/persons/log_in", PersonLoginLive, :new
       live "/persons/register", PersonRegisterLive
