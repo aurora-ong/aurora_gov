@@ -1,5 +1,5 @@
-defmodule AuroraGov.Command.ArchiveRoleTest do
-  use AuroraGov.CommandCase, async: false
+defmodule AuroraGov.Test.Command.ArchiveRoleTest do
+  use AuroraGov.Test.CommandCase, async: false
 
   alias AuroraGov.Command.{RegisterPerson, CreateOU, StartMembership, CreateRole, AssignRole, ArchiveRole}
   alias AuroraGov.Event.OURoleArchived

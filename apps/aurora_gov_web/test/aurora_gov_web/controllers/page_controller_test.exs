@@ -1,5 +1,5 @@
-defmodule AuroraGov.Web.PageControllerTest do
-  use AuroraGov.Web.ConnCase
+defmodule AuroraGov.Web.Test.PageControllerTest do
+  use AuroraGov.Web.Test.ConnCase
 
   # test "GET /", %{conn: conn} do
   #   conn = get(conn, ~p"/")

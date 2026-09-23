@@ -18,21 +18,8 @@ defmodule AuroraGov.Application do
         AuroraGov.Blockchain.Projector,
         AuroraGov.ProcessManagers.ProposalExecutor
       ]
-      |> filter_test_children()
 
     Supervisor.start_link(children, strategy: :one_for_one, name: AuroraGov.Supervisor)
   end
 
-  if Mix.env() == :test do
-    defp filter_test_children(children) do
-      Enum.reject(children, fn
-        AuroraGov.Projector -> true
-        AuroraGov.Blockchain.Projector -> true
-        AuroraGov.ProcessManagers.ProposalExecutor -> true
-        _ -> false
-      end)
-    end
-  else
-    defp filter_test_children(children), do: children
-  end
 end

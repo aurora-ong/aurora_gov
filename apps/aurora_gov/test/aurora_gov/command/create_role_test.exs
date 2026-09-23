@@ -1,5 +1,5 @@
-defmodule AuroraGov.Command.CreateRoleTest do
-  use AuroraGov.CommandCase, async: false
+defmodule AuroraGov.Test.Command.CreateRoleTest do
+  use AuroraGov.Test.CommandCase, async: false
 
   alias AuroraGov.Command.{CreateOU, CreateRole}
   alias AuroraGov.Event.OURoleCreated

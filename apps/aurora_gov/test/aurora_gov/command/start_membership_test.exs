@@ -1,5 +1,5 @@
-defmodule AuroraGov.Command.StartMembershipTest do
-  use AuroraGov.CommandCase, async: false
+defmodule AuroraGov.Test.Command.StartMembershipTest do
+  use AuroraGov.Test.CommandCase, async: false
 
   alias AuroraGov.Command.{RegisterPerson, CreateOU, StartMembership}
   alias AuroraGov.Event.MembershipStarted

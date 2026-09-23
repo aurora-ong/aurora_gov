@@ -1,5 +1,5 @@
 # test/support/storage.ex
-defmodule AuroraGov.Storage do
+defmodule AuroraGov.Test.Storage do
   @doc """
   Clear the event store and read store databases
   """
@@ -10,29 +10,29 @@ defmodule AuroraGov.Storage do
 
   defp reset_eventstore do
     config = AuroraGov.EventStore.config()
-
     {:ok, conn} = Postgrex.start_link(config)
-
     EventStore.Storage.Initializer.reset!(conn, config)
+    GenServer.stop(conn)
   end
 
   defp reset_projector do
-    Ecto.Adapters.SQL.query!(AuroraGov.Projector.Repo, truncate_readstore_tables(), [])
-  end
+    config = Application.get_env(:aurora_gov, AuroraGov.Projector.Repo)
+    {:ok, conn} = Postgrex.start_link(config)
 
-  defp truncate_readstore_tables do
-    """
-    TRUNCATE TABLE
-      person_table,
-      auth_table,
-      ou_table,
-      membership_table,
-      power_table,
-      ou_power_table,
-      proposal_table,
-      projection_versions
-    RESTART IDENTITY
-    CASCADE;
-    """
+    %{rows: rows} =
+      Postgrex.query!(
+        conn,
+        "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE' AND table_name != 'schema_migrations'",
+        []
+      )
+
+    tables = Enum.map(rows, fn [table] -> table end)
+
+    if tables != [] do
+      truncate_query = "TRUNCATE TABLE #{Enum.join(tables, ", ")} RESTART IDENTITY CASCADE;"
+      Postgrex.query!(conn, truncate_query, [])
+    end
+
+    GenServer.stop(conn)
   end
 end
