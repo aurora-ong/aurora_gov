@@ -17,11 +17,7 @@ defmodule AuroraGov.Storage do
   end
 
   defp reset_projector do
-    config = Application.get_env(:aurora_gov, AuroraGov.Projector.Repo)
-
-    {:ok, conn} = Postgrex.start_link(config)
-
-    Postgrex.query!(conn, truncate_readstore_tables(), [])
+    Ecto.Adapters.SQL.query!(AuroraGov.Projector.Repo, truncate_readstore_tables(), [])
   end
 
   defp truncate_readstore_tables do

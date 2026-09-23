@@ -15,11 +15,13 @@ defmodule AuroraGov.CommandCase do
   end
 
   setup tags do
-    :ok = Application.stop(:aurora_gov)
+    _ = Application.stop(:aurora_gov)
     {:ok, _} = Application.ensure_all_started(:aurora_gov)
 
     pid = Ecto.Adapters.SQL.Sandbox.start_owner!(AuroraGov.Projector.Repo, shared: not tags[:async])
     on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+
+    AuroraGov.Storage.reset!()
 
     :ok
   end
