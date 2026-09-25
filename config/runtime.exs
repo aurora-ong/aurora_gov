@@ -129,3 +129,8 @@ if config_env() == :prod do
 
   config :aurora_gov, :dns_cluster_query, System.get_env("DNS_CLUSTER_QUERY")
 end
+
+# La configuración se lee al iniciar la aplicación.
+config :aurora_gov, :discord_notifications,
+  enabled: System.get_env("DISCORD_NOTIFICATIONS_ENABLED", "false") == "true",
+  webhook_url: System.get_env("DISCORD_WEBHOOK_URL")
