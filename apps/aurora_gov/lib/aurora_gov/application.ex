@@ -17,9 +17,20 @@ defmodule AuroraGov.Application do
         AuroraGov.Projector,
         AuroraGov.Blockchain.Projector,
         AuroraGov.ProcessManagers.ProposalExecutor
-      ]
+      ] ++ discord_children()
 
     Supervisor.start_link(children, strategy: :one_for_one, name: AuroraGov.Supervisor)
+  end
+
+  # Devuelve los procesos de Discord que deben iniciarse.
+  defp discord_children do
+    config = Application.get_env(:aurora_gov, :discord_notifications, [])
+
+    if Keyword.get(config, :enabled, false) do
+      [AuroraGov.EventHandler.ProposalDiscordHandler]
+    else
+      []
+    end
   end
 
 end
