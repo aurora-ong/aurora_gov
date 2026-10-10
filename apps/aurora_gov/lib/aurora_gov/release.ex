@@ -18,25 +18,34 @@ defmodule AuroraGov.Release do
   end
 
   def db_seed(seed_name) do
-    {:ok, _} = Application.ensure_all_started(:aurora_gov)
+  {:ok, _} = Application.ensure_all_started(:aurora_gov)
 
-    Logger.info("DB Seeds.")
+  Logger.info("DB Seeds.")
 
-    filename = if String.ends_with?(seed_name, ".exs"), do: seed_name, else: "#{seed_name}.exs"
+  filename =
+    if String.ends_with?(seed_name, ".exs"),
+      do: seed_name,
+      else: "#{seed_name}.exs"
 
-    Logger.info("Cargando seeds, filename: #{filename}")
+  Logger.info("Cargando seeds, filename: #{filename}")
 
-    seeds_file = Path.join([:code.priv_dir(@app), "repo", filename])
+  seeds_file =
+    Path.join([
+      :code.priv_dir(@app),
+      "repo",
+      filename
+    ])
 
-    if File.exists?(seeds_file) do
-      Code.eval_file(seeds_file)
-      Logger.info("Seed ejecutado correctamente.")
-    else
-      Logger.error("Archivo de seed no encontrado: #{seeds_file}")
-    end
-
-    :ok
+  unless File.exists?(seeds_file) do
+    raise "Archivo de seed no encontrado: #{seeds_file}"
   end
+
+  Code.eval_file(seeds_file)
+
+  Logger.info("Seed ejecutado correctamente.")
+
+  :ok
+end
 
   def db_migrate do
     Logger.info("DB Migrate...")

@@ -63,7 +63,9 @@ defmodule AuroraGov.MixProject do
       "db.drop": ["ecto.drop", "event_store.drop"],
       "db.reset": ["db.drop", "db.setup"],
       "db.setup": ["event_store.setup", "projector.setup"],
-      "db.seeds": ["run #{__DIR__}/priv/repo/seeds.exs"],
+       # Seed para el ambiente BETA de Aurora.
+      "db.seeds": ["run #{__DIR__}/priv/repo/seeds_aurora.exs"],
+      "db.seeds.legacy": ["run #{__DIR__}/priv/repo/seeds.exs"],
       "projector.setup": ["ecto.create", "ecto.migrate"],
       "projector.reset": ["ecto.drop", "projector.setup"],
       "event_store.setup": ["event_store.create", "event_store.init"],
