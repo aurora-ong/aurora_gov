@@ -21,13 +21,6 @@
 # Como StartMembership crea siempre una membresía Junior, el seed promueve
 # una vez TODAS las membresías y una segunda vez las personas que en la
 # fuente ya tenían calidad de Miembro/Regular.
-#
-# Nota de datos fuente:
-#   La sistematización contiene variantes como "aurora.ong,dirección" y
-#   espacios finales. Aquí se normalizan a "aurora.ong.direccion".
-#   Además, "Director general" y "Desarrollador Frontend" aparecen asignados
-#   pero no definidos en la hoja Roles; sus descripciones quedan marcadas
-#   abajo como definiciones complementarias para que el seed sea ejecutable.
 
 defmodule AuroraGov.Seeds.AuroraBeta do
   require Logger
@@ -124,7 +117,6 @@ defmodule AuroraGov.Seeds.AuroraBeta do
     {"aurora", "p.delgado@aurora.ong"},
     {"aurora.ong", "p.delgado@aurora.ong"},
     {"aurora.ong.direccion", "p.delgado@aurora.ong"},
-    # Pavel también integra Tecnología como Product Owner.
     {"aurora.ong.tecnologia", "p.delgado@aurora.ong"},
 
     # Miembros activos sin unidad especializada asignada.
