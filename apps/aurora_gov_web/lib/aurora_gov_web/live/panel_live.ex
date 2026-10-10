@@ -154,7 +154,16 @@ defmodule AuroraGov.Web.Live.Panel do
   defp get_current_ou_id(_params) do
     case AuroraGov.Context.OUContext.list_ou() do
       [] -> nil
-      [first_ou | _] -> first_ou.ou_id
+      ous ->
+        # Buscar la unidad raíz (aquella cuyo ID no tiene puntos, ej: "root")
+        root_ou = Enum.find(ous, fn ou -> not String.contains?(ou.ou_id, ".") end)
+        
+        if root_ou do
+          root_ou.ou_id
+        else
+          # Fallback al primero de la lista si no hay una raíz clara
+          hd(ous).ou_id
+        end
     end
   end
 
