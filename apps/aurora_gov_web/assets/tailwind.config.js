@@ -6,6 +6,9 @@ const fs = require("fs")
 const path = require("path")
 
 module.exports = {
+  // La app no tiene tema oscuro: las variantes dark: (p. ej. de Mishka) solo se aplican con la clase .dark,
+  // no automáticamente según el modo oscuro del sistema operativo
+  darkMode: "class",
   content: [
     "./js/**/*.js",
     "../lib/aurora_gov_web.ex",
