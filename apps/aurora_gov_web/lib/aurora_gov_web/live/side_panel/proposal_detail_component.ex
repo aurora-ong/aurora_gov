@@ -145,13 +145,13 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
           <.proposal_id_badge id={context.proposal.proposal_id} />
         </div>
         <!-- Tabs -->
-        <div class="flex border-b border-gray-200 mb-4">
+        <div class="flex border-b border-gray-200 mb-4 overflow-x-auto">
           <button
             phx-click="tab_change"
             phx-value-tab="info"
             phx-target={@myself}
             class={[
-              "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+              "px-2 sm:px-4 py-2 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap",
               if(@active_tab == "info",
                 do: "border-aurora_orange text-aurora_orange",
                 else: "border-transparent text-gray-500 hover:text-gray-700"
@@ -165,7 +165,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
             phx-value-tab="votes"
             phx-target={@myself}
             class={[
-              "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+              "px-2 sm:px-4 py-2 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap",
               if(@active_tab == "votes",
                 do: "border-aurora_orange text-aurora_orange",
                 else: "border-transparent text-gray-500 hover:text-gray-700"
@@ -179,7 +179,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
             phx-value-tab="discussion"
             phx-target={@myself}
             class={[
-              "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+              "px-2 sm:px-4 py-2 font-medium text-xs sm:text-sm border-b-2 transition-colors whitespace-nowrap",
               if(@active_tab == "discussion",
                 do: "border-aurora_orange text-aurora_orange",
                 else: "border-transparent text-gray-500 hover:text-gray-700"
