@@ -60,7 +60,7 @@ defmodule AuroraGov.Projector.MembershipProjector do
   end
 
   def project(
-        %AuroraGov.Event.MembershipDowngraded{
+        %AuroraGov.Event.MembershipDemoted{
           person_id: person_id,
           ou_id: ou_id,
           membership_rank: membership_rank
@@ -84,7 +84,7 @@ defmodule AuroraGov.Projector.MembershipProjector do
     |> Ecto.Multi.run(:projector_update, fn repo, %{membership_update: membership} ->
       membership
       |> repo.preload([:ou, :person])
-      |> then(&{:ok, {:membership_downgraded, &1}})
+      |> then(&{:ok, {:membership_demoted, &1}})
     end)
   end
 

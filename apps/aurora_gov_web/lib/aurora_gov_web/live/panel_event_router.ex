@@ -89,7 +89,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
   end
 
-  def handle_event({:membership_downgraded, %{person: person, ou: ou} = membership}, socket) do
+  def handle_event({:membership_demoted, %{person: person, ou: ou} = membership}, socket) do
     send_update(AuroraGov.Web.Live.Panel.Members,
       id: "panel-members",
       updated_membership: membership

@@ -1,11 +1,11 @@
-defmodule AuroraGov.Test.Command.DowngradeMembershipTest do
+defmodule AuroraGov.Test.Command.DemoteMembershipTest do
   use AuroraGov.Test.CommandCase, async: false
 
-  alias AuroraGov.Command.{RegisterPerson, CreateOU, StartMembership, PromoteMembership, DowngradeMembership}
-  alias AuroraGov.Event.MembershipDowngraded
+  alias AuroraGov.Command.{RegisterPerson, CreateOU, StartMembership, PromoteMembership, DemoteMembership}
+  alias AuroraGov.Event.MembershipDemoted
   alias AuroraGov.Aggregate.OU
 
-  describe "DowngradeMembership command" do
+  describe "DemoteMembership command" do
     setup do
       register_cmd = %RegisterPerson{
         person_id: "person_123",
@@ -32,7 +32,7 @@ defmodule AuroraGov.Test.Command.DowngradeMembershipTest do
       :ok
     end
 
-    test "successfully downgrades a member from senior to regular, and then to junior" do
+    test "successfully demotes a member from senior to regular, and then to junior" do
       # Primero promovemos hasta senior
       assert :ok = dispatch_command(%PromoteMembership{ou_id: "root_ou", person_id: "person_123"})
       assert :ok = dispatch_command(%PromoteMembership{ou_id: "root_ou", person_id: "person_123"})
@@ -44,13 +44,13 @@ defmodule AuroraGov.Test.Command.DowngradeMembershipTest do
              } = AuroraGov.aggregate_state(OU, "root_ou")
 
       # Degradamos a regular
-      downgrade_cmd = %DowngradeMembership{
+      demote_cmd = %DemoteMembership{
         ou_id: "root_ou",
         person_id: "person_123"
       }
-      assert :ok = dispatch_command(downgrade_cmd)
+      assert :ok = dispatch_command(demote_cmd)
 
-      assert_receive_event(AuroraGov, MembershipDowngraded, fn event ->
+      assert_receive_event(AuroraGov, MembershipDemoted, fn event ->
         assert event.ou_id == "root_ou"
         assert event.person_id == "person_123"
         assert event.membership_rank == "regular"
@@ -63,11 +63,11 @@ defmodule AuroraGov.Test.Command.DowngradeMembershipTest do
              } = AuroraGov.aggregate_state(OU, "root_ou")
 
       # Degradamos a junior
-      assert :ok = dispatch_command(downgrade_cmd)
+      assert :ok = dispatch_command(demote_cmd)
 
       assert_receive_event(
         AuroraGov,
-        MembershipDowngraded,
+        MembershipDemoted,
         fn event -> event.membership_rank == "junior" end,
         fn event ->
           assert event.ou_id == "root_ou"
@@ -83,11 +83,11 @@ defmodule AuroraGov.Test.Command.DowngradeMembershipTest do
              } = AuroraGov.aggregate_state(OU, "root_ou")
 
       # Verificamos que falla si ya es junior
-      assert {:error, :min_rank_reached} = dispatch_command(downgrade_cmd)
+      assert {:error, :min_rank_reached} = dispatch_command(demote_cmd)
     end
 
-    test "fails to downgrade if the OU does not exist" do
-      command = %DowngradeMembership{
+    test "fails to demote if the OU does not exist" do
+      command = %DemoteMembership{
         ou_id: "nonexistent_ou",
         person_id: "person_123"
       }
@@ -95,8 +95,8 @@ defmodule AuroraGov.Test.Command.DowngradeMembershipTest do
       assert {:error, :ou_not_exists} = dispatch_command(command)
     end
 
-    test "fails to downgrade if membership does not exist" do
-      command = %DowngradeMembership{
+    test "fails to demote if membership does not exist" do
+      command = %DemoteMembership{
         ou_id: "root_ou",
         person_id: "unknown_person"
       }

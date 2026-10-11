@@ -1,17 +1,17 @@
-defmodule AuroraGov.CommandHandler.DowngradeMembershipHandler do
+defmodule AuroraGov.CommandHandler.DemoteMembershipHandler do
   @behaviour Commanded.Commands.Handler
 
   alias AuroraGov.Aggregate.OU
-  alias AuroraGov.Command.DowngradeMembership
-  alias AuroraGov.Event.MembershipDowngraded
+  alias AuroraGov.Command.DemoteMembership
+  alias AuroraGov.Event.MembershipDemoted
 
-  def handle(%OU{ou_id: nil}, %DowngradeMembership{}) do
+  def handle(%OU{ou_id: nil}, %DemoteMembership{}) do
     {:error, :ou_not_exists}
   end
 
   def handle(
         %OU{ou_status: :active} = ou,
-        %DowngradeMembership{
+        %DemoteMembership{
           ou_id: ou_id,
           person_id: person_id
         }
@@ -20,7 +20,7 @@ defmodule AuroraGov.CommandHandler.DowngradeMembershipHandler do
            OU.get_membership(ou, person_id),
          {:ok, membership_rank} <-
            get_previous_rank(membership) do
-      %MembershipDowngraded{
+      %MembershipDemoted{
         ou_id: ou_id,
         person_id: person_id,
         membership_rank: membership_rank
@@ -31,7 +31,7 @@ defmodule AuroraGov.CommandHandler.DowngradeMembershipHandler do
     end
   end
 
-  def handle(_ou, %DowngradeMembership{}) do
+  def handle(_ou, %DemoteMembership{}) do
     {:error, :ou_not_active}
   end
 

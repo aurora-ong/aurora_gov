@@ -14,7 +14,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     OUGoalUpdated,
     MembershipStarted,
     MembershipPromoted,
-    MembershipDowngraded,
+    MembershipDemoted,
     MembershipRevoked,
     PowerUpdated,
     PersonRegistered,
@@ -318,7 +318,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   end
 
   defp render_description(%{
-         data: %MembershipDowngraded{membership_rank: membership_rank, ou_id: _ou_id},
+         data: %MembershipDemoted{membership_rank: membership_rank, ou_id: _ou_id},
          person: %Person{person_name: person_name},
          ou: %OU{ou_name: ou_name}
        }) do

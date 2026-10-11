@@ -10,7 +10,7 @@ defmodule AuroraGov.Router do
     StartMembership,
     UpdatePower,
     PromoteMembership,
-    DowngradeMembership,
+    DemoteMembership,
     RevokeMembership,
     CreateProposal,
     ApplyProposalVote,
@@ -48,7 +48,7 @@ defmodule AuroraGov.Router do
     StartMembershipHandler,
     UpdatePowerHandler,
     PromoteMembershipHandler,
-    DowngradeMembershipHandler,
+    DemoteMembershipHandler,
     RevokeMembershipHandler,
     CreateProposalHandler,
     ApplyProposalVoteHandler,
@@ -72,7 +72,7 @@ defmodule AuroraGov.Router do
   dispatch(UpdateOUAvatar, to: UpdateOUAvatarHandler, aggregate: OU, identity: :ou_id)
   dispatch(StartMembership, to: StartMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(PromoteMembership, to: PromoteMembershipHandler, aggregate: OU, identity: :ou_id)
-  dispatch(DowngradeMembership, to: DowngradeMembershipHandler, aggregate: OU, identity: :ou_id)
+  dispatch(DemoteMembership, to: DemoteMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(RevokeMembership, to: RevokeMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(UpdatePower, to: UpdatePowerHandler, aggregate: OU, identity: :ou_id)
   dispatch(ActivatePowerDelegation, to: ActivatePowerDelegationHandler, aggregate: OU,identity: :ou_id)

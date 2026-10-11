@@ -1,7 +1,7 @@
-defmodule AuroraGov.Command.DowngradeMembership do
+defmodule AuroraGov.Command.DemoteMembership do
   use AuroraGov.Command,
     gov_power: [
-      id: "org.membership.downgrade",
+      id: "org.membership.demote",
       name: "Degradar membresía",
       description: "Degrada a un miembro hacia un estamento inferior",
       category: :membership

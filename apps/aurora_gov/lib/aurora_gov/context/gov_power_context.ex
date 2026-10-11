@@ -11,7 +11,7 @@ defmodule AuroraGov.Context.GovPowerContext do
     Elixir.AuroraGov.Command.UpdateOUGoal,
     Elixir.AuroraGov.Command.UpdateOUAvatar,
     Elixir.AuroraGov.Command.PromoteMembership,
-    Elixir.AuroraGov.Command.DowngradeMembership,
+    Elixir.AuroraGov.Command.DemoteMembership,
     Elixir.AuroraGov.Command.RevokeMembership,
     Elixir.AuroraGov.Command.CreateRole,
     Elixir.AuroraGov.Command.AssignRole,

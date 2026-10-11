@@ -19,7 +19,7 @@ defmodule AuroraGov.Aggregate.OU do
     OUCreated,
     MembershipStarted,
     MembershipPromoted,
-    MembershipDowngraded,
+    MembershipDemoted,
     MembershipRevoked,
     PowerUpdated,
     PowerDelegationActivated,
@@ -105,7 +105,7 @@ defmodule AuroraGov.Aggregate.OU do
 
   def apply(
         %OU{} = ou,
-        %MembershipDowngraded{
+        %MembershipDemoted{
           person_id: person_id,
           membership_rank: membership_rank
         }
