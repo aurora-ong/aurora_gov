@@ -17,6 +17,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(:delegated_votes_count, 0)
       |> assign(:ou_start_name, "")
       |> assign(:ou_end_name, "")
+      |> assign(:proposal_suggestion, %{})
 
     {:ok, socket}
   end
@@ -89,10 +90,12 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
-      <h1 class="text-4xl text-black mb-5"><i class="fa-solid fa-hand text-3xl mr-3"></i>Gobernar</h1>
+    <div class="mx-auto my-auto flex flex-col justify-center items-start">
+      <h1 class="text-3xl md:text-4xl text-black mb-5"><i class="fa-solid fa-hand text-2xl md:text-3xl mr-3"></i>Gobernar</h1>
 
-      <h2 class="text-xl mb-10">Utiliza este formulario para proponer una decisión.</h2>
+      <h2 class="text-lg md:text-xl mb-6">Utiliza este formulario para proponer una decisión.</h2>
+
+      <.step_indicator step={@step} />
 
       <%= case @step do %>
         <% 0 -> %>
@@ -123,8 +126,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         phx-target={@myself}
         class="w-full"
       >
-        <div class="flex flex-row gap-4 justify-between items-start flex-nowrap">
-          <div class="flex flex-col gap-5 basis-1/2">
+        <div class="flex flex-col md:flex-row gap-4 justify-between items-stretch md:items-start">
+          <div class="flex flex-col gap-5 md:basis-1/2">
             <.live_component
               module={AuroraGov.Web.OUSelectorComponent}
               parent_module={__MODULE__}
@@ -139,8 +142,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
               phx-target={@myself}
             />
           </div>
-           <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
-          <div class="flex flex-col basis-1/2 gap-5 justify-center">
+           <i class="fa-solid fa-arrow-right text-2xl rotate-90 md:rotate-0 md:text-6xl md:mx-10 self-center"></i>
+          <div class="flex flex-col md:basis-1/2 gap-5 justify-center">
             <.live_component
               module={AuroraGov.Web.OUSelectorComponent}
               parent_module={__MODULE__}
@@ -234,6 +237,22 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       phx-target={@myself}
       class="w-full space-y-8"
     >
+      <div class="flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+        <span>
+          <i class="fa-solid fa-wand-magic-sparkles mr-1"></i>
+          Sugerido a partir de la acción y los datos ingresados. Puedes editarlo.
+        </span>
+        <button
+          :if={suggestion_modified?(@step_2_form.params, @proposal_suggestion)}
+          type="button"
+          phx-click="step_2_use_suggestion"
+          phx-target={@myself}
+          class="text-aurora_blue_light hover:underline"
+        >
+          Restablecer sugerencia
+        </button>
+      </div>
+
       <.input field={@step_2_form[:proposal_title]} type="text" label="Título propuesta" />
       <.input
         field={@step_2_form[:proposal_description]}
@@ -371,6 +390,34 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
     """
   end
 
+  @steps ["Acción", "Detalles", "Descripción", "Revisión"]
+
+  defp step_indicator(assigns) do
+    assigns = assign(assigns, :steps, Enum.with_index(@steps))
+
+    ~H"""
+    <ol class="flex w-full items-center gap-2 mb-8 text-sm">
+      <li :for={{label, index} <- @steps} class="flex flex-1 items-center gap-2 min-w-0 last:flex-none">
+        <span class={[
+          "flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-semibold",
+          cond do
+            index < @step -> "bg-aurora_blue text-white"
+            index == @step -> "border-2 border-aurora_blue text-aurora_blue"
+            true -> "border border-gray-300 text-gray-400"
+          end
+        ]}>
+          <i :if={index < @step} class="fa-solid fa-check"></i>
+          <span :if={index >= @step}>{index + 1}</span>
+        </span>
+        <span class={["hidden sm:inline truncate", if(index == @step, do: "font-semibold text-black", else: "text-gray-500")]}>
+          {label}
+        </span>
+        <span :if={index < length(@steps) - 1} class="h-px flex-1 bg-gray-200"></span>
+      </li>
+    </ol>
+    """
+  end
+
   defp back_button(assigns) do
     ~H"""
     <.button
@@ -389,11 +436,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
     changeset
     |> Ecto.Changeset.validate_change(:proposal_ou_origin, fn :proposal_ou_origin,
                                                               proposal_ou_origin ->
-      ou_membership = Enum.find(ou_tree, fn ou -> ou.ou_id == proposal_ou_origin end)
+      ou_membership = Enum.find(ou_tree || [], fn ou -> ou.ou_id == proposal_ou_origin end)
       IO.inspect(ou_membership)
       valid_ranks = [:regular, :senior]
 
-      if ou_membership.membership_rank in valid_ranks do
+      if ou_membership && ou_membership.membership_rank in valid_ranks do
         []
       else
         [
@@ -545,15 +592,26 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
     socket =
       if power_changeset.valid? do
+        suggestion = proposal_suggestion(socket.assigns.proposal_data, power_changeset.changes)
+
+        current_params =
+          case socket.assigns[:step_2_form] do
+            nil -> socket.assigns[:proposal_params] || %{}
+            form -> form.params
+          end
+
+        step_2_params =
+          merge_suggestion(current_params, socket.assigns.proposal_suggestion, suggestion)
+
         socket
         |> assign(power_data: power_changeset.changes)
-        |> assign_new(:step_2_form, fn ->
-          form_proposal_params = socket.assigns[:proposal_params] || %{}
-
-          form_proposal_params
-          |> AuroraGov.Command.CreateProposal.handle_validate_step(1)
-          |> to_form(as: "proposal")
-        end)
+        |> assign(proposal_suggestion: suggestion)
+        |> assign(
+          step_2_form:
+            step_2_params
+            |> AuroraGov.Command.CreateProposal.handle_validate_step(1)
+            |> to_form(as: "proposal")
+        )
         |> assign(step: 2)
       else
         assign(socket, step_1_form: to_form(power_changeset, as: "power"))
@@ -574,6 +632,17 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       |> assign(step_2_form: to_form(proposal_changeset, as: "proposal"))
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("step_2_use_suggestion", _params, socket) do
+    proposal_changeset =
+      socket.assigns.step_2_form.params
+      |> Map.merge(socket.assigns.proposal_suggestion)
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(1)
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, step_2_form: to_form(proposal_changeset, as: "proposal"))}
   end
 
   @impl true
@@ -681,6 +750,81 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   @impl true
   def handle_event("cancel-upload", %{"ref" => ref, "upload-name" => upload_name}, socket) do
     {:noreply, cancel_upload(socket, String.to_existing_atom(upload_name), ref)}
+  end
+
+  # Sugerencia de título y descripción a partir del poder elegido y sus datos
+  defp proposal_suggestion(proposal_data, power_data) do
+    gov_power = AuroraGov.Context.GovPowerContext.get_gov_power!(proposal_data.proposal_power_id)
+
+    ou_end_name =
+      case AuroraGov.Context.OUContext.get_ou(proposal_data.proposal_ou_end) do
+        %{ou_name: name} -> name
+        _ -> nil
+      end
+
+    details =
+      gov_power.module.field_definitions()
+      |> Enum.filter(&(&1.source == :user))
+      |> Enum.map(&{&1.label, suggestion_value(&1.form_type, Map.get(power_data, &1.name))})
+      |> Enum.reject(fn {_label, value} -> value in [nil, ""] end)
+
+    title =
+      case details do
+        [{_label, value} | _] -> "#{gov_power.name}: #{value}"
+        [] when is_binary(ou_end_name) -> "#{gov_power.name} en #{ou_end_name}"
+        [] -> gov_power.name
+      end
+
+    intro =
+      if ou_end_name,
+        do: "Propuesta de «#{gov_power.name}» en #{ou_end_name}.",
+        else: "Propuesta de «#{gov_power.name}»."
+
+    description =
+      [intro | Enum.map(details, fn {label, value} -> "- #{label}: #{value}" end)]
+      |> Enum.join("\n")
+
+    %{
+      "proposal_title" => truncate_text(title, 60),
+      "proposal_description" => truncate_text(description, 1000)
+    }
+  end
+
+  defp suggestion_value(type, id) when type in [:user_search, :global_user_search] and is_binary(id) do
+    case AuroraGov.Context.PersonContext.get_person(id) do
+      %{person_name: name} -> "#{name} (#{id})"
+      _ -> id
+    end
+  end
+
+  defp suggestion_value(:ou_search, id) when is_binary(id) do
+    case AuroraGov.Context.OUContext.get_ou(id) do
+      %{ou_name: name} -> name
+      _ -> id
+    end
+  end
+
+  defp suggestion_value(:image_upload, _value), do: nil
+  defp suggestion_value(_type, value) when is_binary(value) or is_number(value), do: to_string(value)
+  defp suggestion_value(_type, _value), do: nil
+
+  defp truncate_text(text, max) do
+    if String.length(text) > max, do: String.slice(text, 0, max - 1) <> "…", else: text
+  end
+
+  # Solo reemplaza los campos vacíos o que el usuario no ha modificado
+  defp merge_suggestion(current, previous, suggestion) do
+    Enum.reduce(suggestion, current, fn {key, value}, acc ->
+      existing = Map.get(acc, key)
+
+      if existing in [nil, ""] or existing == Map.get(previous, key),
+        do: Map.put(acc, key, value),
+        else: acc
+    end)
+  end
+
+  defp suggestion_modified?(params, suggestion) do
+    Enum.any?(suggestion, fn {key, value} -> Map.get(params, key) != value end)
   end
 
   defp proposal_submit(socket) do
