@@ -39,8 +39,8 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
   def render(assigns) do
     ~H"""
     <section class="flex flex-col h-fit">
-      <h2 class="text-3xl font-semibold mb-5 flex items-center justify-center">
-        <i class="fa-solid fa-sitemap mr-3 text-3xl rotate-180"></i> Navegar
+      <h2 class="text-2xl sm:text-3xl font-semibold mb-5 flex items-center justify-center">
+        <i class="fa-solid fa-sitemap mr-3 text-2xl sm:text-3xl rotate-180"></i> Navegar
       </h2>
 
       <.async_result :let={ou_tree} assign={@ou_tree}>
@@ -69,11 +69,11 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
                 </span>
                 <!-- Tarjeta OU -->
                 <div class={
-                  "cursor-pointer hover:bg-gray-50 px-4 sm:px-5 py-3 rounded-lg my-1 flex flex-row items-center border transition " <>
+                  "cursor-pointer hover:bg-gray-50 px-3 sm:px-5 py-3 rounded-lg my-1 flex flex-row items-center border transition " <>
                   if @app_context.current_ou_id == ou.ou_id, do: "border-2 border-aurora_orange bg-aurora_orange/10", else: "border-gray-200"
                 }>
                   <!-- Avatar -->
-                  <div class="flex items-center justify-center w-12 h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200 mr-4">
+                  <div class="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden shrink-0 bg-gray-100 border border-gray-200 mr-3 sm:mr-4">
                     <%= if ou[:ou_avatar_url] do %>
                       <img src={ou.ou_avatar_url} class="w-full h-full object-cover" />
                     <% else %>
@@ -89,8 +89,8 @@ defmodule AuroraGov.Web.Live.Panel.TreeNavigator do
                       {ou.ou_name}
                     </div>
 
-                    <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2">
-                      <.ou_id_badge size="sm" id={ou.ou_id} />
+                    <div class="mt-1 flex flex-wrap gap-1.5 sm:gap-2 min-w-0">
+                      <.ou_id_badge size="sm" id={ou.ou_id} class="max-w-full" />
                       <.membership_rank_badge :if={!is_nil(ou[:membership_rank])} rank={ou[:membership_rank]} />
                     </div>
                   </div>
