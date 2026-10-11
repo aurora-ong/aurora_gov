@@ -32,6 +32,8 @@ defmodule AuroraGov.Web.Components.Table do
     attr :field, :atom
     attr :class, :string
     attr :align, :string, values: ~w(left center right)
+    attr :hide_below, :string, values: ~w(sm md lg xl)
+    attr :wrap, :boolean
   end
 
   slot :custom_row
@@ -65,8 +67,9 @@ defmodule AuroraGov.Web.Components.Table do
                 <tr>
                   <th :for={col <- @col}
                     class={[
-                      "px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500",
+                      "px-3 sm:px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500",
                       "text-#{Map.get(col, :align, "left")}",
+                      hide_below_class(col[:hide_below]),
                       col[:field] && "cursor-pointer hover:bg-gray-100 hover:text-gray-700"
                     ]}
                     phx-click={col[:field] && @on_sort}
@@ -98,7 +101,7 @@ defmodule AuroraGov.Web.Components.Table do
                   <%= if @custom_row != [] do %>
                     {render_slot(@custom_row, item)}
                   <% else %>
-                    <td :for={col <- @col} class={["px-6 py-4 whitespace-nowrap text-sm text-gray-700", "text-#{Map.get(col, :align, "left")}", col[:class]]}>
+                    <td :for={col <- @col} class={["px-3 sm:px-6 py-4 text-sm text-gray-700", if(col[:wrap], do: "whitespace-normal", else: "whitespace-nowrap"), "text-#{Map.get(col, :align, "left")}", hide_below_class(col[:hide_below]), col[:class]]}>
                       {render_slot(col, item)}
                     </td>
                     <td :if={@action != []} class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -139,4 +142,11 @@ defmodule AuroraGov.Web.Components.Table do
   defp align_class("right"), do: "justify-end"
   defp align_class("left"), do: "justify-start"
   defp align_class(_), do: "justify-start"
+
+  # Oculta una columna por debajo del breakpoint indicado (clases literales para Tailwind)
+  defp hide_below_class("sm"), do: "hidden sm:table-cell"
+  defp hide_below_class("md"), do: "hidden md:table-cell"
+  defp hide_below_class("lg"), do: "hidden lg:table-cell"
+  defp hide_below_class("xl"), do: "hidden xl:table-cell"
+  defp hide_below_class(_), do: nil
 end
