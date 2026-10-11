@@ -19,6 +19,8 @@ defmodule AuroraGov.Aggregate.OU do
     OUCreated,
     MembershipStarted,
     MembershipPromoted,
+    MembershipDowngraded,
+    MembershipRevoked,
     PowerUpdated,
     PowerDelegationActivated,
     PowerDelegationDeactivated,
@@ -98,6 +100,37 @@ defmodule AuroraGov.Aggregate.OU do
               | membership_rank: membership_rank
             }
           end)
+    }
+  end
+
+  def apply(
+        %OU{} = ou,
+        %MembershipDowngraded{
+          person_id: person_id,
+          membership_rank: membership_rank
+        }
+      ) do
+    %OU{
+      ou
+      | ou_membership:
+          Map.update!(ou.ou_membership, person_id, fn membership ->
+            %Membership{
+              membership
+              | membership_rank: membership_rank
+            }
+          end)
+    }
+  end
+
+  def apply(
+        %OU{} = ou,
+        %MembershipRevoked{
+          person_id: person_id
+        }
+      ) do
+    %OU{
+      ou
+      | ou_membership: Map.delete(ou.ou_membership, person_id)
     }
   end
 

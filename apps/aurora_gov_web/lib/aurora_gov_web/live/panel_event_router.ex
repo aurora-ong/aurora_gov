@@ -89,6 +89,32 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
   end
 
+  def handle_event({:membership_downgraded, %{person: person, ou: ou} = membership}, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Members,
+      id: "panel-members",
+      updated_membership: membership
+    )
+
+    socket
+    |> put_toast(
+      "info",
+      "#{person.person_name} (#{person.person_id}) fue degradado a #{membership.membership_rank} en #{ou.ou_name} (#{ou.ou_id})"
+    )
+  end
+
+  def handle_event({:membership_revoked, %{person_id: person_id, ou_id: ou_id}}, socket) do
+    send_update(AuroraGov.Web.Live.Panel.Members,
+      id: "panel-members",
+      revoked_membership: %{person_id: person_id, ou_id: ou_id}
+    )
+
+    socket
+    |> put_toast(
+      "info",
+      "La membresía de #{person_id} fue revocada en #{ou_id}"
+    )
+  end
+
   def handle_event({:power_updated, power} = update, socket) do
     send_update(AuroraGov.Web.Live.Panel.Power,
       id: "panel-power",
@@ -224,6 +250,7 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
     )
 
     project_id = data.project_id
+
     send_update(AuroraGov.Web.Live.Panel.Side.ProjectDetail,
       id: "panel-project-#{project_id}",
       update: event

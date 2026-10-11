@@ -106,7 +106,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col h-full">
+    <div id={@id} class="h-full">
       <.async_result :let={context} assign={@context}>
         <:loading><.loading_spinner size="double_large" /></:loading>
 
@@ -121,276 +121,307 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
           </div>
         </:failed>
 
-        <div class="mb-2">
-          <div class="flex flex-wrap gap-2 mb-3">
+        <AuroraGov.Web.CoreComponents.side_panel_layout
+          title={context.proposal.proposal_title}
+          close_path={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}
+        >
+          <:actions>
+            <%= if can_cancel_proposal?(context.proposal, @app_context) do %>
+              <button
+                phx-click="cancel_proposal"
+                phx-value-proposal-id={context.proposal.proposal_id}
+                phx-target={@myself}
+                class="flex items-center justify-center w-8 h-8 rounded-md text-red-500 hover:text-red-700 hover:bg-red-50 transition-colors"
+                title="Anular Propuesta"
+              >
+                <i class="fa-solid fa-trash text-sm"></i>
+              </button>
+            <% end %>
+          </:actions>
+
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <.proposal_id_badge id={context.proposal.proposal_id} />
             <%= if context.proposal.proposal_ou_start_id != context.proposal.proposal_ou_end_id do %>
-              <.ou_id_badge id={context.proposal.proposal_ou_start_id}
-                size="sm"
-              />
+              <.ou_id_badge id={context.proposal.proposal_ou_start_id} size="sm" />
               <span class="text-gray-400 flex items-center text-sm">
                 <i class="fa fa-arrow-right"></i>
-              </span>
-              <.ou_id_badge id={context.proposal.proposal_ou_end_id}
-                size="sm"
-              />
+              </span> <.ou_id_badge id={context.proposal.proposal_ou_end_id} size="sm" />
             <% else %>
-              <.ou_id_badge id={context.proposal.proposal_ou_end_id}
-                size="sm"
-              />
+              <.ou_id_badge id={context.proposal.proposal_ou_end_id} size="sm" />
             <% end %>
           </div>
-
-          <h2 class="text-xl font-bold text-gray-900 mb-2 m-0">{context.proposal.proposal_title}</h2>
-
-          <.proposal_id_badge id={context.proposal.proposal_id} />
-        </div>
-        <!-- Tabs -->
-        <div class="flex border-b border-gray-200 mb-4">
-          <button
-            phx-click="tab_change"
-            phx-value-tab="info"
-            phx-target={@myself}
-            class={[
-              "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
-              if(@active_tab == "info",
-                do: "border-aurora_orange text-aurora_orange",
-                else: "border-transparent text-gray-500 hover:text-gray-700"
-              )
-            ]}
-          >
-            <i class="fa-solid fa-info-circle mr-1"></i> Información
-          </button>
-          <button
-            phx-click="tab_change"
-            phx-value-tab="votes"
-            phx-target={@myself}
-            class={[
-              "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
-              if(@active_tab == "votes",
-                do: "border-aurora_orange text-aurora_orange",
-                else: "border-transparent text-gray-500 hover:text-gray-700"
-              )
-            ]}
-          >
-            <i class="fa-solid fa-vote-yea mr-1"></i> Estado
-          </button>
-          <button
-            phx-click="tab_change"
-            phx-value-tab="discussion"
-            phx-target={@myself}
-            class={[
-              "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
-              if(@active_tab == "discussion",
-                do: "border-aurora_orange text-aurora_orange",
-                else: "border-transparent text-gray-500 hover:text-gray-700"
-              )
-            ]}
-          >
-            <i class="fa-solid fa-comments mr-1"></i> Discusión
-          </button>
-        </div>
-        <!-- Contenido de tabs -->
-        <div class="flex-1">
-          <%= case @active_tab do %>
-            <% "info" -> %>
-              <div class="space-y-4">
-                <div>
-                  <h3 class="font-semibold text-gray-900 mb-2">Descripción</h3>
-
-                  <p class="text-gray-700 leading-relaxed">{context.proposal.proposal_description}</p>
-                </div>
-
-                <div>
-                  <h3 class="font-semibold text-gray-900 mb-2">Detalles</h3>
-
-                  <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
-                    <div>
-                      <dt class="text-sm font-semibold text-gray-700">Propietario</dt>
-
-                      <dd class="text-sm text-gray-900">
-                        {context.proposal.proposal_owner.person_name}
-                      </dd>
-                    </div>
-
-                    <div>
-                      <dt class="text-sm font-semibold text-gray-700">Poder</dt>
-
-                      <dd class="text-sm text-gray-900">{context.proposal.proposal_power_id}</dd>
-                    </div>
-
-                    <div>
-                      <dt class="text-sm font-semibold text-gray-700">Estado</dt>
-
-                      <dd class="text-sm text-gray-900 capitalize">
-                        {context.proposal.proposal_status}
-                      </dd>
-                    </div>
-
-                    <div>
-                      <dt class="text-sm font-semibold text-gray-700">Creada</dt>
-
-                      <dd class="text-sm text-gray-900">
-                        {Timex.lformat!(
-                          context.proposal.created_at,
-                          "{0D}/{0M}/{YYYY} {h24}:{m}",
-                          "es"
-                        )}
-                      </dd>
-                    </div>
-                  </dl>
-                </div>
-
-                <%= if context.proposal.proposal_power_data && map_size(context.proposal.proposal_power_data) > 0 do %>
-                  <div class="mt-6 border-t border-gray-100 py-4">
-                    <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                      <i class="fa-solid fa-database text-gray-400"></i> Datos del Poder
-                    </h3>
-                    <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
-                      <dl class="divide-y divide-gray-200">
-                        <%= for {key, value} <- context.proposal.proposal_power_data do %>
-                          <div class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-4 items-center">
-                            <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              {String.replace(to_string(key), "_", " ")}
-                            </dt>
-                            <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 wrap-break-word font-mono bg-white px-2 py-1.5 rounded border border-gray-100">
-                              <%= if is_map(value) or is_list(value) do %>
-                                {inspect(value)}
-                              <% else %>
-                                {to_string(value)}
-                              <% end %>
-                            </dd>
-                          </div>
-                        <% end %>
-                      </dl>
-                    </div>
+          <!-- Tabs -->
+          <div class="flex border-b border-gray-200 mb-4">
+            <button
+              phx-click="tab_change"
+              phx-value-tab="info"
+              phx-target={@myself}
+              class={[
+                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                if(@active_tab == "info",
+                  do: "border-aurora_orange text-aurora_orange",
+                  else: "border-transparent text-gray-500 hover:text-gray-700"
+                )
+              ]}
+            >
+              <i class="fa-solid fa-info-circle mr-1"></i> Información
+            </button>
+            <button
+              phx-click="tab_change"
+              phx-value-tab="votes"
+              phx-target={@myself}
+              class={[
+                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                if(@active_tab == "votes",
+                  do: "border-aurora_orange text-aurora_orange",
+                  else: "border-transparent text-gray-500 hover:text-gray-700"
+                )
+              ]}
+            >
+              <i class="fa-solid fa-vote-yea mr-1"></i> Estado
+            </button>
+            <button
+              phx-click="tab_change"
+              phx-value-tab="discussion"
+              phx-target={@myself}
+              class={[
+                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                if(@active_tab == "discussion",
+                  do: "border-aurora_orange text-aurora_orange",
+                  else: "border-transparent text-gray-500 hover:text-gray-700"
+                )
+              ]}
+            >
+              <i class="fa-solid fa-comments mr-1"></i> Discusión
+            </button>
+          </div>
+          <!-- Contenido de tabs -->
+          <div class="flex-1">
+            <%= case @active_tab do %>
+              <% "info" -> %>
+                <div class="space-y-4">
+                  <div>
+                    <p class="text-gray-700 leading-relaxed">
+                      {context.proposal.proposal_description}
+                    </p>
                   </div>
-                <% end %>
-              </div>
-            <% "votes" -> %>
-              <div class="flex flex-col h-full">
-                <div class="space-y-3 flex-1 overflow-auto">
-                  <%= for {ou_id, status} <- context.voting_status do %>
-                    <div class="bg-gray-50 p-3 rounded-lg border">
-                      <div class="flex items-center justify-between mb-2">
-                        <.ou_id_badge id={ou_id} size="sm" />
-                        <span class="text-sm text-gray-600">
-                          {status[:current_voters]} / {status[:total_voters]} votos
-                        </span>
+
+                  <div>
+                    <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                      <div>
+                        <dt class="text-sm font-semibold text-gray-700">Responsable</dt>
+
+                        <dd class="text-sm text-gray-900">
+                          {context.proposal.proposal_owner.person_name}
+                        </dd>
                       </div>
 
-                      <.proposal_vote_progress
-                        current_score={status[:current_score]}
-                        required_score={status[:required_score]}
-                      />
+                      <div>
+                        <dt class="text-sm font-semibold text-gray-700">Creada</dt>
+
+                        <dd class="text-sm text-gray-900">
+                          {Timex.lformat!(
+                            context.proposal.created_at,
+                            "{0D}/{0M}/{YYYY} {h24}:{m}",
+                            "es"
+                          )}
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt class="text-sm font-semibold text-gray-700">Poder</dt>
+
+                        <dd class="mt-1">
+                          <.power_id_badge id={context.proposal.proposal_power_id} />
+                        </dd>
+                      </div>
+
+                      <div>
+                        <dt class="text-sm font-semibold text-gray-700">Estado</dt>
+
+                        <dd class="flex items-center gap-2 mt-1">
+                          <%= if context.proposal.proposal_status == :consumed do %>
+                            <.proposal_status_badge status={
+                              context.proposal.proposal_execution_result
+                            } />
+                          <% else %>
+                            <.proposal_status_badge status={context.proposal.proposal_status} />
+                          <% end %>
+                        </dd>
+                      </div>
+                    </dl>
+                  </div>
+
+                  <%= if context.proposal.proposal_status == :consumed && context.proposal.proposal_execution_result == :failed do %>
+                    <div class="mt-4 bg-red-50 border border-red-200 rounded-xl p-4">
+                      <h3 class="font-semibold text-red-900 flex items-center gap-2 mb-2">
+                        <i class="fa-solid fa-triangle-exclamation"></i> Error de ejecución
+                      </h3>
+
+                      <p class="text-sm text-red-800 whitespace-pre-line font-mono break-all">
+                        {context.proposal.proposal_execution_error || "Error desconocido"}
+                      </p>
+                    </div>
+                  <% end %>
+
+                  <%= if context.proposal.proposal_power_data && map_size(context.proposal.proposal_power_data) > 0 do %>
+                    <div class="mt-6 border-t border-gray-100 py-4">
+                      <h3 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-database text-gray-400"></i> Datos del Poder
+                      </h3>
+
+                      <div class="bg-gray-50 rounded-xl border border-gray-200 overflow-hidden">
+                        <dl class="divide-y divide-gray-200">
+                          <%= for {key, value} <- context.proposal.proposal_power_data do %>
+                            <div class="px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-4 items-center">
+                              <dt class="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {String.replace(to_string(key), "_", " ")}
+                              </dt>
+
+                              <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 wrap-break-word font-mono bg-white px-2 py-1.5 rounded border border-gray-100">
+                                <%= if is_map(value) or is_list(value) do %>
+                                  {inspect(value)}
+                                <% else %>
+                                  {to_string(value)}
+                                <% end %>
+                              </dd>
+                            </div>
+                          <% end %>
+                        </dl>
+                      </div>
                     </div>
                   <% end %>
                 </div>
+              <% "votes" -> %>
+                <div class="flex flex-col h-full">
+                  <div class="space-y-3 flex-1 overflow-auto">
+                    <%= for {ou_id, status} <- context.voting_status do %>
+                      <div class="bg-gray-50 p-3 rounded-lg border">
+                        <div class="flex items-center justify-between mb-2">
+                          <.ou_id_badge id={ou_id} size="sm" />
+                          <span class="text-sm text-gray-600">
+                            {status[:current_voters]} / {status[:total_voters]} votos
+                          </span>
+                        </div>
 
-                <%= if @app_context && @app_context.current_person && @app_context.current_person.person_id == context.proposal.proposal_owner_id && context.proposal.proposal_status == :active do %>
-                  <hr class="my-5" />
-                  <div class="text-center">
-                    <button
-                      phx-click="execute_proposal"
+                        <.proposal_vote_progress
+                          current_score={status[:current_score]}
+                          required_score={status[:required_score]}
+                        />
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <%= if @app_context && @app_context.current_person && @app_context.current_person.person_id == context.proposal.proposal_owner_id && context.proposal.proposal_status == :active do %>
+                    <hr class="my-5" />
+                    <div class="text-center">
+                      <button
+                        phx-click="execute_proposal"
+                        phx-value-proposal-id={context.proposal.proposal_id}
+                        phx-target={@myself}
+                        class="primary filled w-full"
+                      >
+                        <i class="fa-solid fa-bullhorn"></i> Promulgar
+                      </button>
+                    </div>
+                  <% end %>
+                </div>
+              <% "discussion" -> %>
+                <div class="flex flex-col h-full">
+                  <div
+                    :if={
+                      context.proposal.proposal_votes && length(context.proposal.proposal_votes) > 0
+                    }
+                    class="space-y-2 flex-1"
+                  >
+                    <%= for vote <- context.proposal.proposal_votes do %>
+                      <div class="bg-gray-50 p-2 rounded text-sm">
+                        <div class="flex justify-between items-center">
+                          <span class="flex items-center gap-2">
+                            <.person_id_badge
+                              id={vote.person_id}
+                              patch={
+                                ~p"/app/members/#{vote.person_id}?context=#{@app_context.current_ou_id}"
+                              }
+                            />
+                            <.badge
+                              :if={vote.vote_type == :delegated}
+                              icon="fa-solid fa-handshake"
+                              class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 cursor-pointer"
+                              size="xs"
+                            >
+                            </.badge>
+                          </span>
+                          <span class={[
+                            "px-2 py-1 rounded text-xs font-medium",
+                            case vote.vote_value do
+                              1 ->
+                                "bg-green-100 text-green-800"
+
+                              0 ->
+                                "bg-gray-100 text-gray-800"
+
+                              -1 ->
+                                "bg-red-100 text-red-800"
+
+                              nil ->
+                                if context.proposal.proposal_status == :active,
+                                  do: "bg-yellow-100 text-yellow-800",
+                                  else: "bg-gray-100 text-gray-800"
+                            end
+                          ]}>
+                            <%= case vote.vote_value do %>
+                              <% 1 -> %>
+                                <i class="fa-solid fa-check text-green-600 mr-1"></i> A favor
+                              <% 0 -> %>
+                                <i class="fa-solid fa-equals text-gray-600 mr-1"></i> Abstención
+                              <% -1 -> %>
+                                <i class="fa-solid fa-times text-red-600 mr-1"></i> En contra
+                              <% nil -> %>
+                                <%= if context.proposal.proposal_status == :active do %>
+                                  <i class="fa-solid fa-hourglass-half text-yellow-600 mr-1"></i>
+                                  Pendiente
+                                <% else %>
+                                  <i class="text-gray-600 mr-1"></i> No votó
+                                <% end %>
+                            <% end %>
+                          </span>
+                        </div>
+                         <span :if={vote.vote_comment} class="">{vote.vote_comment}</span>
+                      </div>
+                    <% end %>
+                  </div>
+
+                  <%= if context.proposal.proposal_status == :active do %>
+                    <hr class="border-gray-100 border my-2" />
+                    <.button
+                      disabled={context.current_vote == nil}
+                      display="flex"
+                      rounded="extra_large"
+                      phx-click="update_vote"
                       phx-value-proposal-id={context.proposal.proposal_id}
                       phx-target={@myself}
-                      class="primary filled w-full"
                     >
-                      <i class="fa-solid fa-bullhorn"></i> Promulgar
-                    </button>
-                  </div>
-                <% end %>
-              </div>
-            <% "discussion" -> %>
-              <div class="flex flex-col h-full">
-                <div
-                  :if={context.proposal.proposal_votes && length(context.proposal.proposal_votes) > 0}
-                  class="space-y-2 flex-1"
-                >
-                  <%= for vote <- context.proposal.proposal_votes do %>
-                    <div class="bg-gray-50 p-2 rounded text-sm">
-                      <div class="flex justify-between items-center">
-                        <span class="flex items-center gap-2">
-                         <.person_id_badge id={vote.person_id} patch={~p"/app/members/#{vote.person_id}?context=#{@app_context.current_ou_id}"} />
-                         <.badge
-                          :if={vote.vote_type == :delegated}
-                          icon="fa-solid fa-handshake"
-                          class="hover:bg-gray-100 border border-gray-300 rounded-full p-2 cursor-pointer"
-                          size="xs"
-                        >
-                        </.badge>
-                        </span>
-
-
-
-                        <span class={[
-                          "px-2 py-1 rounded text-xs font-medium",
-                          case vote.vote_value do
-                            1 ->
-                              "bg-green-100 text-green-800"
-
-                            0 ->
-                              "bg-gray-100 text-gray-800"
-
-                            -1 ->
-                              "bg-red-100 text-red-800"
-
-                            nil ->
-                              if context.proposal.proposal_status == :active,
-                                do: "bg-yellow-100 text-yellow-800",
-                                else: "bg-gray-100 text-gray-800"
-                          end
-                        ]}>
-                          <%= case vote.vote_value do %>
-                            <% 1 -> %>
-                              <i class="fa-solid fa-check text-green-600 mr-1"></i> A favor
-                            <% 0 -> %>
-                              <i class="fa-solid fa-equals text-gray-600 mr-1"></i> Abstención
-                            <% -1 -> %>
-                              <i class="fa-solid fa-times text-red-600 mr-1"></i> En contra
-                            <% nil -> %>
-                              <%= if context.proposal.proposal_status == :active do %>
-                                <i class="fa-solid fa-hourglass-half text-yellow-600 mr-1"></i>
-                                Pendiente
-                              <% else %>
-                                <i class="text-gray-600 mr-1"></i> No votó
-                              <% end %>
-                          <% end %>
-                        </span>
-                      </div>
-                       <span :if={vote.vote_comment} class="">{vote.vote_comment}</span>
-                    </div>
-                  <% end %>
-                </div>
-
-                <%= if context.proposal.proposal_status == :active do %>
-                  <hr class="border-gray-100 border my-2" />
-                  <.button
-                    disabled={context.current_vote == nil}
-                    display="flex"
-                    rounded="extra_large"
-                    phx-click="update_vote"
-                    phx-value-proposal-id={context.proposal.proposal_id}
-                    phx-target={@myself}
-                  >
-                    <i class="fa-solid fa-vote-yea"></i> {if context.current_vote &&
-                                                               context.current_vote.updated_at !=
-                                                                 nil,
-                                                             do: "Actualizar voto",
-                                                             else: "Votar"}
-                  </.button>
-                  <%!-- <div class="text-center">
-                    <button class="primary filled w-full">
                       <i class="fa-solid fa-vote-yea"></i> {if context.current_vote &&
                                                                  context.current_vote.updated_at !=
                                                                    nil,
                                                                do: "Actualizar voto",
                                                                else: "Votar"}
-                    </button>
-                  </div> --%>
-                <% end %>
-              </div>
-          <% end %>
-        </div>
+                    </.button>
+                    <%!-- <div class="text-center">
+                      <button class="primary filled w-full">
+                        <i class="fa-solid fa-vote-yea"></i> {if context.current_vote &&
+                                                                   context.current_vote.updated_at !=
+                                                                     nil,
+                                                                 do: "Actualizar voto",
+                                                                 else: "Votar"}
+                      </button>
+                    </div> --%>
+                  <% end %>
+                </div>
+            <% end %>
+          </div>
+        </AuroraGov.Web.CoreComponents.side_panel_layout>
       </.async_result>
     </div>
     """
@@ -439,5 +470,32 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
     send(self(), {:open, :app_modal, app_view})
 
     {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("cancel_proposal", %{"proposal-id" => _proposal_id}, socket) do
+    proposal =
+      case socket.assigns[:context] do
+        %{ok?: true, result: %{proposal: proposal}} -> proposal
+        _ -> nil
+      end
+
+    if can_cancel_proposal?(proposal, socket.assigns[:app_context]) do
+      {:noreply, put_flash(socket, :info, "Acción de anular propuesta en desarrollo.")}
+    else
+      {:noreply, put_flash(socket, :error, "Solo el responsable puede anular esta propuesta.")}
+    end
+  end
+
+  defp can_cancel_proposal?(proposal, app_context) do
+    case {proposal, app_context} do
+      {%{proposal_status: :active, proposal_owner_id: owner_id},
+       %{current_person: %{person_id: person_id}}}
+      when is_binary(owner_id) and owner_id != "" and owner_id == person_id ->
+        true
+
+      _ ->
+        false
+    end
   end
 end

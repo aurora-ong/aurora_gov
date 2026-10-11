@@ -29,7 +29,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LedgerDetail do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:app_context, assigns.app_context)
+      |> assign(assigns)
       |> assign(:ledger_id, assigns.ledger_id)
       |> load_ledger_details()
 
@@ -77,69 +77,71 @@ defmodule AuroraGov.Web.Live.Panel.Side.LedgerDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full space-y-6">
+    <div id={@id} class="h-full">
       <%= if @loading or is_nil(@ledger) do %>
-        <div class="flex items-center justify-center h-48">
+        <div class="flex items-center justify-center h-full">
           <.loading_spinner size="double_large" />
         </div>
       <% else %>
-        <div>
-          <div class="flex flex-col mb-4 gap-2">
-            <h1 class="text-3xl font-bold text-gray-900 leading-tight">{@ledger.name}</h1>
-            <div class="flex flex-wrap items-center gap-3">
-              <.ledger_id_badge id={@ledger.ledger_id} />
-              <.badge size="md" class={"bg-gray-100 " <> case to_string(@ledger.ledger_type) do
-                "asset" -> "text-green-700 bg-green-50 border-green-200"
-                "liability" -> "text-red-700 bg-red-50 border-red-200"
-                "equity" -> "text-purple-700 bg-purple-50 border-purple-200"
-                _ -> "text-gray-700"
-              end}>
-                <%= case to_string(@ledger.ledger_type) do %>
-                  <% "asset" -> %>Activo
-                  <% "liability" -> %>Pasivo
-                  <% "equity" -> %>Patrimonio
-                  <% _ -> %>Externa
-                <% end %>
-              </.badge>
+        <AuroraGov.Web.CoreComponents.side_panel_layout close_path={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}>
+          <:title_slot>
+            <div class="flex flex-col gap-2">
+              <h2 class="text-xl font-bold text-gray-900 m-0">{@ledger.name}</h2>
+              <div class="flex flex-wrap items-center gap-3">
+                <.ledger_id_badge id={@ledger.ledger_id} />
+                <.badge size="md" class={"bg-gray-100 " <> case to_string(@ledger.ledger_type) do
+                  "asset" -> "text-green-700 bg-green-50 border-green-200"
+                  "liability" -> "text-red-700 bg-red-50 border-red-200"
+                  "equity" -> "text-purple-700 bg-purple-50 border-purple-200"
+                  _ -> "text-gray-700"
+                end}>
+                  <%= case to_string(@ledger.ledger_type) do %>
+                    <% "asset" -> %>Activo
+                    <% "liability" -> %>Pasivo
+                    <% "equity" -> %>Patrimonio
+                    <% _ -> %>Externa
+                  <% end %>
+                </.badge>
+              </div>
             </div>
+          </:title_slot>
+
+          <div class="border-b border-gray-200 shrink-0 mb-4">
+            <nav class="-mb-px flex space-x-6" aria-label="Tabs">
+              <button
+                phx-click="set_tab"
+                phx-target={@myself}
+                phx-value-tab="general"
+                class={"whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium transition-colors " <>
+                  if @active_tab == "general",
+                    do: "border-aurora_orange text-aurora_orange",
+                    else: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"}
+              >
+                <i class="fa-solid fa-circle-info mr-2"></i>Información General
+              </button>
+              <button
+                phx-click="set_tab"
+                phx-target={@myself}
+                phx-value-tab="history"
+                class={"whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium transition-colors " <>
+                  if @active_tab == "history",
+                    do: "border-aurora_orange text-aurora_orange",
+                    else: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"}
+              >
+                <i class="fa-solid fa-list mr-2"></i>Movimientos
+              </button>
+            </nav>
           </div>
-        </div>
 
-        <div class="border-b border-gray-200">
-          <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-            <button
-              phx-click="set_tab"
-              phx-target={@myself}
-              phx-value-tab="general"
-              class={"whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium transition-colors " <>
-                if @active_tab == "general",
-                  do: "border-aurora_orange text-aurora_orange",
-                  else: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"}
-            >
-              <i class="fa-solid fa-circle-info mr-2"></i>Información General
-            </button>
-            <button
-              phx-click="set_tab"
-              phx-target={@myself}
-              phx-value-tab="history"
-              class={"whitespace-nowrap border-b-2 py-3 px-1 text-sm font-medium transition-colors " <>
-                if @active_tab == "history",
-                  do: "border-aurora_orange text-aurora_orange",
-                  else: "border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700"}
-            >
-              <i class="fa-solid fa-list mr-2"></i>Movimientos
-            </button>
-          </nav>
-        </div>
-
-        <div class="mt-4">
-          <%= case @active_tab do %>
-            <% "general" -> %>
-              <.ledger_general ledger={@ledger} balance={@balance} />
-            <% "history" -> %>
-              <.ledger_history entries={@entries} ledger={@ledger} />
-          <% end %>
-        </div>
+          <div class="pb-6">
+            <%= case @active_tab do %>
+              <% "general" -> %>
+                <.ledger_general ledger={@ledger} balance={@balance} />
+              <% "history" -> %>
+                <.ledger_history entries={@entries} ledger={@ledger} />
+            <% end %>
+          </div>
+        </AuroraGov.Web.CoreComponents.side_panel_layout>
       <% end %>
     </div>
     """

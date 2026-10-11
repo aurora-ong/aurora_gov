@@ -163,15 +163,44 @@ let Combobox = {
     }
   },
 
+  fuzzyMatch(query, text) {
+    if (!query) return true;
+    
+    const normalize = (s) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const nQuery = normalize(query);
+    const nText = normalize(text);
+    
+    // 1. All words match in any order
+    const words = nQuery.split(/\s+/).filter(w => w.length > 0);
+    if (words.length > 0 && words.every(word => nText.includes(word))) {
+      return true;
+    }
+
+    // 2. Character subsequence match
+    let queryIndex = 0;
+    for (let i = 0; i < nText.length && queryIndex < nQuery.length; i++) {
+      if (nQuery[queryIndex] === ' ') {
+        queryIndex++;
+        if (queryIndex >= nQuery.length) break;
+      }
+      if (nText[i] === nQuery[queryIndex]) {
+        queryIndex++;
+      }
+    }
+    return queryIndex === nQuery.length;
+  },
+
   handleSearch(e) {
-    const query = e.target.value.toLowerCase();
+    const query = e.target.value;
     this.dropdownOptions = this.el.querySelectorAll(".combobox-option");
 
     this.dropdownOptions.forEach((option) => {
-      const valueAttr = option
-        .getAttribute("data-combobox-value")
-        .toLowerCase();
-      option.style.display = valueAttr.includes(query) ? "" : "none";
+      const valueAttr = option.getAttribute("data-combobox-value") || "";
+      const textContent = option.textContent || "";
+      
+      // Match against either the underlying value or the displayed text
+      const matches = this.fuzzyMatch(query, valueAttr) || this.fuzzyMatch(query, textContent);
+      option.style.display = matches ? "" : "none";
     });
 
     const noResults = this.el.querySelector(".no-results");

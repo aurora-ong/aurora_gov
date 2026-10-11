@@ -85,7 +85,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col h-full">
+    <div id={@id} class="h-full">
       <.async_result :let={context} assign={@context}>
         <:loading><.loading_spinner size="double_large" /></:loading>
 
@@ -99,9 +99,8 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
           </div>
         </:failed>
 
-        <!-- Header del Miembro -->
-        <div class="px-6 py-5 border-b border-gray-200 bg-white sticky top-0 z-10 shrink-0">
-          <div class="flex justify-between items-start pr-8">
+        <AuroraGov.Web.CoreComponents.side_panel_layout close_path={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}>
+          <:title_slot>
             <div class="flex items-center gap-3">
               <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                 <i class="fa-regular fa-user text-2xl"></i>
@@ -110,14 +109,13 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
                 <h2 class="text-xl font-bold text-gray-900">
                   {context.person.person_name}
                 </h2>
-                <p class="text-sm text-gray-500 flex items-center gap-2">
+                <p class="text-sm text-gray-500 flex items-center gap-2 mt-1">
                   <i class="fa-regular fa-envelope"></i> {context.person.person_mail}
                 </p>
                 <div class="flex items-center gap-4 mt-2">
                   <div class="flex items-center gap-2">
                     <.person_id_badge id={context.person.person_id} />
                   </div>
-
                   <div class="flex items-center gap-1.5 text-xs text-gray-500">
                     <i class="fa-regular fa-calendar-days"></i>
                     <span>Registrado el {Timex.lformat!(context.person.created_at, "{0D}/{0M}/{YYYY}", "es")}</span>
@@ -125,10 +123,10 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
                 </div>
               </div>
             </div>
-          </div>
+          </:title_slot>
 
           <!-- Tabs -->
-          <div class="flex gap-4 mt-6 border-b border-gray-200">
+          <div class="flex gap-4 border-b border-gray-200 mb-6 shrink-0">
             <button
               phx-click="tab_change"
               phx-value-tab="units"
@@ -172,88 +170,88 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
               <i class="fa-solid fa-file-signature mr-1"></i> Propuestas
             </button>
           </div>
-        </div>
 
-        <!-- Contenido -->
-        <div class="flex-1 overflow-y-auto p-6 bg-gray-50">
-          <%= case @active_tab do %>
-            <% "units" -> %>
-              <div class="space-y-4">
-                <%= if context.memberships == [] do %>
-                  <div class="text-center py-8">
-                    <p class="text-gray-500">No pertenece a ninguna unidad.</p>
-                  </div>
-                <% else %>
-                  <%= for membership <- context.memberships do %>
-                    <div
-                      class={[
-                        "p-4 rounded-xl border shadow-sm flex flex-col gap-3 transition cursor-pointer",
-                        if(membership.ou_id == @current_ou_id, do: "bg-blue-50 border-blue-200", else: "bg-white border-gray-200 hover:shadow")
-                      ]}
-                      phx-click={JS.patch(~p"/app/members/#{@person_id}?context=#{membership.ou_id}")}
-                    >
-                      <div class="flex justify-between items-start">
-                        <div class="flex flex-col">
-                          <span class="font-semibold text-gray-900">{membership.ou.ou_name}</span>
-                          <.ou_id_badge id={membership.ou_id} size="sm" class="mt-1" />
-                        </div>
-                        <.membership_status_badge status={membership.membership_status} />
-                      </div>
-                      <div class="flex justify-between items-center text-sm mt-2 border-t pt-3 border-gray-100">
-                        <div class="flex items-center gap-2 text-gray-500">
-                          <i class="fa-solid fa-calendar-day"></i>
-                          <span>Desde {Timex.lformat!(membership.created_at, "{relative}", "es", :relative)}</span>
-                        </div>
-                        <.membership_rank_badge rank={membership.membership_rank} />
-                      </div>
+          <!-- Contenido -->
+          <div class="pb-6">
+            <%= case @active_tab do %>
+              <% "units" -> %>
+                <div class="space-y-4">
+                  <%= if context.memberships == [] do %>
+                    <div class="text-center py-8">
+                      <p class="text-gray-500">No pertenece a ninguna unidad.</p>
                     </div>
-                  <% end %>
-                <% end %>
-              </div>
-
-            <% "roles" -> %>
-              <div class="space-y-4">
-                <%= if context.roles == [] do %>
-                  <div class="text-center py-8">
-                    <p class="text-gray-500">No tiene roles asignados en esta unidad.</p>
-                  </div>
-                <% else %>
-                  <div class="space-y-3">
-                    <%= for role <- context.roles do %>
-                      <div class="bg-white flex items-center justify-between p-4 border border-gray-200 rounded-xl shadow-sm">
-                        <div>
-                          <p class="font-medium text-gray-900">{role.role_name}</p>
-                          <p class="text-xs text-gray-500 mt-1">{role.role_description}</p>
+                  <% else %>
+                    <%= for membership <- context.memberships do %>
+                      <div
+                        class={[
+                          "p-4 rounded-xl border shadow-sm flex flex-col gap-3 transition cursor-pointer",
+                          if(membership.ou_id == @current_ou_id, do: "bg-blue-50 border-blue-200", else: "bg-white border-gray-200 hover:shadow")
+                        ]}
+                        phx-click={JS.patch(~p"/app/members/#{@person_id}?context=#{membership.ou_id}")}
+                      >
+                        <div class="flex justify-between items-start">
+                          <div class="flex flex-col">
+                            <span class="font-semibold text-gray-900">{membership.ou.ou_name}</span>
+                            <.ou_id_badge id={membership.ou_id} size="sm" class="mt-1" />
+                          </div>
+                          <.membership_status_badge status={membership.membership_status} />
+                        </div>
+                        <div class="flex justify-between items-center text-sm mt-2 border-t pt-3 border-gray-100">
+                          <div class="flex items-center gap-2 text-gray-500">
+                            <i class="fa-solid fa-calendar-day"></i>
+                            <span>Desde {Timex.lformat!(membership.created_at, "{relative}", "es", :relative)}</span>
+                          </div>
+                          <.membership_rank_badge rank={membership.membership_rank} />
                         </div>
                       </div>
                     <% end %>
-                  </div>
-                <% end %>
-              </div>
+                  <% end %>
+                </div>
 
-            <% "proposals" -> %>
-              <div class="space-y-4">
-                <%= if context.proposals == [] do %>
-                  <div class="text-center py-8">
-                    <p class="text-gray-500">No tiene propuestas en esta unidad.</p>
-                  </div>
-                <% else %>
-                  <%= for proposal <- context.proposals do %>
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow transition cursor-pointer" phx-click={JS.patch(~p"/app/proposals/#{proposal.proposal_id}?context=#{@app_context.current_ou_id}")}>
-                      <div class="flex justify-between items-start">
-                        <h4 class="font-medium text-gray-900 line-clamp-1">{proposal.proposal_title}</h4>
-                      </div>
-                      <div class="flex gap-2 mt-2 items-center flex-wrap">
-                        <.power_id_badge id={proposal.proposal_power_id} size="sm" />
-                        <span class="text-xs text-gray-400">&bull;</span>
-                        <span class="text-xs text-gray-500">{Timex.lformat!(proposal.created_at, "{relative}", "es", :relative)}</span>
-                      </div>
+              <% "roles" -> %>
+                <div class="space-y-4">
+                  <%= if context.roles == [] do %>
+                    <div class="text-center py-8">
+                      <p class="text-gray-500">No tiene roles asignados en esta unidad.</p>
+                    </div>
+                  <% else %>
+                    <div class="space-y-3">
+                      <%= for role <- context.roles do %>
+                        <div class="bg-white flex items-center justify-between p-4 border border-gray-200 rounded-xl shadow-sm">
+                          <div>
+                            <p class="font-medium text-gray-900">{role.role_name}</p>
+                            <p class="text-xs text-gray-500 mt-1">{role.role_description}</p>
+                          </div>
+                        </div>
+                      <% end %>
                     </div>
                   <% end %>
-                <% end %>
-              </div>
-          <% end %>
-        </div>
+                </div>
+
+              <% "proposals" -> %>
+                <div class="space-y-4">
+                  <%= if context.proposals == [] do %>
+                    <div class="text-center py-8">
+                      <p class="text-gray-500">No tiene propuestas en esta unidad.</p>
+                    </div>
+                  <% else %>
+                    <%= for proposal <- context.proposals do %>
+                      <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm hover:shadow transition cursor-pointer" phx-click={JS.patch(~p"/app/proposals/#{proposal.proposal_id}?context=#{@app_context.current_ou_id}")}>
+                        <div class="flex justify-between items-start">
+                          <h4 class="font-medium text-gray-900 line-clamp-1">{proposal.proposal_title}</h4>
+                        </div>
+                        <div class="flex gap-2 mt-2 items-center flex-wrap">
+                          <.power_id_badge id={proposal.proposal_power_id} size="sm" />
+                          <span class="text-xs text-gray-400">&bull;</span>
+                          <span class="text-xs text-gray-500">{Timex.lformat!(proposal.created_at, "{relative}", "es", :relative)}</span>
+                        </div>
+                      </div>
+                    <% end %>
+                  <% end %>
+                </div>
+            <% end %>
+          </div>
+        </AuroraGov.Web.CoreComponents.side_panel_layout>
       </.async_result>
     </div>
     """

@@ -346,6 +346,28 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
     """
   end
 
+  @doc "Renders a proposal status badge"
+  def proposal_status_badge(assigns) do
+    {color_class, label} =
+      case assigns.status do
+        :active -> {"bg-blue-50 text-blue-700 border-blue-200", "Activa"}
+        :success -> {"bg-emerald-50 text-emerald-700 border-emerald-200", "Consumida"}
+        :failed -> {"bg-red-50 text-red-700 border-red-200", "Consumida"}
+        s -> {"bg-gray-50 text-gray-600 border-gray-200", to_string(s)}
+      end
+
+    assigns = assign(assigns, color_class: color_class, label: label)
+
+    ~H"""
+    <span class={[
+      "px-2.5 py-0.5 rounded-full border font-semibold uppercase tracking-wider text-[10px]",
+      @color_class
+    ]}>
+      {@label}
+    </span>
+    """
+  end
+
   @doc "Renders a task ID badge"
 
   attr :id, :string, required: true

@@ -45,7 +45,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:app_context, assigns.app_context)
+      |> assign(assigns)
       |> assign(:project_id, assigns.project_id)
       |> load_project_details()
 
@@ -91,28 +91,27 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full space-y-6">
+    <div id={@id} class="h-full">
       <%= if @loading or is_nil(@project) do %>
-        <div class="w-full py-20 flex justify-center items-center">
+        <div class="w-full h-full flex justify-center items-center">
           <.loading_spinner size="double_large" />
         </div>
       <% else %>
-        <!-- Cabecera del Proyecto -->
-        <div class="border-b border-gray-100 pb-6 mb-6">
-          <div class="flex items-center gap-2 text-xs text-aurora_orange font-bold uppercase tracking-wider mb-2">
-            <i class="fa-solid fa-briefcase"></i> Detalle de Proyecto
-          </div>
-
-          <div class="flex flex-col gap-2">
-            <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
-              <i class="fa-solid fa-folder-open text-yellow-500"></i> {@project.name}
-            </h2>
-
-            <div class="flex items-center gap-2">
-              <.project_id_badge id={@project.project_id} />
-              <.project_status_badge status={@project.status} />
+        <AuroraGov.Web.CoreComponents.side_panel_layout close_path={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}>
+          <:title_slot>
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2 text-xs text-aurora_orange font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-briefcase"></i> Detalle de Proyecto
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900 flex items-center gap-2 m-0">
+                <i class="fa-solid fa-folder-open text-yellow-500"></i> {@project.name}
+              </h2>
+              <div class="flex items-center gap-2">
+                <.project_id_badge id={@project.project_id} />
+                <.project_status_badge status={@project.status} />
+              </div>
             </div>
-          </div>
+          </:title_slot>
 
           <p class="text-sm text-gray-500 mt-4">{@project.description}</p>
 
@@ -174,7 +173,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
             </div>
           </div>
           <!-- Tabs Navigation -->
-          <div class="mt-8 border-b border-gray-200">
+          <div class="mt-8 border-b border-gray-200 shrink-0">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
               <button
                 phx-click="set_tab"
@@ -207,7 +206,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
             </nav>
           </div>
 
-          <div class="mt-6">
+          <div class="mt-6 pb-6">
             <%= if @active_tab == :metrics do %>
               <!-- Métricas del Proyecto -->
               <div class="pt-2">
@@ -316,7 +315,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
               </div>
             <% end %>
           </div>
-        </div>
+        </AuroraGov.Web.CoreComponents.side_panel_layout>
       <% end %>
     </div>
     """

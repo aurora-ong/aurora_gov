@@ -144,7 +144,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
   @impl true
   def handle_event("open_sensitivity_modal", _, socket) do
     app_modal = %AppView{
-      view_id: "power-update_power-#{socket.assigns.power_id}",
+      view_id: "modal-power_sensibility_update",
       view_module: AuroraGov.Web.Live.Power.SensibilityUpdate,
       view_options: %{
         modal_size: "double_large"
@@ -200,18 +200,26 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
         <:loading><.loading_spinner size="double_large" /></:loading>
 
         <div class="mb-4">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
-              <i class="fa-solid fa-bolt text-xl"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-3">
-                <h2 class="text-xl font-bold text-gray-900 m-0">{context.power_info.name}</h2>
-                <.power_id_badge id={context.power_id} />
+          <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
+            <div class="flex items-center gap-3">
+              <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+                <i class="fa-solid fa-bolt text-xl"></i>
               </div>
-              <p class="text-sm text-gray-500 mt-1">{context.power_info.description}</p>
+              <h2 class="text-xl font-bold text-gray-900 m-0">{context.power_info.name}</h2>
+            </div>
+            <div class="flex items-center gap-2">
+              <.link
+                patch={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}
+                class="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+              >
+                <i class="fa-solid fa-close text-lg"></i>
+              </.link>
             </div>
           </div>
+          <div class="flex flex-wrap items-center gap-2 mb-3">
+            <.power_id_badge id={context.power_id} />
+          </div>
+          <p class="text-sm text-gray-500 mb-3">{context.power_info.description}</p>
 
           <div class="mt-4 grid grid-cols-2 gap-3">
             <div class="p-4 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-100 flex flex-col justify-between h-28">

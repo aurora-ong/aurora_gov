@@ -13,6 +13,9 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
     OURenamed,
     OUGoalUpdated,
     MembershipStarted,
+    MembershipPromoted,
+    MembershipDowngraded,
+    MembershipRevoked,
     PowerUpdated,
     PersonRegistered,
     ProposalExecuted,
@@ -135,7 +138,8 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col h-full ">
+    <div id={@id} class="h-full">
+      <AuroraGov.Web.CoreComponents.side_panel_layout title="Última actividad" icon="fa-solid fa-clock-rotate-left" on_close="toggle_activity_panel">
       <.async_result :let={context} assign={@context}>
         <:loading>
           <div class="flex justify-center p-8"><.loading_spinner size="double_large" /></div>
@@ -150,13 +154,9 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
           </div>
         </:failed>
 
-        <h3 class="text-xl font-semibold text-black mb-4 px-1 flex flex-row justify-between items-center">
-          Última actividad
-        </h3>
-
         <div
           id="activity-scroll-container"
-          class="flex flex-col gap-3 overflow-y-auto pr-1 custom-scrollbar flex-1"
+          class="flex flex-col gap-3 pr-1"
         >
           <%= if Enum.empty?(context.activity_list) do %>
             <div class="text-gray-500 text-sm italic p-3 text-center border border-dashed rounded bg-gray-50">
@@ -219,6 +219,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
           <% end %>
         </div>
       </.async_result>
+      </AuroraGov.Web.CoreComponents.side_panel_layout>
     </div>
     """
   end
@@ -314,6 +315,22 @@ defmodule AuroraGov.Web.Live.Panel.Side.LastActivity do
          ou: %OU{ou_name: ou_name}
        }) do
     "#{person_name} ahora es #{membership_rank} en #{ou_name}"
+  end
+
+  defp render_description(%{
+         data: %MembershipDowngraded{membership_rank: membership_rank, ou_id: _ou_id},
+         person: %Person{person_name: person_name},
+         ou: %OU{ou_name: ou_name}
+       }) do
+    "#{person_name} fue degradado a #{membership_rank} en #{ou_name}"
+  end
+
+  defp render_description(%{
+         data: %MembershipRevoked{person_id: _person_id, ou_id: _ou_id},
+         person: %Person{person_name: person_name},
+         ou: %OU{ou_name: ou_name}
+       }) do
+    "#{person_name} ha sido expulsado de #{ou_name}"
   end
 
   defp render_description(%{

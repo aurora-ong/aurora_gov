@@ -16,7 +16,8 @@ defmodule AuroraGov.Application do
         AuroraGov,
         AuroraGov.Projector,
         AuroraGov.Blockchain.Projector,
-        AuroraGov.ProcessManagers.ProposalExecutor
+        AuroraGov.ProcessManagers.ProposalExecutor,
+        AuroraGov.ProcessManagers.MembershipRevocationProcess
       ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: AuroraGov.Supervisor)

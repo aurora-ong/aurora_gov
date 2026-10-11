@@ -58,4 +58,60 @@ defmodule AuroraGov.Projector.MembershipProjector do
       |> then(&{:ok, {:membership_promoted, &1}})
     end)
   end
+
+  def project(
+        %AuroraGov.Event.MembershipDowngraded{
+          person_id: person_id,
+          ou_id: ou_id,
+          membership_rank: membership_rank
+        },
+        metadata,
+        multi
+      ) do
+    multi
+    |> Ecto.Multi.run(:membership_lookup, fn repo, _changes ->
+      case repo.get_by(Membership, person_id: person_id, ou_id: ou_id) do
+        nil -> {:error, :membership_not_found}
+        membership -> {:ok, membership}
+      end
+    end)
+    |> Ecto.Multi.update(:membership_update, fn %{membership_lookup: membership} ->
+      Membership.changeset(membership, %{
+        membership_rank: membership_rank,
+        updated_at: metadata.created_at
+      })
+    end)
+    |> Ecto.Multi.run(:projector_update, fn repo, %{membership_update: membership} ->
+      membership
+      |> repo.preload([:ou, :person])
+      |> then(&{:ok, {:membership_downgraded, &1}})
+    end)
+  end
+
+  def project(
+        %AuroraGov.Event.MembershipRevoked{
+          person_id: person_id,
+          ou_id: ou_id
+        },
+        metadata,
+        multi
+      ) do
+    multi
+    |> Ecto.Multi.run(:membership_lookup, fn repo, _changes ->
+      case repo.get_by(Membership, person_id: person_id, ou_id: ou_id) do
+        nil -> {:error, :membership_not_found}
+        membership -> {:ok, membership}
+      end
+    end)
+    |> Ecto.Multi.update(:membership_update, fn %{membership_lookup: membership} ->
+      Membership.changeset(membership, %{
+        membership_status: :expelled,
+        updated_at: metadata.created_at
+      })
+    end)
+    |> Ecto.Multi.run(:projector_update, fn _repo, %{membership_update: _membership} ->
+      # Devolvemos un ID para que los listeners puedan reaccionar
+      {:ok, {:membership_revoked, %{person_id: person_id, ou_id: ou_id}}}
+    end)
+  end
 end

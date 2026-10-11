@@ -21,6 +21,7 @@ defmodule AuroraGov.Web.Live.Proposal.VoteModal do
   def update(assigns, socket) do
     socket =
       socket
+      |> assign(:id, assigns.id)
       |> assign(:app_context, assigns.app_context)
       |> assign(
         form:
@@ -99,81 +100,88 @@ defmodule AuroraGov.Web.Live.Proposal.VoteModal do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
-      <.async_result :let={context} assign={@context}>
-        <:loading>
-          <.loading_spinner size="double_large" />
-        </:loading>
+    <div id={@id}>
+      <.modal
+        id={"modal-#{@id}"}
+        show
+        title="Votar"
+        title_icon="fa-solid fa-hand-point-up"
+        size="medium"
+        on_cancel={JS.push("app_modal_close", value: %{modal: @id})}
+      >
+        <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
+          <.async_result :let={context} assign={@context}>
+            <:loading>
+              <.loading_spinner size="double_large" />
+            </:loading>
 
-        <:failed :let={error}>
-          <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
-            <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar</h3>
+            <:failed :let={error}>
+              <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
+                <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar</h3>
 
-            <p class="text-gray-500">
-              No se pudo cargar. <br /> {inspect(error)}
-            </p>
-          </div>
-        </:failed>
+                <p class="text-gray-500">
+                  No se pudo cargar. <br /> {inspect(error)}
+                </p>
+              </div>
+            </:failed>
 
-        <h2 class="text-2xl font-semibold flex items-center gap-2">
-          <i class="fa-solid fa-hand-point-up text-2xl"></i> Votar
-        </h2>
-
-        <.form_wrapper
-          id="proposal_vote_update_form"
-          phx-target={@myself}
-          phx-submit="submit"
-          phx-change="validate"
-          class="w-full"
-          for={@form}
-        >
-          <div class="w-full flex flex-col gap-5">
-            <.combobox label="Decisión" field={@form[:vote_value]} size="extra_large">
-              <:option value="1">Aprobar</:option>
-
-              <:option value="0">Abstener</:option>
-
-              <:option value="-1">Rechazar</:option>
-            </.combobox>
-
-            <.textarea_field
+            <.form_wrapper
+              id="proposal_vote_update_form"
+              phx-target={@myself}
+              phx-submit="submit"
+              phx-change="validate"
               class="w-full"
-              disable_resize
-              rows="7"
-              field={@form[:vote_comment]}
-              label="Argumento"
-              placeholder="Argumenta tu decisión de manera clara. Este comentario será público."
-            />
-            <.button
-              phx-disable-with="..."
-              class="w-full primary filled"
-              disabled={!@changeset.valid?}
+              for={@form}
             >
-              {if context.current_vote.updated_at do
-                "Actualizar"
-              else
-                "Votar"
-              end}
-            </.button>
-          </div>
+              <div class="w-full flex flex-col gap-5">
+                <.combobox label="Decisión" field={@form[:vote_value]} size="extra_large">
+                  <:option value="1">Aprobar</:option>
 
-          <div
-            :if={context.current_vote.updated_at}
-            class="mt-2 text-xs text-gray-500 flex items-center gap-2"
-          >
-            <i class="fa-solid fa-calendar-days"></i>
-            <span>
-              Tu voto fue actualizado hace {Timex.lformat!(
-                context.current_vote.updated_at,
-                "{relative}",
-                "es",
-                :relative
-              )}
-            </span>
-          </div>
-        </.form_wrapper>
-      </.async_result>
+                  <:option value="0">Abstener</:option>
+
+                  <:option value="-1">Rechazar</:option>
+                </.combobox>
+
+                <.textarea_field
+                  class="w-full"
+                  disable_resize
+                  rows="7"
+                  field={@form[:vote_comment]}
+                  label="Argumento"
+                  placeholder="Argumenta tu decisión de manera clara. Este comentario será público."
+                />
+                <.button
+                  phx-disable-with="..."
+                  class="w-full primary filled"
+                  disabled={!@changeset.valid?}
+                >
+                  {if context.current_vote.updated_at do
+                    "Actualizar"
+                  else
+                    "Votar"
+                  end}
+                </.button>
+              </div>
+
+              <div
+                :if={context.current_vote.updated_at}
+                class="mt-2 text-xs text-gray-500 flex items-center gap-2"
+              >
+                <i class="fa-solid fa-calendar-days"></i>
+                <span>
+                  Tu voto fue actualizado hace {Timex.lformat!(
+                    context.current_vote.updated_at,
+                    "{relative}",
+                    "es",
+                    :relative
+                  )}
+                </span>
+              </div>
+            </.form_wrapper>
+          </.async_result>
+        </div>
+      </.modal>
     </div>
     """
   end

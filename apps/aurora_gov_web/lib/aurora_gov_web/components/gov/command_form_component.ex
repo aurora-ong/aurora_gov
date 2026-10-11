@@ -18,6 +18,16 @@ defmodule AuroraGov.Web.DynamicCommandFormComponent do
                   label={field_meta.label}
                   app_context={@app_context}
                 />
+              <% :member_search -> %>
+                <.live_component
+                  module={AuroraGov.Web.Components.SmartInputs.MemberSelector}
+                  id={"#{field_meta.name}_selector"}
+                  form={@form}
+                  field={@form[field_meta.name]}
+                  label={field_meta.label}
+                  app_context={@app_context}
+                  ou_id={Map.get(assigns[:proposal_params] || %{}, "proposal_ou_end") || Map.get(assigns[:proposal_params] || %{}, :proposal_ou_end) || Map.get(@form.params, "ou_id") || Map.get(@form.params, :ou_id) || @app_context.current_ou_id}
+                />
               <% :global_user_search -> %>
                 <.live_component
                   module={AuroraGov.Web.Components.SmartInputs.GlobalUserSelector}

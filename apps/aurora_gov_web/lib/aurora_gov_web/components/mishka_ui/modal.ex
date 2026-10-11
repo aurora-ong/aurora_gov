@@ -103,7 +103,9 @@ defmodule AuroraGov.Web.Components.Modal do
     doc: "Custom CSS class for additional styling to overlay"
 
   attr :show, :boolean, default: false, doc: "Show element"
+  attr :show_close, :boolean, default: true, doc: "Show close button"
   attr :on_cancel, JS, default: %JS{}, doc: "Custom JS module for on_cancel action"
+  slot :header_actions, doc: "Slot for additional actions in the modal header"
   slot :inner_block, required: true, doc: "Inner block that renders HEEx content"
 
   def modal(assigns) do
@@ -136,7 +138,7 @@ defmodule AuroraGov.Web.Components.Modal do
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
               class={[
-                "relative hidden transition",
+                "relative hidden transition w-full",
                 color_variant(@variant, @color),
                 border_size(@border, @variant),
                 rounded_size(@rounded),
@@ -145,18 +147,25 @@ defmodule AuroraGov.Web.Components.Modal do
                 @focus_wrap_class
               ]}
             >
-              <div class="flex items-center justify-end">
-                <button
-                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
-                  type="button"
-                  class={["p-2 hover:opacity-60", @close_class]}
-                  aria-label={gettext("close")}
-                >
-                  <.icon name="fa-solid fa-close" class={@icon_class} />
-                </button>
+              <div :if={@title || @title_icon || @show_close || @header_actions != []} class="flex items-center justify-between rounded border border-gray-200 px-6 py-4 bg-gray-50 dark:bg-gray-800">
+                <div class="flex items-center gap-3">
+                  <i :if={@title_icon} class={[@title_icon, "text-xl text-gray-500"]}></i>
+                  <h3 :if={@title} id={"#{@id}-title"} class={["text-lg font-semibold text-gray-900 dark:text-gray-100 m-0", @title_class]}>{@title}</h3>
+                </div>
+                <div class="flex items-center gap-1">
+                  {render_slot(@header_actions)}
+                  <button
+                    :if={@show_close}
+                    phx-click={JS.exec("data-cancel", to: "##{@id}")}
+                    type="button"
+                    class={["flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors", @close_class]}
+                    aria-label={gettext("close")}
+                  >
+                    <.icon name="fa-solid fa-close" class={@icon_class} />
+                  </button>
+                </div>
               </div>
-
-              <div id={"#{@id}-description"} class={@content_class}>
+              <div id={"#{@id}-description"} class={["p-6", @content_class]}>
                 {render_slot(@inner_block)}
               </div>
             </.focus_wrap>

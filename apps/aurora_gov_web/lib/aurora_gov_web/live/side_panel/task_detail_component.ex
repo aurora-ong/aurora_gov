@@ -36,7 +36,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
   def update(assigns, socket) do
     socket =
       socket
-      |> assign(:app_context, assigns.app_context)
+      |> assign(assigns)
       |> assign(:task_id, assigns.task_id)
       |> load_task_details()
 
@@ -103,25 +103,25 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full space-y-6">
+    <div id={@id} class="h-full">
       <%= if @loading or is_nil(@task) do %>
-        <div class="w-full py-20 flex justify-center items-center">
+        <div class="w-full h-full flex justify-center items-center">
           <.loading_spinner size="double_large" />
         </div>
       <% else %>
-        <div class="border-b border-gray-100 pb-6 mb-6">
-          <div class="flex items-center gap-2 text-xs text-aurora_orange font-bold uppercase tracking-wider mb-2">
-            <i class="fa-solid fa-list-check"></i> Detalle de Tarea
-          </div>
-          
-          <div class="flex flex-col gap-2">
-            <h2 class="text-2xl font-bold text-gray-900">{@task.name}</h2>
-            
-            <div class="flex items-center gap-2">
-              <.task_id_badge id={@task.task_id} /> <.task_status_badge status={@task.status} />
+        <AuroraGov.Web.CoreComponents.side_panel_layout close_path={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}>
+          <:title_slot>
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2 text-xs text-aurora_orange font-bold uppercase tracking-wider">
+                <i class="fa-solid fa-list-check"></i> Detalle de Tarea
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900 m-0">{@task.name}</h2>
+              <div class="flex items-center gap-2">
+                <.task_id_badge id={@task.task_id} /> <.task_status_badge status={@task.status} />
+              </div>
             </div>
-          </div>
-          
+          </:title_slot>
+
           <%= if @task.status not in [:completed, :cancelled] do %>
             <div class="mt-4 flex flex-wrap items-center gap-2 text-xs text-gray-600 bg-gray-50 rounded-xl p-3 border border-gray-100">
               <button
@@ -195,7 +195,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
             </div>
           <% end %>
           <!-- Tabs Navigation -->
-          <div class="mt-6 border-b border-gray-200">
+          <div class="mt-6 border-b border-gray-200 shrink-0">
             <nav class="-mb-px flex space-x-8" aria-label="Tabs">
               <button
                 phx-click="set_tab"
@@ -241,185 +241,185 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
               </button>
             </nav>
           </div>
-        </div>
-        
-        <div class="mt-6">
-          <%= if @active_tab == "general" do %>
-            <div class="space-y-6">
-              <div>
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  Objetivo
-                </h3>
-                
-                <p class="text-sm font-semibold text-gray-800">
-                  <i class="fa-solid fa-bullseye text-aurora_orange mr-1"></i> {@task.goal}
-                </p>
-              </div>
-              
-              <div>
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                  Descripción
-                </h3>
-                
-                <p class="text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
-                  {@task.description}
-                </p>
-              </div>
-              
-              <div class="flex flex-wrap items-center gap-6 pt-4 border-t border-gray-100">
-                <%= if @assigned_person do %>
-                  <div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                      Asignado a
-                    </h3>
-                    
-                    <span class="bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-700 flex items-center gap-2 border border-blue-100">
-                      <i class="fa-solid fa-user text-blue-400"></i> {@assigned_person.person_name}
-                    </span>
-                  </div>
-                <% else %>
-                  <div>
-                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                      Asignado a
-                    </h3>
-                    
-                    <span class="bg-gray-100 px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-500 flex items-center gap-2 border border-gray-200">
-                      <i class="fa-solid fa-user-slash text-gray-400"></i> Sin asignar
-                    </span>
-                  </div>
-                <% end %>
-                
+
+          <div class="mt-6 pb-6">
+            <%= if @active_tab == "general" do %>
+              <div class="space-y-6">
                 <div>
                   <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                    Fechas
+                    Objetivo
                   </h3>
-                  
-                  <div class="flex items-center gap-4 text-xs text-gray-500">
-                    <span class="flex items-center gap-1.5">
-                      <i class="fa-solid fa-calendar-plus text-gray-400"></i> {Calendar.strftime(
-                        @task.created_at,
-                        "%d/%m/%Y"
-                      )}
-                    </span>
-                    <span class="flex items-center gap-1.5">
-                      <i class="fa-solid fa-clock text-gray-400"></i> {Calendar.strftime(
-                        @task.updated_at,
-                        "%d/%m/%Y"
-                      )}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          <% end %>
-          
-          <%= if @active_tab == "history" do %>
-            <div class="space-y-4">
-              <%= if Enum.empty?(@task_events) do %>
-                <div class="bg-gray-50 rounded-xl p-8 border border-gray-200 text-center">
-                  <i class="fa-solid fa-timeline text-4xl text-gray-300 mb-3"></i>
-                  <h3 class="text-sm font-bold text-gray-600">Historial de Cambios</h3>
-                  
-                  <p class="text-xs text-gray-400 mt-1">
-                    No hay eventos registrados para esta tarea aún.
+
+                  <p class="text-sm font-semibold text-gray-800">
+                    <i class="fa-solid fa-bullseye text-aurora_orange mr-1"></i> {@task.goal}
                   </p>
                 </div>
-              <% else %>
-                <div class="relative border-l border-gray-200 ml-4 space-y-6 pb-4">
-                  <%= for event <- @task_events do %>
-                    <div class="relative pl-6">
-                      <div class="absolute -left-1.5 mt-1.5 w-3 h-3 bg-aurora_orange rounded-full border-2 border-white">
-                      </div>
-                      
-                      <div class="bg-white border border-gray-100 rounded-lg p-3 shadow-sm">
-                        <div class="flex justify-between items-start mb-2">
-                          <h4 class="text-xs font-bold text-gray-800">
-                            {event.event_type |> String.split(".") |> List.last()}
-                          </h4>
-                          
-                          <span class="text-[10px] text-gray-400">
-                            {Calendar.strftime(event.created_at, "%d/%m/%Y %H:%M:%S")}
-                          </span>
-                        </div>
-                        
-                        <div class="text-[10px] text-gray-500 font-mono overflow-hidden">
-                          <%= for {k, v} <- Map.drop(Map.from_struct(event.data), [:ou_id, :project_id, :task_id]) do %>
-                            <%= if not is_nil(v) do %>
-                              <div class="flex gap-2">
-                                <span class="text-gray-400 font-bold">{k}:</span>
-                                <span class="truncate">{inspect(v)}</span>
-                              </div>
-                            <% end %>
-                          <% end %>
-                        </div>
-                      </div>
+
+                <div>
+                  <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                    Descripción
+                  </h3>
+
+                  <p class="text-sm text-gray-600 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    {@task.description}
+                  </p>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-6 pt-4 border-t border-gray-100">
+                  <%= if @assigned_person do %>
+                    <div>
+                      <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                        Asignado a
+                      </h3>
+
+                      <span class="bg-blue-50 px-3 py-1.5 rounded-lg text-sm font-semibold text-blue-700 flex items-center gap-2 border border-blue-100">
+                        <i class="fa-solid fa-user text-blue-400"></i> {@assigned_person.person_name}
+                      </span>
+                    </div>
+                  <% else %>
+                    <div>
+                      <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                        Asignado a
+                      </h3>
+
+                      <span class="bg-gray-100 px-3 py-1.5 rounded-lg text-sm font-semibold text-gray-500 flex items-center gap-2 border border-gray-200">
+                        <i class="fa-solid fa-user-slash text-gray-400"></i> Sin asignar
+                      </span>
                     </div>
                   <% end %>
-                </div>
-              <% end %>
-            </div>
-          <% end %>
-          
-          <%= if @active_tab == "evaluation" do %>
-            <%= if Map.get(@task, :evaluation_score) do %>
-              <!-- Mostrar Evaluación -->
-              <div class="bg-yellow-50/50 rounded-2xl border border-yellow-100 p-6 shadow-sm">
-                <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
-                    <i class="fa-solid fa-award text-yellow-500"></i> Evaluación de la Tarea
-                  </h3>
-                  
-                  <div class="flex flex-col items-end">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      Nota Final
-                    </span>
-                    <span class="text-3xl font-black text-yellow-600">
-                      {@task.evaluation_score} <span class="text-lg text-yellow-400">/ 100</span>
-                    </span>
+
+                  <div>
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                      Fechas
+                    </h3>
+
+                    <div class="flex items-center gap-4 text-xs text-gray-500">
+                      <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-plus text-gray-400"></i> {Calendar.strftime(
+                          @task.created_at,
+                          "%d/%m/%Y"
+                        )}
+                      </span>
+                      <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-clock text-gray-400"></i> {Calendar.strftime(
+                          @task.updated_at,
+                          "%d/%m/%Y"
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
-                
-                <div class="bg-white p-4 rounded-xl border border-yellow-100/60">
-                  <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
-                    Reseña
-                  </h4>
-                  
-                  <p class="text-sm text-gray-700 italic">"{@task.evaluation_review}"</p>
-                </div>
               </div>
-            <% else %>
-              <!-- Solicitar Evaluación -->
-              <div class="bg-gray-50 rounded-xl p-8 border border-gray-200 text-center flex flex-col items-center">
-                <i class="fa-solid fa-ranking-star text-4xl text-gray-300 mb-3"></i>
-                <h3 class="text-sm font-bold text-gray-600">Evaluación Pendiente</h3>
-                
-                <%= if @task.status == :completed do %>
-                  <p class="text-xs text-gray-500 mt-1 mb-4 max-w-md">
-                    La tarea ha sido completada pero aún no tiene una evaluación de desempeño registrada.
-                  </p>
-                  
-                  <button
-                    phx-click="open_proposal_create_modal"
-                    phx-value-proposal_ou_origin={@app_context.current_ou_id}
-                    phx-value-proposal_ou_end={@app_context.current_ou_id}
-                    phx-value-proposal_title={"Evaluar Tarea: #{@task.name}"}
-                    phx-value-proposal_description={"Se propone asignar una nota de evaluación a la tarea #{@task.task_id}."}
-                    phx-value-proposal_power_id="org.task.evaluate"
-                    phx-value-power-project_id={@task.project_id}
-                    phx-value-power-task_id={@task.task_id}
-                    class="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 rounded-lg font-bold flex gap-2 items-center transition-colors shadow-sm"
-                  >
-                    <i class="fa-solid fa-star"></i> Evaluar Tarea
-                  </button>
+            <% end %>
+
+            <%= if @active_tab == "history" do %>
+              <div class="space-y-4">
+                <%= if Enum.empty?(@task_events) do %>
+                  <div class="bg-gray-50 rounded-xl p-8 border border-gray-200 text-center">
+                    <i class="fa-solid fa-timeline text-4xl text-gray-300 mb-3"></i>
+                    <h3 class="text-sm font-bold text-gray-600">Historial de Cambios</h3>
+
+                    <p class="text-xs text-gray-400 mt-1">
+                      No hay eventos registrados para esta tarea aún.
+                    </p>
+                  </div>
                 <% else %>
-                  <p class="text-xs text-gray-400 mt-1">
-                    La tarea debe estar en estado <b>Completada</b> para poder ser evaluada.
-                  </p>
+                  <div class="relative border-l border-gray-200 ml-4 space-y-6 pb-4">
+                    <%= for event <- @task_events do %>
+                      <div class="relative pl-6">
+                        <div class="absolute -left-1.5 mt-1.5 w-3 h-3 bg-aurora_orange rounded-full border-2 border-white">
+                        </div>
+
+                        <div class="bg-white border border-gray-100 rounded-lg p-3 shadow-sm">
+                          <div class="flex justify-between items-start mb-2">
+                            <h4 class="text-xs font-bold text-gray-800">
+                              {event.event_type |> String.split(".") |> List.last()}
+                            </h4>
+
+                            <span class="text-[10px] text-gray-400">
+                              {Calendar.strftime(event.created_at, "%d/%m/%Y %H:%M:%S")}
+                            </span>
+                          </div>
+
+                          <div class="text-[10px] text-gray-500 font-mono overflow-hidden">
+                            <%= for {k, v} <- Map.drop(Map.from_struct(event.data), [:ou_id, :project_id, :task_id]) do %>
+                              <%= if not is_nil(v) do %>
+                                <div class="flex gap-2">
+                                  <span class="text-gray-400 font-bold">{k}:</span>
+                                  <span class="truncate">{inspect(v)}</span>
+                                </div>
+                              <% end %>
+                            <% end %>
+                          </div>
+                        </div>
+                      </div>
+                    <% end %>
+                  </div>
                 <% end %>
               </div>
             <% end %>
-          <% end %>
-        </div>
+
+            <%= if @active_tab == "evaluation" do %>
+              <%= if Map.get(@task, :evaluation_score) do %>
+                <!-- Mostrar Evaluación -->
+                <div class="bg-yellow-50/50 rounded-2xl border border-yellow-100 p-6 shadow-sm">
+                  <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                      <i class="fa-solid fa-award text-yellow-500"></i> Evaluación de la Tarea
+                    </h3>
+
+                    <div class="flex flex-col items-end">
+                      <span class="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Nota Final
+                      </span>
+                      <span class="text-3xl font-black text-yellow-600">
+                        {@task.evaluation_score} <span class="text-lg text-yellow-400">/ 100</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="bg-white p-4 rounded-xl border border-yellow-100/60">
+                    <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">
+                      Reseña
+                    </h4>
+
+                    <p class="text-sm text-gray-700 italic">"{@task.evaluation_review}"</p>
+                  </div>
+                </div>
+              <% else %>
+                <!-- Solicitar Evaluación -->
+                <div class="bg-gray-50 rounded-xl p-8 border border-gray-200 text-center flex flex-col items-center">
+                  <i class="fa-solid fa-ranking-star text-4xl text-gray-300 mb-3"></i>
+                  <h3 class="text-sm font-bold text-gray-600">Evaluación Pendiente</h3>
+
+                  <%= if @task.status == :completed do %>
+                    <p class="text-xs text-gray-500 mt-1 mb-4 max-w-md">
+                      La tarea ha sido completada pero aún no tiene una evaluación de desempeño registrada.
+                    </p>
+
+                    <button
+                      phx-click="open_proposal_create_modal"
+                      phx-value-proposal_ou_origin={@app_context.current_ou_id}
+                      phx-value-proposal_ou_end={@app_context.current_ou_id}
+                      phx-value-proposal_title={"Evaluar Tarea: #{@task.name}"}
+                      phx-value-proposal_description={"Se propone asignar una nota de evaluación a la tarea #{@task.task_id}."}
+                      phx-value-proposal_power_id="org.task.evaluate"
+                      phx-value-power-project_id={@task.project_id}
+                      phx-value-power-task_id={@task.task_id}
+                      class="px-4 py-2 bg-yellow-500 text-white hover:bg-yellow-600 rounded-lg font-bold flex gap-2 items-center transition-colors shadow-sm"
+                    >
+                      <i class="fa-solid fa-star"></i> Evaluar Tarea
+                    </button>
+                  <% else %>
+                    <p class="text-xs text-gray-400 mt-1">
+                      La tarea debe estar en estado <b>Completada</b> para poder ser evaluada.
+                    </p>
+                  <% end %>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </AuroraGov.Web.CoreComponents.side_panel_layout>
       <% end %>
     </div>
     """

@@ -307,7 +307,7 @@ defmodule AuroraGov.Web.Live.Panel do
     {proposal_data, power_data}
   end
 
-  defp get_close_path(_socket, app_context) do
+  def get_close_path(_socket, app_context) do
     query_params = %{context: app_context.current_ou_id}
 
     ~p"/app/#{app_context.current_module}?#{query_params}"

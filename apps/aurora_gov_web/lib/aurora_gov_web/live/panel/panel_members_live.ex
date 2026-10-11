@@ -7,7 +7,7 @@ require Logger
   def mount(socket) do
     socket =
       socket
-      |> assign(:filter, "all")
+      |> assign(:filter, "active")
       |> assign(:search_query, "")
       |> assign(current_page: 1, total_pages: 0, total_count: 0)
       |> assign(:sort_by, :created_at)
@@ -41,6 +41,21 @@ require Logger
       if member.ou_id == current_ou do
         socket
         |> stream_insert(:member_list, member, at: 0)
+      else
+        socket
+      end
+
+    {:ok, socket}
+  end
+
+  @impl true
+  def update(%{revoked_membership: info}, socket) do
+    current_ou = socket.assigns.app_context.current_ou_id
+
+    socket =
+      if info.ou_id == current_ou do
+        socket
+        |> stream_delete(:member_list, %{person_id: info.person_id})
       else
         socket
       end

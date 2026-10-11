@@ -44,8 +44,8 @@ defmodule AuroraGov.Web.OUSelectorComponent do
              <% end %>
           </div>
 
-          <div class="flex flex-col grow">
-             <span class="font-bold">{@selected_ou.ou_name}</span>
+          <div class="flex flex-col grow min-w-0">
+             <span class="font-bold truncate" title={@selected_ou.ou_name}>{@selected_ou.ou_name}</span>
              <div class="flex flex-row gap-2 items-center mt-1">
                <.ou_id_badge id={@selected_ou.ou_id} size="sm" />
                <%= if Map.get(@selected_ou, :membership_rank) do %>
@@ -54,7 +54,7 @@ defmodule AuroraGov.Web.OUSelectorComponent do
              </div>
           </div>
 
-          <button phx-click="clear" type="button" class="" phx-target={@myself}>
+          <button phx-click="clear" type="button" class="shrink-0 ml-2" phx-target={@myself}>
             <i class="fa-solid fa-close text-2xl"></i>
           </button>
         </div>
@@ -94,17 +94,18 @@ defmodule AuroraGov.Web.OUSelectorComponent do
               phx-target={@myself}
               class="px-4 py-3 hover:bg-blue-50 cursor-pointer flex justify-between items-center"
             >
-              <div class="flex flex-row items-center gap-3">
+              <div class="flex flex-row items-center gap-3 w-full min-w-0">
                 <div class="flex items-center justify-center w-8 h-8 rounded-full overflow-hidden shrink-0 bg-gray-200 border border-gray-300">
                    <%= if Map.get(ou, :ou_avatar_url) do %>
                      <img src={ou.ou_avatar_url} class="w-full h-full object-cover" />
-                   <% else %>
+                   <% end %>
+                   <%= if !Map.get(ou, :ou_avatar_url) do %>
                      <i class="fa-solid fa-sitemap text-aurora_orange text-sm rotate-180"></i>
                    <% end %>
                 </div>
-                
-                <div class="flex flex-col">
-                  <div class="font-semibold text-sm">{ou.ou_name}</div>
+
+                <div class="flex flex-col min-w-0 flex-1">
+                  <div class="font-semibold text-sm truncate" title={ou.ou_name}>{ou.ou_name}</div>
                   <div class="flex flex-row gap-2 mt-1 items-center">
                     <.ou_id_badge id={ou.ou_id} size="sm" />
                     <%= if Map.get(ou, :membership_rank) do %>
@@ -124,20 +125,30 @@ defmodule AuroraGov.Web.OUSelectorComponent do
   @impl true
   def handle_event("search", %{"value" => query}, socket) do
     ou_tree = socket.assigns.ou_tree || []
-    _only_if_member? = socket.assigns[:only_if_member?] || false
+    normalized_query = String.downcase(String.trim(query))
 
     results =
-      Enum.filter(ou_tree, fn ou ->
-        match?(
-          true,
-          String.contains?(String.downcase(ou.ou_name), String.downcase(query)) or
-            String.contains?(String.downcase(ou.ou_id), String.downcase(query))
-        )
-      end)
+      if normalized_query == "" do
+        []
+      else
+        ou_tree
+        |> Enum.map(fn ou ->
+          ou_name = String.downcase(ou.ou_name)
+          ou_id = String.downcase(ou.ou_id)
 
-    # |> Enum.filter(fn ou ->
-    #   not only_if_member? or ou.membership_status in [:junior, :formal, :senior]
-    # end)
+          score =
+             max(
+                FuzzyCompare.similarity(ou_name, normalized_query),
+                FuzzyCompare.similarity(ou_id, normalized_query)
+              )
+
+          {ou, score}
+        end)
+        |> Enum.filter(fn {_ou, score} -> score > 0.4 end)
+        |> Enum.sort_by(fn {_ou, score} -> score end, :desc)
+        |> Enum.map(fn {ou, _score} -> ou end)
+        |> Enum.take(15)
+      end
 
     {:noreply, assign(socket, query: query, suggestions: results, selected_ou: nil)}
   end

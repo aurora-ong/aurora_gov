@@ -52,7 +52,8 @@ defmodule AuroraGov.Web.MixProject do
       {:bandit, "~> 1.5"},
       {:live_debugger, "~> 0.3.0", only: :dev},
       {:timex, "~> 3.7"},
-      {:mishka_chelekom, "~> 0.0.7", only: :dev}
+      {:mishka_chelekom, "~> 0.0.7", only: :dev},
+      {:fuzzy_compare, "~> 1.1"}
     ]
   end
 

@@ -37,4 +37,14 @@ defmodule AuroraGov.Context.MembershipContext do
     query = from(m in Membership, where: m.ou_id == ^ou_id and m.person_id == ^person_id)
     Repo.one(query)
   end
+
+  def list_active_memberships_in_ou_subtree(ou_id, person_id) do
+    ou_prefix = "#{ou_id}.%"
+    query = from(m in Membership, 
+      where: (m.ou_id == ^ou_id or like(m.ou_id, ^ou_prefix)) and 
+             m.person_id == ^person_id and 
+             m.membership_status == :active
+    )
+    Repo.all(query)
+  end
 end

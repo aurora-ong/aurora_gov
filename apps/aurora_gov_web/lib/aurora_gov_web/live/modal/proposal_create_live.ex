@@ -53,6 +53,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
     socket =
       socket
+      |> assign(:id, assigns.id)
       |> assign(:app_context, assigns.app_context)
       |> assign(:proposal_params, assigns.proposal_params)
       |> assign(:power_params, assigns.power_params)
@@ -89,21 +90,30 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
-      <h1 class="text-4xl text-black mb-5"><i class="fa-solid fa-hand text-3xl mr-3"></i>Gobernar</h1>
+    <div id={@id}>
+      <.modal
+        id={"modal-#{@id}"}
+        show
+        title="Gobernar"
+        title_icon="fa-solid fa-hand"
+        size="quadruple_large"
+        on_cancel={JS.push("app_modal_close", value: %{modal: @id})}
+      >
+        <div class="w-full flex flex-col justify-start items-start">
+          <h2 class="text-xl mb-10 text-gray-600">Utiliza este formulario para proponer una decisión.</h2>
 
-      <h2 class="text-xl mb-10">Utiliza este formulario para proponer una decisión.</h2>
-
-      <%= case @step do %>
-        <% 0 -> %>
-          <.step_0 {assigns} />
-        <% 1 -> %>
-          <.step_1 {assigns} />
-        <% 2 -> %>
-          <.step_2 {assigns} />
-        <% 3 -> %>
-          <.step_3 {assigns} />
-      <% end %>
+          <%= case @step do %>
+            <% 0 -> %>
+              <.step_0 {assigns} />
+            <% 1 -> %>
+              <.step_1 {assigns} />
+            <% 2 -> %>
+              <.step_2 {assigns} />
+            <% 3 -> %>
+              <.step_3 {assigns} />
+          <% end %>
+        </div>
+      </.modal>
     </div>
     """
   end
@@ -251,7 +261,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
   defp step_3(assigns) do
     ~H"""
-    <div class="space-y-6 w-full max-w-2xl mx-auto">
+    <div class="space-y-6 w-full mx-auto">
       <h2 class="text-2xl font-bold text-gray-900">Resumen de la Propuesta</h2>
 
       <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4 w-full">
@@ -457,7 +467,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
           |> then(& &1.module)
 
         upload_fields = Enum.filter(command_module.field_definitions(), &(&1.form_type == :image_upload))
-        
+
         socket =
           Enum.reduce(upload_fields, socket, fn field, acc ->
             upload_opts = Keyword.get(field.opts, :upload_options, [accept: ~w(.png .jpg .jpeg), max_entries: 1, auto_upload: true])
@@ -688,7 +698,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       socket.assigns.proposal_data.proposal_power_id
       |> AuroraGov.Context.GovPowerContext.get_gov_power!()
       |> then(& &1.module)
-      
+
     upload_fields = Enum.filter(command_module.field_definitions(), &(&1.form_type == :image_upload))
 
     # Consume dynamically all uploaded entries from configured fields
@@ -697,10 +707,10 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         consume_uploaded_entries(socket, field.name, fn %{path: path}, entry ->
           binary_content = File.read!(path)
           file_hash = :crypto.hash(:sha256, binary_content) |> Base.encode16(case: :lower)
-          
+
           file_extension = Path.extname(entry.client_name)
           new_filename = "#{Ecto.UUID.generate()}#{file_extension}"
-          
+
           case AuroraGov.Storage.put_file(binary_content, new_filename, entry.client_type) do
             {:ok, url} -> {:ok, {field.name, url, file_hash}}
             {:error, _} -> {:postpone, "No se pudo guardar el archivo"}

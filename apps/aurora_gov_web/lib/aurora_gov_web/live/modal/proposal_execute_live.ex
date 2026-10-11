@@ -20,6 +20,7 @@ defmodule AuroraGov.Web.Live.Proposal.ExecuteModal do
   def update(assigns, socket) do
     socket =
       socket
+      |> assign(:id, assigns.id)
       |> assign(:app_context, assigns.app_context)
       |> start_async(:load_data, fn ->
         load_data(assigns.proposal_id, assigns.app_context.current_person.person_id)
@@ -64,41 +65,48 @@ defmodule AuroraGov.Web.Live.Proposal.ExecuteModal do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
-      <.async_result :let={context} assign={@context}>
-        <:loading><.loading_spinner size="double_large" text="Validando" /></:loading>
+    <div id={@id}>
+      <.modal
+        id={"modal-#{@id}"}
+        show
+        title="Promulgar"
+        title_icon="fa-solid fa-bullhorn"
+        size="medium"
+        on_cancel={JS.push("app_modal_close", value: %{modal: @id})}
+      >
+        <div class="mx-auto my-auto w-max-lg flex flex-col justify-center items-start">
+          <.async_result :let={context} assign={@context}>
+            <:loading><.loading_spinner size="double_large" text="Validando" /></:loading>
 
-        <:failed :let={error}>
-          <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
-            <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar</h3>
+            <:failed :let={error}>
+              <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
+                <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar</h3>
 
-            <p class="text-gray-500">No se pudo cargar. <br /> {inspect(error)}</p>
-          </div>
-        </:failed>
+                <p class="text-gray-500">No se pudo cargar. <br /> {inspect(error)}</p>
+              </div>
+            </:failed>
 
-        <h2 class="text-2xl font-semibold flex items-center gap-2">
-          <i class="fa-solid fa-bullhorn text-2xl"></i> Promulgar
-        </h2>
+            <h4 :if={context.can_execute?} class="mb-5">
+              Hacer click en promulgar hará esta acción oficial y será notificada publicamente. Esta acción no se puede cancelar.
+            </h4>
 
-        <h4 :if={context.can_execute?} class="my-5">
-          Hacer en click en promulgar hará esta acción oficial y será notificada publicamente. Esta acción no se puede cancelar.
-        </h4>
+            <h4 :if={!context.can_execute?} class="mb-5">
+              Esta propuesta aún no reune los votos necesarios para ser promulgada.
+            </h4>
 
-        <h4 :if={!context.can_execute?} class="my-5">
-          Esta propuesta aún no reune los votos necesarios para ser promulgada.
-        </h4>
-
-        <.button
-          phx-click="submit"
-          phx-target={@myself}
-          phx-disable-with="..."
-          class="w-full primary filled"
-          disabled={!context.can_execute?}
-        >
-          Promulgar
-        </.button>
-      </.async_result>
+            <.button
+              phx-click="submit"
+              phx-target={@myself}
+              phx-disable-with="..."
+              class="w-full primary filled"
+              disabled={!context.can_execute?}
+            >
+              Promulgar
+            </.button>
+          </.async_result>
+        </div>
+      </.modal>
     </div>
     """
   end

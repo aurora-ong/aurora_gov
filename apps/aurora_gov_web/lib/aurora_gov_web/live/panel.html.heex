@@ -301,14 +301,6 @@
       :if={@app_side_panel != nil}
       class={"flex flex-col border rounded-lg border-gray-200 relative " <> (@app_side_panel.view_options[:panel_size] || "w-4/12")}
     >
-     
-      <.link
-        patch={get_close_path(@socket, @app_context)}
-        class="absolute top-5 right-5 z-50 rounded-full p-2 hover:bg-gray-100 transition cursor-pointer"
-      >
-        <i class="fa-solid fa-xmark h-5 w-5"></i>
-      </.link>
-      
       <div class="flex flex-col flex-1 w-full py-5 px-5 bg-white rounded-lg shadow-sm border border-gray-200">
         <.live_component
           :if={@app_side_panel != nil}
@@ -322,19 +314,10 @@
   </div>
 </div>
 
-<.modal
-  :if={@app_modal != nil}
-  id="app-modal"
-  show
-  size={@app_modal.view_options[:modal_size] || "large"}
-  rounded="large"
-  content_class="p-6"
-  on_cancel={JS.push("app_modal_close", value: %{modal: @app_modal.view_id})}
->
   <.live_component
+    :if={@app_modal != nil}
     id={@app_modal.view_id}
     module={@app_modal.view_module}
     app_context={@app_context}
     {@app_modal.view_params}
   />
-</.modal>

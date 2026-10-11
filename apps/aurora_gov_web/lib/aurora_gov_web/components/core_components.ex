@@ -39,8 +39,12 @@ defmodule AuroraGov.Web.CoreComponents do
   attr :id, :string, required: true
   attr :show, :boolean, default: false
   attr :on_cancel, JS, default: %JS{}
-  slot :inner_block, required: true
+  attr :title, :string, default: nil
+  attr :icon, :string, default: nil
+  attr :show_close, :boolean, default: true
   attr :max_width, :string, default: "max-w-3xl"
+  slot :header_actions, doc: "Slot for additional actions in the modal header"
+  slot :inner_block, required: true
 
   def modal(assigns) do
     ~H"""
@@ -54,33 +58,39 @@ defmodule AuroraGov.Web.CoreComponents do
       <div id={"#{@id}-bg"} class="bg-zinc-50/90 fixed inset-0 transition-opacity" aria-hidden="true" />
       <div
         class="fixed inset-0 overflow-y-auto"
-        aria-labelledby={"#{@id}-title"}
-        aria-describedby={"#{@id}-description"}
+        aria-labelledby={if @title, do: "#{@id}-title", else: nil}
         role="dialog"
         aria-modal="true"
         tabindex="0"
       >
-        <div class="flex min-h-full items-center justify-center">
-          <div class={"w-full #{@max_width} p-4 sm:p-6 lg:py-8"}>
+        <div class="flex min-h-full items-center justify-center p-4 sm:p-6">
+          <div class={"w-full #{@max_width}"}>
             <.focus_wrap
               id={"#{@id}-container"}
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white p-14 shadow-lg ring-1 transition"
+              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white flex flex-col shadow-lg ring-1 transition overflow-hidden"
             >
-              <div class="absolute top-6 right-5">
-                <button
-                  phx-click={JS.exec("data-cancel", to: "##{@id}")}
-                  type="button"
-                  class="-m-3 flex-none p-3 opacity-20 hover:opacity-40"
-                  aria-label={gettext("close")}
-                >
-                  <%!-- <.icon name="hero-x-mark-solid" class="h-5 w-5" /> --%>
-                  <i class="fa-solid fa-close text-2xl"></i>
-                </button>
+              <div :if={@title || @icon || @show_close || @header_actions != []} class="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-gray-50/50">
+                <div class="flex items-center gap-3">
+                  <i :if={@icon} class={[@icon, "text-xl text-gray-500"]}></i>
+                  <h3 :if={@title} id={"#{@id}-title"} class="text-lg font-semibold text-gray-900 m-0">{@title}</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                  {render_slot(@header_actions)}
+                  <button
+                    :if={@show_close}
+                    phx-click={JS.exec("data-cancel", to: "##{@id}")}
+                    type="button"
+                    class="flex items-center justify-center w-8 h-8 rounded-full text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+                    aria-label={gettext("close")}
+                  >
+                    <i class="fa-solid fa-close text-lg"></i>
+                  </button>
+                </div>
               </div>
-              <div id={"#{@id}-content"}>
+              <div id={"#{@id}-content"} class="p-6 sm:p-8">
                 {render_slot(@inner_block)}
               </div>
             </.focus_wrap>
@@ -703,6 +713,53 @@ defmodule AuroraGov.Web.CoreComponents do
       |> String.reverse()
       
     if is_neg, do: "-" <> formatted, else: formatted
+  end
+
+  @doc """
+  Renders a standard side panel layout with a header.
+  """
+  attr :title, :string, default: nil
+  attr :icon, :string, default: nil
+  attr :on_close, :any, default: nil
+  attr :close_path, :string, default: nil
+  slot :actions
+  slot :title_slot
+  slot :inner_block, required: true
+
+  def side_panel_layout(assigns) do
+    ~H"""
+    <div class="flex flex-col h-full">
+      <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3 shrink-0">
+        <div class="flex items-center gap-3">
+          <h2 class="text-xl font-bold text-gray-900 m-0 flex items-center">
+            <i :if={@icon} class={[@icon, "mr-2"]}></i>
+            <%= if @title do %>{@title}<% else %>{render_slot(@title_slot)}<% end %>
+          </h2>
+        </div>
+        <div class="flex items-center gap-2">
+          {render_slot(@actions)}
+          <button
+            :if={@on_close}
+            type="button"
+            phx-click={@on_close}
+            class="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+          >
+            <i class="fa-solid fa-close text-lg"></i>
+          </button>
+          <.link
+            :if={@close_path}
+            patch={@close_path}
+            class="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
+          >
+            <i class="fa-solid fa-close text-lg"></i>
+          </.link>
+        </div>
+      </div>
+      <div class="flex-1 overflow-y-auto custom-scrollbar">
+        {render_slot(@inner_block)}
+      </div>
+    </div>
+    """
   end
 
 end
