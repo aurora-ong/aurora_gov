@@ -110,6 +110,13 @@ topbar.config({ barColors: { 0: "#29d" }, shadowColor: "rgba(0, 0, 0, .3)" })
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 
+// Móvil/tablet (< lg): cerrar el menú lateral al navegar y volver arriba,
+// ya que el panel lateral reemplaza al contenido principal
+window.addEventListener("phx:page-loading-start", _info => document.documentElement.classList.remove("sidebar-open"))
+window.addEventListener("phx:page-loading-stop", info => {
+  if (info.detail.kind === "patch" && window.innerWidth < 1024) window.scrollTo(0, 0)
+})
+
 // connect if there are any LiveViews on the page
 liveSocket.connect()
 
