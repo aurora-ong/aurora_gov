@@ -21,7 +21,7 @@ defmodule AuroraGov.Web.OUVisualTreeComponent do
     ~H"""
     <ul class="list-none">
       <%= for {ou, children} <- Enum.sort_by(@tree, fn {ou, _} -> ou.ou_id end) do %>
-        <li class={if AuroraGov.Utils.OUTree.is_root?(ou.ou_id), do: "", else: "pl-16"}>
+        <li class={if AuroraGov.Utils.OUTree.is_root?(ou.ou_id), do: "", else: "pl-3 sm:pl-8 md:pl-16"}>
           <div>
             <%= if @ou_item != [] do %>
               {render_slot(@ou_item, ou)}
