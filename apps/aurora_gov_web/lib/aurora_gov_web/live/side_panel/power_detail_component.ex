@@ -200,33 +200,32 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
         <:loading><.loading_spinner size="double_large" /></:loading>
 
         <div class="mb-4">
-          <div class="flex items-center gap-3 mb-2">
-            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
-              <i class="fa-solid fa-bolt text-xl"></i>
+          <%!-- pr-8: espacio para el botón de cerrar del panel --%>
+          <div class="flex items-start gap-3 mb-2 pr-8">
+            <div class="p-2 bg-blue-50 text-blue-600 rounded-lg shrink-0">
+              <i class="fa-solid fa-bolt text-lg sm:text-xl"></i>
             </div>
-            <div>
-              <div class="flex items-center gap-3">
-                <h2 class="text-xl font-bold text-gray-900 m-0">{context.power_info.name}</h2>
-                <.power_id_badge id={context.power_id} />
-              </div>
-              <p class="text-sm text-gray-500 mt-1">{context.power_info.description}</p>
+            <div class="min-w-0">
+              <h2 class="text-lg sm:text-xl font-bold text-gray-900 m-0 leading-tight break-words">{context.power_info.name}</h2>
+              <.power_id_badge id={context.power_id} size="sm" class="mt-1.5 max-w-full" />
+              <p class="text-xs sm:text-sm text-gray-500 mt-2">{context.power_info.description}</p>
             </div>
           </div>
 
           <div class="mt-4 grid grid-cols-2 gap-3">
-            <div class="p-4 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-100 flex flex-col justify-between h-28">
+            <div class="p-3 sm:p-4 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-100 flex flex-col justify-between h-24 sm:h-28">
               <div class="flex justify-between items-start">
                 <div class="text-[10px] font-bold uppercase tracking-widest opacity-80">Quorum Colectivo</div>
                 <i class="fa-solid fa-users text-sm opacity-60"></i>
               </div>
-              <div class="text-3xl font-black">
+              <div class="text-xl sm:text-2xl lg:text-[1.75rem] leading-none font-black">
                 {if context.ou_power, do: Decimal.round(context.ou_power.power_average, 1), else: "0"}%
               </div>
             </div>
 
             <%= if context.person_id do %>
               <%= if is_nil(context.membership) or context.membership.membership_rank == "junior" do %>
-                <div class="p-4 bg-orange-50 rounded-2xl border border-orange-100 flex flex-col justify-center items-center text-center gap-1 h-28">
+                <div class="p-3 sm:p-4 bg-orange-50 rounded-2xl border border-orange-100 flex flex-col justify-center items-center text-center gap-1 h-24 sm:h-28">
                   <i class="fa-solid fa-lock text-orange-400 text-lg"></i>
                   <span class="text-[10px] font-bold text-orange-800 uppercase tracking-tighter leading-tight">Postura Restringida</span>
                 </div>
@@ -234,14 +233,14 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
                 <div
                   phx-click="open_sensitivity_modal"
                   phx-target={@myself}
-                  class="p-4 bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100 flex flex-col justify-between h-28 cursor-pointer hover:border-blue-400 transition-all group"
+                  class="p-3 sm:p-4 bg-white rounded-2xl border border-gray-100 shadow-lg shadow-gray-100 flex flex-col justify-between h-24 sm:h-28 cursor-pointer hover:border-blue-400 transition-all group"
                 >
                   <div class="flex justify-between items-start">
                     <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 group-hover:text-blue-600 transition-colors">Mi Postura</div>
                     <i class="fa-solid fa-pen-to-square text-sm text-gray-300 group-hover:text-blue-500"></i>
                   </div>
                   <div class="flex items-baseline gap-1">
-                    <span class="text-3xl font-black text-gray-900 group-hover:text-blue-700 transition-colors">
+                    <span class="text-xl sm:text-2xl lg:text-[1.75rem] leading-none font-black text-gray-900 group-hover:text-blue-700 transition-colors">
                       {(context.user_power && context.user_power.power_value) || "-"}%
                     </span>
                   </div>
@@ -290,7 +289,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
           </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto pr-2">
+        <div class="flex-1 pr-2">
           <%= if @active_tab == "sensitivities" do %>
             <div class="space-y-4">
               <div :if={Enum.empty?(context.sensitivities)} class="text-center py-8 text-gray-500">
