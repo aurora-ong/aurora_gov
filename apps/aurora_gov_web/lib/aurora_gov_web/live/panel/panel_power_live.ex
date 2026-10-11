@@ -91,8 +91,8 @@ defmodule AuroraGov.Web.Live.Panel.Power do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="h-full w-full p-6">
-      <div class="flex w-full h-12 flex-row justify-between mb-5 items-center">
+    <div class="h-full w-full py-2 sm:p-6">
+      <div class="flex w-full h-12 flex-row justify-between mb-5 items-center overflow-x-auto">
         <.filter_button_group
           options={[
             %{label: "Todos", value: "all"},
@@ -105,6 +105,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
           selected={@filter}
           on_select="update_filter"
           phx_target={@myself}
+          class="shrink-0"
         />
       </div>
 
@@ -113,7 +114,8 @@ defmodule AuroraGov.Web.Live.Panel.Power do
 
         <:failed :let={_failure}>error loading</:failed>
 
-        <div class="grid grid-cols-3 gap-4">
+        <%!-- Con el panel de detalle abierto hay menos ancho: 1 columna en lg, 2 en xl --%>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 lg:[.has-side-panel_&]:grid-cols-1 xl:[.has-side-panel_&]:grid-cols-2 gap-4">
           <%= for power <- filter_powers(ou_power_list, @filter) do %>
             <.live_component
               module={AuroraGov.Web.Components.Power.PowerCardComponent}
