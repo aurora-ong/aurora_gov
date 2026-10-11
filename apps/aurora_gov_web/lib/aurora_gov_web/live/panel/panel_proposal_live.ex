@@ -131,7 +131,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
       >
         <:top_content>
           <div class="flex flex-col md:flex-row w-full justify-between items-center mb-4 gap-2">
-            <div class="flex gap-2">
+            <div class="flex gap-2 max-w-full overflow-x-auto">
               <.filter_button_group
                 options={[
                   %{label: "Todas", value: "all"},
@@ -183,9 +183,9 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
           </div>
         </:col>
 
-        <:col :let={proposal} label="Propuesta">
+        <:col :let={proposal} label="Propuesta" wrap>
           <div class="flex flex-col">
-            <div class="flex-row flex">
+            <div class="flex-row flex flex-wrap">
               <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
                 <.ou_id_badge id={proposal.proposal_ou_start_id}
                   title={proposal.proposal_ou_start.ou_name}
@@ -206,21 +206,28 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
               <% end %>
             </div>
 
-            <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
+            <h3 class="text-lg text-black break-words">{proposal.proposal_title}</h3>
+
+            <%!-- Datos de las columnas ocultas en pantallas pequeñas --%>
+            <p class="xl:hidden flex flex-wrap gap-x-3 text-xs text-gray-500 mt-1">
+              <span class="md:hidden">{Timex.lformat!(proposal.created_at, "{relative}", "es", :relative)}</span>
+              <span class="lg:hidden">{proposal.proposal_owner.person_name}</span>
+              <span>{AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name}</span>
+            </p>
           </div>
         </:col>
 
-        <:col :let={proposal} label="Fecha" align="center">
+        <:col :let={proposal} label="Fecha" align="center" hide_below="md">
           <p class="text-md text-gray-600 font-normal">
             {Timex.lformat!(proposal.created_at, "{relative}", "es", :relative)}
           </p>
         </:col>
 
-        <:col :let={proposal} label="Responsable" align="center">
+        <:col :let={proposal} label="Responsable" align="center" hide_below="lg">
           <.person_id_badge class="mx-auto" id={proposal.proposal_owner.person_id} title={proposal.proposal_owner.person_name} patch={~p"/app/members/#{proposal.proposal_owner.person_id}"} />
         </:col>
 
-        <:col :let={proposal} label="Poder" align="center">
+        <:col :let={proposal} label="Poder" align="center" hide_below="xl">
           <.power_id_badge class="mx-auto" id={proposal.proposal_power_id} title={AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name} />
         </:col>
       </.table>
