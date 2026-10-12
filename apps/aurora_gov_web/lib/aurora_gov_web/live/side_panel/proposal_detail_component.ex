@@ -141,14 +141,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
 
           <div class="flex flex-wrap items-center gap-2 mb-3">
             <.proposal_id_badge id={context.proposal.proposal_id} />
-            <%= if context.proposal.proposal_ou_start_id != context.proposal.proposal_ou_end_id do %>
-              <.ou_id_badge id={context.proposal.proposal_ou_start_id} size="sm" />
-              <span class="text-gray-400 flex items-center text-sm">
-                <i class="fa fa-arrow-right"></i>
-              </span> <.ou_id_badge id={context.proposal.proposal_ou_end_id} size="sm" />
-            <% else %>
-              <.ou_id_badge id={context.proposal.proposal_ou_end_id} size="sm" />
-            <% end %>
           </div>
           <!-- Tabs -->
           <div class="flex border-b border-gray-200 mb-4">
@@ -208,6 +200,20 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
 
                   <div>
                     <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                      <div>
+                        <dt class="text-sm font-semibold text-gray-700">Origen</dt>
+
+                        <dd class="text-sm text-gray-900">
+                          <.ou_id_badge id={context.proposal.proposal_ou_start_id} size="sm" />
+                        </dd>
+                      </div>
+                      <div>
+                        <dt class="text-sm font-semibold text-gray-700">Destino</dt>
+
+                        <dd class="text-sm text-gray-900">
+                          <.ou_id_badge id={context.proposal.proposal_ou_end_id} size="sm" />
+                        </dd>
+                      </div>
                       <div>
                         <dt class="text-sm font-semibold text-gray-700">Responsable</dt>
 

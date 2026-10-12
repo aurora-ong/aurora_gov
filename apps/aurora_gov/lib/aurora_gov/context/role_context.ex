@@ -31,4 +31,8 @@ defmodule AuroraGov.Context.RoleContext do
     |> where([a], a.role_id == ^role_id)
     |> Repo.all()
   end
+
+  def get_role(role_id) do
+    Repo.get(OURole, role_id)
+  end
 end

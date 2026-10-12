@@ -100,8 +100,6 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         on_cancel={JS.push("app_modal_close", value: %{modal: @id})}
       >
         <div class="w-full flex flex-col justify-start items-start">
-          <h2 class="text-xl mb-10 text-gray-600">Utiliza este formulario para proponer una decisión.</h2>
-
           <%= case @step do %>
             <% 0 -> %>
               <.step_0 {assigns} />
@@ -203,34 +201,61 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   end
 
   defp step_1(assigns) do
+    power_id =
+      cond do
+        is_map(assigns.proposal_data) ->
+          Map.get(assigns.proposal_data, :proposal_power_id) ||
+            Map.get(assigns.proposal_data, "proposal_power_id")
+
+        true ->
+          nil
+      end
+
+    power = if power_id, do: AuroraGov.Context.GovPowerContext.get_gov_power!(power_id), else: nil
+    assigns = assign(assigns, :power, power)
+
     ~H"""
-    <.simple_form
-      for={@step_1_form}
-      id="proposal_step_1_form"
-      phx-submit="step_1_next"
-      phx-change="step_1_validate"
-      phx-target={@myself}
-      class="w-full"
-    >
-      <.live_component
-        module={AuroraGov.Web.DynamicCommandFormComponent}
-        id="proposal-power_form"
-        form={@step_1_form}
-        app_context={@app_context}
-        uploads={assigns[:uploads] || %{}}
-        target={@myself}
-        command_module={
-          @proposal_data.proposal_power_id
-          |> AuroraGov.Context.GovPowerContext.get_gov_power!()
-          |> then(& &1.module)
-        }
-        proposal_params={@proposal_data}
-      />
-      <:actions>
-        <.back_button target={@myself} step={0} />
-        <.button phx-disable-with="..." class="w-full">Siguiente</.button>
-      </:actions>
-    </.simple_form>
+    <div class="w-full space-y-6">
+      <div :if={@power} class="p-4 bg-slate-50 border border-slate-200/80 rounded-2xl shadow-sm">
+        <div class="flex items-start gap-3.5">
+          <div class="w-10 h-10 rounded-xl bg-amber-100/90 border border-amber-200 flex items-center justify-center text-amber-700 shrink-0 mt-0.5">
+            <i class="fa-solid fa-bolt text-lg"></i>
+          </div>
+          <div>
+            <h3 class="text-base font-bold text-gray-900 mt-1">
+              {@power.name}
+            </h3>
+            <p class="text-xs text-gray-600 mt-0.5 leading-relaxed">
+              {@power.description || "Completa los parámetros requeridos para estructurar esta acción en la propuesta."}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <.simple_form
+        for={@step_1_form}
+        id="proposal_step_1_form"
+        phx-submit="step_1_next"
+        phx-change="step_1_validate"
+        phx-target={@myself}
+        class="w-full"
+      >
+        <.live_component
+          module={AuroraGov.Web.DynamicCommandFormComponent}
+          id="proposal-power_form"
+          form={@step_1_form}
+          app_context={@app_context}
+          uploads={assigns[:uploads] || %{}}
+          target={@myself}
+          command_module={@power.module}
+          proposal_params={@proposal_data}
+        />
+        <:actions>
+          <.back_button target={@myself} step={0} />
+          <.button phx-disable-with="..." class="w-full">Siguiente</.button>
+        </:actions>
+      </.simple_form>
+    </div>
     """
   end
 
@@ -242,8 +267,21 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
       phx-submit="step_2_next"
       phx-change="step_2_validate"
       phx-target={@myself}
-      class="w-full space-y-8"
+      class="w-full space-y-6"
     >
+      <div class="flex items-center justify-between p-3.5 bg-gray-50/80 border border-gray-200/80 rounded-xl text-amber-900 text-xs shadow-sm">
+
+        <button
+          type="button"
+          phx-click="auto_fill_proposal"
+          phx-target={@myself}
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg text-amber-800 bg-amber-100 hover:bg-amber-200 border border-amber-300 transition-colors shrink-0 cursor-pointer"
+        >
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-700"></i>
+          Autocompletar propuesta
+        </button>
+      </div>
+
       <.input field={@step_2_form[:proposal_title]} type="text" label="Título propuesta" />
       <.input
         field={@step_2_form[:proposal_description]}
@@ -266,11 +304,11 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
 
       <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4 w-full">
         <div class="flex flex-wrap items-center gap-2 text-sm text-gray-500">
-          <span class="font-medium text-gray-700">Origen:</span>
-          <.badge size="sm">{@ou_start_name}</.badge>
+           <span class="font-medium text-gray-700">Origen:</span>
+          <.ou_id_badge id={@proposal_ou_start.ou_id} title={@proposal_ou_start.ou_name} size="sm" />
           <i class="fa-solid fa-arrow-right mx-1 text-gray-300"></i>
-          <span class="font-medium text-gray-700">Destino:</span>
-          <.badge size="sm">{@ou_end_name}</.badge>
+          <span class="font-bold text-gray-700">Destino:</span>
+           <.ou_id_badge id={@proposal_ou_end.ou_id} title={@proposal_ou_end.ou_name} size="sm" />
         </div>
 
         <div class="border-t border-gray-100 my-3"></div>
@@ -310,9 +348,9 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
             <div class="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex gap-3 items-start transition-all">
               <i class="fa-solid fa-users text-indigo-600 text-lg mt-0.5 shrink-0"></i>
               <div>
-                <h4 class="font-semibold text-indigo-900 text-sm">Votos delegados activos</h4>
+                <h4 class="font-semibold text-indigo-900 text-sm">Poder delegado activo</h4>
                 <p class="text-indigo-700 text-xs mt-1 leading-relaxed">
-                  Al activar esta opción, se sumarán automáticamente <span class="font-bold text-sm bg-indigo-100 px-1.5 py-0.5 rounded text-indigo-900">{@delegated_votes_count}</span> votos delegados de miembros que han confiado su poder en esta unidad.
+                  Se sumarán automáticamente <span class="font-bold text-sm bg-indigo-100 px-1.5 py-0.5 rounded text-indigo-900">{@delegated_votes_count}</span> votos delegados para este poder desde la unidad de origen de esta propuesta.
                 </p>
               </div>
             </div>
@@ -573,6 +611,63 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
   end
 
   @impl true
+  def handle_event("auto_fill_proposal", _params, socket) do
+    command_module =
+      socket.assigns.proposal_data.proposal_power_id
+      |> AuroraGov.Context.GovPowerContext.get_gov_power!()
+      |> then(& &1.module)
+
+    proposal_context = %{
+      origin_ou_id: socket.assigns.proposal_data.proposal_ou_origin || socket.assigns.proposal_data["proposal_ou_origin"],
+      end_ou_id: socket.assigns.proposal_data.proposal_ou_end || socket.assigns.proposal_data["proposal_ou_end"],
+      current_person_id: socket.assigns.app_context.current_person.person_id
+    }
+
+    power_data =
+      cond do
+        socket.assigns[:step_1_form] ->
+          socket.assigns.step_1_form.source
+          |> Ecto.Changeset.apply_changes()
+          |> Map.from_struct()
+
+        socket.assigns[:power_data] ->
+          socket.assigns.power_data
+          |> command_module.new(context: proposal_context)
+          |> Ecto.Changeset.apply_changes()
+          |> Map.from_struct()
+
+        true ->
+          %{}
+      end
+
+    suggestion =
+      AuroraGov.Web.Utils.ProposalTemplate.generate_default_proposal(
+        socket.assigns.proposal_data.proposal_power_id,
+        power_data,
+        proposal_context
+      )
+
+    current_params =
+      if socket.assigns[:step_2_form] do
+        socket.assigns.step_2_form.params || %{}
+      else
+        %{}
+      end
+
+    updated_params =
+      current_params
+      |> Map.put("proposal_title", suggestion.title)
+      |> Map.put("proposal_description", suggestion.description)
+
+    new_changeset =
+      updated_params
+      |> AuroraGov.Command.CreateProposal.handle_validate_step(1)
+      |> Map.put(:action, :validate)
+
+    {:noreply, assign(socket, step_2_form: to_form(new_changeset, as: "proposal"))}
+  end
+
+  @impl true
   def handle_event("step_2_validate", %{"proposal" => proposal_params}, socket) do
     proposal_changeset =
       proposal_params
@@ -603,14 +698,14 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
             proposal_data.proposal_power_id
           )
 
-        ou_start_name = AuroraGov.Context.OUContext.get_ou(proposal_data.proposal_ou_origin).ou_name
-        ou_end_name = AuroraGov.Context.OUContext.get_ou(proposal_data.proposal_ou_end).ou_name
+        proposal_ou_start = AuroraGov.Context.OUContext.get_ou(proposal_data.proposal_ou_origin)
+        proposal_ou_end = AuroraGov.Context.OUContext.get_ou(proposal_data.proposal_ou_end)
 
         socket
         |> assign(proposal_data: proposal_data)
         |> assign(delegated_votes_count: delegated_count)
-        |> assign(ou_start_name: ou_start_name)
-        |> assign(ou_end_name: ou_end_name)
+        |> assign(proposal_ou_start: proposal_ou_start)
+        |> assign(proposal_ou_end: proposal_ou_end)
         |> assign(step: 3)
         |> assign_new(:step_3_form, fn ->
           %{}
