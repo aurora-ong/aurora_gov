@@ -18,37 +18,38 @@ defmodule AuroraGov.Web.Live.Panel.Header do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full bg-white rounded-xl h-fit shadow-sm border border-gray-200 relative group transition px-5 py-4">
+    <div class="w-full bg-white rounded-xl h-fit shadow-sm border border-gray-200 relative group transition px-4 sm:px-5 py-4">
       <div class="absolute top-0 left-0 w-full h-2 rounded-xl rounded-b-none transition bg-aurora_blue_light ">
       </div>
 
       <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-2">
-        <div class="flex items-start gap-3">
-          <div class="w-16 h-16 rounded-lg bg-blue-50 flex items-center justify-center text-aurora_orange shadow-sm border border-blue-100 shrink-0 overflow-hidden">
+        <div class="flex items-start gap-3 min-w-0">
+          <div class="w-12 h-12 sm:w-16 sm:h-16 rounded-lg bg-blue-50 flex items-center justify-center text-aurora_orange shadow-sm border border-blue-100 shrink-0 overflow-hidden">
             <%= if Map.get(@ou, :ou_avatar_url) && @ou.ou_avatar_url != "" do %>
               <img src={@ou.ou_avatar_url} class="w-full h-full object-cover" />
             <% else %>
               <i class="fa-solid fa-sitemap text-2xl"></i>
             <% end %>
           </div>
-          <div class="flex flex-col">
-            <h1 class="text-2xl font-bold text-gray-900">{@ou.ou_name}</h1>
-            <div class="flex items-center gap-3 mt-2">
+          <div class="flex flex-col min-w-0">
+            <h1 class="text-xl sm:text-2xl font-bold text-gray-900 break-words">{@ou.ou_name}</h1>
+            <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
               <.ou_id_badge id={@ou.ou_id} patch={~p"/app/home?context=#{@ou.ou_id}"} />
-              <span class="text-gray-400 text-sm border-l border-gray-300 pl-3">
+              <span class="text-gray-400 text-sm border-l border-gray-300 pl-3 whitespace-nowrap">
                 Fundada el {@ou.created_at |> Calendar.strftime("%d/%m/%Y")}
               </span>
             </div>
           </div>
         </div>
 
-        <div class="flex flex-row gap-3 items-center justify-center h-full">
+        <div class="grid grid-cols-2 gap-3 w-full md:flex md:flex-row md:w-auto items-center justify-center h-full">
           <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@ou.ou_id}
             variant="secondary"
             icon="fa-solid fa-hand"
             size="lg"
+            class="!text-sm !font-medium max-sm:px-3"
           >
             Gobernar
           </.app_button>
@@ -58,6 +59,7 @@ defmodule AuroraGov.Web.Live.Panel.Header do
             variant="primary"
             icon="fa-solid fa-sitemap rotate-180"
             size="lg"
+            class="!text-sm !font-medium max-sm:px-3"
           >
             Navegar
           </.app_button>

@@ -6,7 +6,7 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
   def render(assigns) do
     ~H"""
     <div
-      class="border px-5 py-5 rounded-lg flex flex-col justify-between cursor-pointer hover:border-blue-400 transition-all hover:shadow-md"
+      class="border p-4 sm:p-5 rounded-lg flex flex-col justify-between cursor-pointer hover:border-blue-400 transition-all hover:shadow-md"
       phx-click="open_power_detail"
       phx-target={@myself}
       phx-value-power_id={@power_id}
@@ -25,23 +25,23 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
             class={"select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 #{quorum_color(to_percent(@ou_power.power_average))}"}
             title="Quórum"
           >
-            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Quórum <i class="fa-solid fa-users"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">
-              {to_percent(@ou_power.power_average)}<span class="text-sm font-medium ml-0.5">%</span>
+              {format_percent(to_percent(@ou_power.power_average))}<span class="text-sm font-medium ml-0.5">%</span>
             </div>
           </div>
 
           <div
-            class={"select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 #{participacion_color(to_percent((@ou_power.power_count/@ou_vote_membership_count)*100))}"}
+            class={"select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 #{participacion_color(participation_percent(@ou_power.power_count, @ou_vote_membership_count))}"}
             title="Participación"
           >
-            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Participación <i class="fa-solid fa-check-to-slot"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">
-              {to_percent(@ou_power.power_count / @ou_vote_membership_count * 100)}<span class="text-sm font-medium ml-0.5">%</span>
+              {format_percent(participation_percent(@ou_power.power_count, @ou_vote_membership_count))}<span class="text-sm font-medium ml-0.5">%</span>
             </div>
           </div>
 
@@ -55,7 +55,7 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
             class="select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 bg-neutral-500 text-white"
             title="Quórum"
           >
-            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Quórum <i class="fa-solid fa-users"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">
@@ -67,7 +67,7 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
             class="select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 bg-neutral-500 text-white"
             title="Participación"
           >
-            <div class="flex justify-between items-center text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Participación <i class="fa-solid fa-check-to-slot"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">
@@ -86,6 +86,16 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
   defp to_percent(nil), do: 0
   defp to_percent(%Decimal{} = d), do: Decimal.to_float(d)
   defp to_percent(n) when is_integer(n) or is_float(n), do: n
+
+  # Evita la división por cero cuando la unidad no tiene miembros con voto
+  defp participation_percent(_count, members) when members in [0, nil], do: 0
+  defp participation_percent(count, members), do: to_percent(count) / members * 100
+
+  # Solo para mostrar: un decimal como máximo (66.7), entero si es exacto (50)
+  defp format_percent(value) do
+    rounded = Float.round(value / 1, 1)
+    if rounded == trunc(rounded), do: trunc(rounded), else: rounded
+  end
 
   defp quorum_color(value) do
     cond do

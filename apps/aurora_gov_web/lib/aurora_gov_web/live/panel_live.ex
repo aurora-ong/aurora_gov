@@ -28,6 +28,7 @@ defmodule AuroraGov.Web.Live.Panel do
         app_context: %AppContext{current_person: socket.assigns.current_person},
         app_modal: nil,
         app_side_panel: nil,
+        app_menu_counts: %{members: 0, proposals: 0, tasks: 0},
         app_global_search: %{
           query: "",
           results: %{},
@@ -58,6 +59,7 @@ defmodule AuroraGov.Web.Live.Panel do
           | current_module: current_module,
             current_ou_id: current_ou_id
         })
+        |> assign_menu_counts()
         |> handle_deep_linking(socket.assigns.live_action, params)
       else
         socket
@@ -157,7 +159,7 @@ defmodule AuroraGov.Web.Live.Panel do
       ous ->
         # Buscar la unidad raíz (aquella cuyo ID no tiene puntos, ej: "root")
         root_ou = Enum.find(ous, fn ou -> not String.contains?(ou.ou_id, ".") end)
-        
+
         if root_ou do
           root_ou.ou_id
         else
@@ -170,7 +172,9 @@ defmodule AuroraGov.Web.Live.Panel do
   @impl true
   def handle_info({:projector_update, event}, socket) do
     IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
-    socket = AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
+    socket =
+      AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
+      |> assign_menu_counts()
 
     {:noreply, socket}
   end
@@ -311,5 +315,19 @@ defmodule AuroraGov.Web.Live.Panel do
     query_params = %{context: app_context.current_ou_id}
 
     ~p"/app/#{app_context.current_module}?#{query_params}"
+  end
+
+  # Contadores del menú lateral: se calculan al navegar y ante eventos del proyector,
+  # no en cada render del template.
+  defp assign_menu_counts(%{assigns: %{app_context: %{current_ou_id: nil}}} = socket), do: socket
+
+  defp assign_menu_counts(socket) do
+    ou_id = socket.assigns.app_context.current_ou_id
+
+    assign(socket, :app_menu_counts, %{
+      members: AuroraGov.Context.MembershipContext.count_active_memberships_by_ou(ou_id),
+      proposals: AuroraGov.Context.ProposalContext.count_active_proposals_by_ou(ou_id),
+      tasks: AuroraGov.Context.ProjectContext.count_active_tasks_by_ou(ou_id)
+    })
   end
 end
