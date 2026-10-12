@@ -204,9 +204,6 @@ require Logger
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
             phx-value-proposal_ou_end={@app_context.current_ou_id}
             phx-value-proposal_power_id="org.membership.start"
-            phx-value-power-person_id="999@test.com"
-            phx-value-proposal_title="Titulo propuesta"
-            phx-value-proposal_description="Descripcion de propuesta en detalle"
             variant="primary"
             icon="fa-solid fa-hand"
           >
@@ -225,7 +222,7 @@ require Logger
           total_count={@total_count}
           target={@myself}
           selected_dom_id={
-            if assigns[:app_side_panel] && assigns[:app_side_panel].view_id =~ "panel-member-", 
+            if assigns[:app_side_panel] && assigns[:app_side_panel].view_id =~ "panel-member-",
             do: "member-" <> assigns[:app_side_panel].view_params.person_id,
             else: nil
           }

@@ -118,7 +118,7 @@
   }
   
   li.menu-item > a > i {
-    @apply text-base;
+    @apply text-lg;
   }
   
   li.menu-item.link {
@@ -130,7 +130,7 @@
   }
   
   div#module-menu ul {
-    @apply px-2.5 gap-y-1 flex flex-col text-sm;
+    @apply px-2.5 gap-y-1 flex flex-col text-base;
   }
   
   /* ul.tabs > li {
@@ -140,4 +140,12 @@
   /* ul.tabs > li.active {
     @apply bg-aurora_orange;
   } */
+
+  .phx-disconnected #connection-status-connected {
+    display: none !important;
+  }
+
+  .phx-disconnected #connection-status-disconnected {
+    display: flex !important;
+  }
 }

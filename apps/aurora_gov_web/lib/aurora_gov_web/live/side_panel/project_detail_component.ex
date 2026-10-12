@@ -121,8 +121,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Actualizar Proyecto: #{@project.name}"}
-                phx-value-proposal_description={"Se propone actualizar la información general del proyecto #{@project.project_id}."}
                 phx-value-proposal_power_id="org.project.update"
                 phx-value-power-project_id={@project.project_id}
                 phx-value-power-name={@project.name}
@@ -135,8 +133,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Transferir Proyecto: #{@project.name}"}
-                phx-value-proposal_description={"Se propone transferir la administración y fondos del proyecto #{@project.project_id} a otra unidad organizativa."}
                 phx-value-proposal_power_id="org.project.transfer"
                 phx-value-power-project_id={@project.project_id}
                 class="px-2 py-1 text-violet-600 hover:bg-violet-50 rounded-lg transition-colors font-semibold flex items-center gap-1.5"
@@ -147,8 +143,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Archivar Proyecto: #{@project.name}"}
-                phx-value-proposal_description={"Se propone archivar el proyecto #{@project.project_id}. Todas sus tareas serán canceladas."}
                 phx-value-proposal_power_id="org.project.archive"
                 phx-value-power-project_id={@project.project_id}
                 class="px-2 py-1 text-red-600 hover:bg-red-50 rounded-lg transition-colors font-semibold flex items-center gap-1.5"
@@ -162,8 +156,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Nueva Tarea para: #{@project.name}"}
-                phx-value-proposal_description="Se propone la creación de una nueva tarea en el backlog del proyecto."
                 phx-value-proposal_power_id="org.task.create"
                 phx-value-power-project_id={@project.project_id}
                 class="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition-colors font-bold flex items-center gap-1.5"

@@ -1,10 +1,38 @@
-<main class="w-full flex flex-col min-h-screen">
-  <div class="w-full flex-1 flex flex-row items-start bg-gray-50">
+<main class="w-full flex flex-col h-screen overflow-hidden">
+  <div id="flash-toast-info" phx-hook="FlashToast" data-kind="info" class="hidden">{Phoenix.Flash.get(@flash, :info)}</div>
+  <div id="flash-toast-error" phx-hook="FlashToast" data-kind="error" class="hidden">{Phoenix.Flash.get(@flash, :error)}</div>
+
+  <div class="w-full flex-1 min-h-0 flex flex-row items-stretch bg-gray-50 overflow-hidden">
     {@inner_content}
   </div>
-  <footer class="w-full bg-gray-100 py-1.5">
-    <small class="bg-brand/5 text-xs ml-3 rounded-full px-2 font-medium leading-6">
-      AuroraGov v{Application.spec(:aurora_gov, :vsn)} Plataforma en desarrollo, podría contener errores. Under development, may have some errors.
-    </small>
+
+  <footer class="w-full shrink-0 bg-white border-t border-gray-200 px-4 py-1.5 flex flex-row items-center justify-between z-30 select-none text-xs text-gray-500">
+    <div class="flex items-center gap-2">
+      <small class="bg-brand/5 text-xs rounded-full px-2 font-medium leading-5">
+        AuroraGov v{Application.spec(:aurora_gov, :vsn)} Plataforma en desarrollo, podría contener errores. Under development, may have some errors.
+      </small>
+    </div>
+
+    <div id="connection-status" phx-hook="ConnectionStatus" class="flex items-center">
+      <div
+        id="connection-status-connected"
+        class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80 transition-all select-none"
+        title="Conexión activa en tiempo real"
+      >
+        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+        <span>Conectado</span>
+      </div>
+
+      <div
+        id="connection-status-disconnected"
+        class="hidden items-center gap-2 px-2.5 py-0.5 rounded-full bg-amber-500 text-white text-[11px] font-medium shadow-sm transition-all select-none"
+        role="status"
+        aria-live="polite"
+        title="Sin conexión. Intentando reconectar..."
+      >
+        <i class="fa-solid fa-arrows-rotate fa-spin text-xs"></i>
+        <span>Sin conexión. Reconectando...</span>
+      </div>
+    </div>
   </footer>
 </main>

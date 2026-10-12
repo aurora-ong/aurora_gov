@@ -172,8 +172,12 @@ defmodule AuroraGov.Web.Live.Panel do
   @impl true
   def handle_info({:projector_update, event}, socket) do
     IO.inspect(event, label: "Actualizando PUBSUB Panel Live")
+
     socket =
-      AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket)
+      case AuroraGov.Web.Panel.EventRouter.ProjectorUpdate.handle_event(event, socket) do
+        %Phoenix.LiveView.Socket{} = updated_socket -> updated_socket
+        _ -> socket
+      end
       |> assign_menu_counts()
 
     {:noreply, socket}

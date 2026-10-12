@@ -78,7 +78,7 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full">
-      <div class="flex w-full h-12 flex-row justify-between mb-8 items-center border-b border-gray-100 pb-4">
+      <div class="flex w-full flex-row justify-between mb-8 items-center border-b border-gray-100 pb-4">
         <div>
           <h2 class="text-2xl font-bold text-gray-800">Recursos y Cuentas</h2>
           <p class="text-sm text-gray-500">Gestión contable e inventario base de la unidad organizativa</p>

@@ -128,8 +128,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Actualizar Tarea: #{@task.name}"}
-                phx-value-proposal_description={"Se propone actualizar los detalles de la tarea #{@task.task_id}."}
                 phx-value-proposal_power_id="org.task.update"
                 phx-value-power-project_id={@task.project_id}
                 phx-value-power-task_id={@task.task_id}
@@ -144,8 +142,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Asignar Tarea: #{@task.name}"}
-                phx-value-proposal_description={"Se propone asignar un responsable para la tarea #{@task.task_id}."}
                 phx-value-proposal_power_id="org.task.assign"
                 phx-value-power-project_id={@task.project_id}
                 phx-value-power-task_id={@task.task_id}
@@ -157,8 +153,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Completar Tarea: #{@task.name}"}
-                phx-value-proposal_description={"Se propone dar por terminada la tarea #{@task.task_id} porque ya se cumplió el objetivo: #{@task.goal}."}
                 phx-value-proposal_power_id="org.task.complete"
                 phx-value-power-project_id={@task.project_id}
                 phx-value-power-task_id={@task.task_id}
@@ -170,8 +164,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Abandonar Tarea: #{@task.name}"}
-                phx-value-proposal_description={"Se propone que la tarea #{@task.task_id} vuelva al backlog y quede sin responsable asignado."}
                 phx-value-proposal_power_id="org.task.abandon"
                 phx-value-power-project_id={@task.project_id}
                 phx-value-power-task_id={@task.task_id}
@@ -183,8 +175,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
                 phx-click="open_proposal_create_modal"
                 phx-value-proposal_ou_origin={@app_context.current_ou_id}
                 phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_title={"Anular Tarea: #{@task.name}"}
-                phx-value-proposal_description={"Se propone cancelar de forma definitiva la tarea #{@task.task_id}."}
                 phx-value-proposal_power_id="org.task.cancel"
                 phx-value-power-project_id={@task.project_id}
                 phx-value-power-task_id={@task.task_id}
@@ -401,8 +391,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.TaskDetail do
                       phx-click="open_proposal_create_modal"
                       phx-value-proposal_ou_origin={@app_context.current_ou_id}
                       phx-value-proposal_ou_end={@app_context.current_ou_id}
-                      phx-value-proposal_title={"Evaluar Tarea: #{@task.name}"}
-                      phx-value-proposal_description={"Se propone asignar una nota de evaluación a la tarea #{@task.task_id}."}
                       phx-value-proposal_power_id="org.task.evaluate"
                       phx-value-power-project_id={@task.project_id}
                       phx-value-power-task_id={@task.task_id}

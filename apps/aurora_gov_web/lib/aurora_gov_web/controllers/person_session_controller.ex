@@ -5,7 +5,7 @@ defmodule AuroraGov.Web.PersonSessionController do
   alias AuroraGov.Web.Auth
 
   def create(conn, params) do
-    create(conn, params, "Welcome back!")
+    create(conn, params, "¡Bienvenido de nuevo!")
   end
 
   defp create(conn, %{"person" => person_params}, info) do
@@ -18,14 +18,14 @@ defmodule AuroraGov.Web.PersonSessionController do
     else
       # In order to prevent user enumeration attacks, don't disclose whether the email is registered.
       conn
-      |> put_flash(:error, "Invalid id or password")
+      |> put_flash(:error, "Correo o contraseña incorrectos.")
       |> redirect(to: ~p"/persons/log_in")
     end
   end
 
   def delete(conn, _params) do
     conn
-    |> put_flash(:info, "Logged out successfully.")
+    |> put_flash(:info, "Sesión cerrada correctamente.")
     |> Auth.log_out_person()
   end
 end

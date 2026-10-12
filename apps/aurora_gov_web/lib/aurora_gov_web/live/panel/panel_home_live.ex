@@ -54,7 +54,7 @@ defmodule AuroraGov.Web.Live.Panel.Home do
 
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full flex flex-col gap-6  overflow-y-auto">
+    <div class="w-full flex flex-col gap-6">
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 w-full">
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col items-center justify-center gap-2 hover:border-blue-300 hover:shadow-md transition-all group">
           <div class="w-12 h-12 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center text-xl mb-1 group-hover:bg-blue-100 group-hover:scale-110 transition-transform">

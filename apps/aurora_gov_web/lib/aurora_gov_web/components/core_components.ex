@@ -702,8 +702,8 @@ defmodule AuroraGov.Web.CoreComponents do
   defp format_int(string) do
     is_neg = String.starts_with?(string, "-")
     str = if is_neg, do: String.slice(string, 1..-1//1), else: string
-    
-    formatted = 
+
+    formatted =
       str
       |> String.reverse()
       |> String.codepoints()
@@ -711,7 +711,7 @@ defmodule AuroraGov.Web.CoreComponents do
       |> Enum.map(&Enum.join/1)
       |> Enum.join(".")
       |> String.reverse()
-      
+
     if is_neg, do: "-" <> formatted, else: formatted
   end
 
@@ -728,7 +728,7 @@ defmodule AuroraGov.Web.CoreComponents do
 
   def side_panel_layout(assigns) do
     ~H"""
-    <div class="flex flex-col h-full">
+    <div class="flex flex-col h-full min-h-0">
       <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3 shrink-0">
         <div class="flex items-center gap-3">
           <h2 class="text-xl font-bold text-gray-900 m-0 flex items-center">
@@ -755,7 +755,7 @@ defmodule AuroraGov.Web.CoreComponents do
           </.link>
         </div>
       </div>
-      <div class="flex-1 overflow-y-auto custom-scrollbar">
+      <div class="flex-1 min-h-0 overflow-y-auto custom-scrollbar pr-2">
         {render_slot(@inner_block)}
       </div>
     </div>
