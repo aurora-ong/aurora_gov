@@ -9,6 +9,7 @@ defmodule AuroraGov.Web.Components.Table do
   attr :id, :string, required: true
   attr :rows, :list, required: true
   attr :class, :string, default: nil
+  attr :table_class, :string, default: nil
   attr :loading, :boolean, default: false
 
   # NUEVO: Target para LiveComponents
@@ -31,6 +32,7 @@ defmodule AuroraGov.Web.Components.Table do
     attr :label, :string
     attr :field, :atom
     attr :class, :string
+    attr :header_class, :string
     attr :align, :string, values: ~w(left center right)
   end
 
@@ -59,7 +61,7 @@ defmodule AuroraGov.Web.Components.Table do
 
         <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
           <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-gray-200">
+            <table class={[@table_class || "min-w-full", "divide-y divide-gray-200"]}>
 
               <thead :if={@col != []} class="bg-gray-50">
                 <tr>
@@ -67,7 +69,8 @@ defmodule AuroraGov.Web.Components.Table do
                     class={[
                       "px-6 py-3 text-xs font-medium uppercase tracking-wider text-gray-500",
                       "text-#{Map.get(col, :align, "left")}",
-                      col[:field] && "cursor-pointer hover:bg-gray-100 hover:text-gray-700"
+                      col[:field] && "cursor-pointer hover:bg-gray-100 hover:text-gray-700",
+                      col[:header_class]
                     ]}
                     phx-click={col[:field] && @on_sort}
                     phx-value-field={col[:field]}
@@ -80,7 +83,7 @@ defmodule AuroraGov.Web.Components.Table do
                       <% end %>
                     </div>
                   </th>
-                  <th :if={@action != []} class="px-6 py-3"><span class="sr-only">Acciones</span></th>
+                  <th :if={@action != []} class="px-6 py-3 w-24 text-right"><span class="sr-only">Acciones</span></th>
                 </tr>
               </thead>
 
@@ -98,10 +101,15 @@ defmodule AuroraGov.Web.Components.Table do
                   <%= if @custom_row != [] do %>
                     {render_slot(@custom_row, item)}
                   <% else %>
-                    <td :for={col <- @col} class={["px-6 py-4 whitespace-nowrap text-sm text-gray-700", "text-#{Map.get(col, :align, "left")}", col[:class]]}>
+                    <td :for={col <- @col} class={[
+                      "px-6 py-4 text-sm text-gray-700",
+                      unless(col[:class] && (String.contains?(col[:class], "whitespace-") or String.contains?(col[:class], "break-")), do: "whitespace-nowrap"),
+                      "text-#{Map.get(col, :align, "left")}",
+                      col[:class]
+                    ]}>
                       {render_slot(col, item)}
                     </td>
-                    <td :if={@action != []} class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td :if={@action != []} class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium w-24">
                       {render_slot(@action, item)}
                     </td>
                   <% end %>

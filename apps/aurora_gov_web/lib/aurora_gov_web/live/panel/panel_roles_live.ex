@@ -156,6 +156,7 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
           total_pages={@total_pages}
           total_count={@total_count}
           target={@myself}
+          table_class="w-full table-fixed"
         >
           <:empty_state>
             <div class="flex flex-col items-center justify-center py-4">
@@ -164,25 +165,29 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
             </div>
           </:empty_state>
 
-          <:col :let={role} label="Nombre" field={:role_name}>
-            {role.role_name}
+          <:col :let={role} label="Nombre" field={:role_name} header_class="w-64" class="w-64 font-semibold text-gray-900 whitespace-normal">
+            <span class="font-semibold text-gray-900 leading-snug break-words">
+              {role.role_name}
+            </span>
           </:col>
 
-          <:col :let={role} label="Descripción" field={:role_description}>
-            {role.role_description}
+          <:col :let={role} label="Descripción" field={:role_description} header_class="w-auto" class="w-auto whitespace-normal break-words">
+            <p class="text-sm text-gray-600 whitespace-normal break-words leading-relaxed">
+              {role.role_description}
+            </p>
           </:col>
 
-          <:col :let={role} label="Estado" align="center" field={:status}>
+          <:col :let={role} label="Estado" align="center" field={:status} header_class="w-28 text-center" class="w-28 text-center whitespace-nowrap">
             <span class={"inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " <>
               if(role.status == "active", do: "bg-green-100 text-green-800", else: "bg-gray-100 text-gray-800")}>
               {if(role.status == "active", do: "Activo", else: "Archivado")}
             </span>
           </:col>
 
-          <:col :let={role} label="Asignaciones" align="left">
-            <div class="flex flex-wrap gap-3">
+          <:col :let={role} label="Asignaciones" align="left" header_class="w-64" class="w-64 whitespace-normal">
+            <div class="flex flex-wrap gap-2">
               <%= for assignment <- Map.get(@assignments, role.role_id, []) do %>
-                <div class="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-gray-200 bg-gray-50 hover:bg-white hover:shadow-sm transition-all group">
+                <div class="flex items-center gap-2 p-1.5 pr-3 rounded-full border border-gray-200 bg-gray-50 hover:bg-white hover:shadow-sm transition-all group max-w-full">
                   <div class="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-gray-200 bg-white">
                     <img
                       src={"https://api.dicebear.com/7.x/notionists/svg?seed=#{assignment.person_id}&backgroundColor=e2e8f0"}
@@ -190,11 +195,11 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
                       class="w-full h-full object-cover"
                     />
                   </div>
-                  <div class="flex flex-col">
-                    <span class="text-xs font-bold text-gray-900 leading-tight">
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-xs font-bold text-gray-900 leading-tight truncate">
                       {assignment.person.person_name}
                     </span>
-                    <span class="text-[10px] text-gray-500 leading-tight">
+                    <span class="text-[10px] text-gray-500 leading-tight truncate">
                       {assignment.person_id}
                     </span>
                   </div>

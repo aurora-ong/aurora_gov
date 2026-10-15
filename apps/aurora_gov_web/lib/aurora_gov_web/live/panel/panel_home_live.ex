@@ -75,14 +75,14 @@ defmodule AuroraGov.Web.Live.Panel.Home do
             <i class="fa-solid fa-check-square"></i>
           </div>
           <span class="text-3xl font-bold text-gray-900">{@stats.tasks}</span>
-          <span class="text-sm font-medium text-gray-500 text-center">Tareas<br/>en Curso</span>
+          <span class="text-sm font-medium text-gray-500 text-center">Tareas<br/>Activas</span>
         </div>
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-5 flex flex-col items-center justify-center gap-2 hover:border-purple-300 hover:shadow-md transition-all group">
           <div class="w-12 h-12 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center text-xl mb-1 group-hover:bg-purple-100 group-hover:scale-110 transition-transform">
             <i class="fa-solid fa-id-card-clip"></i>
           </div>
           <span class="text-3xl font-bold text-gray-900">{@stats.roles}</span>
-          <span class="text-sm font-medium text-gray-500 text-center">Roles<br/>Asignados</span>
+          <span class="text-sm font-medium text-gray-500 text-center">Roles<br/>Activos</span>
         </div>
       </div>
 

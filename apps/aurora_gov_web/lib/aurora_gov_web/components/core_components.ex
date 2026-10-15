@@ -70,7 +70,7 @@ defmodule AuroraGov.Web.CoreComponents do
               phx-window-keydown={JS.exec("data-cancel", to: "##{@id}")}
               phx-key="escape"
               phx-click-away={JS.exec("data-cancel", to: "##{@id}")}
-              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white flex flex-col shadow-lg ring-1 transition overflow-hidden"
+              class="shadow-zinc-700/10 ring-zinc-700/10 relative hidden rounded-2xl bg-white flex-col shadow-lg ring-1 transition overflow-hidden"
             >
               <div :if={@title || @icon || @show_close || @header_actions != []} class="flex items-center justify-between border-b border-gray-100 px-6 py-4 bg-gray-50/50">
                 <div class="flex items-center gap-3">

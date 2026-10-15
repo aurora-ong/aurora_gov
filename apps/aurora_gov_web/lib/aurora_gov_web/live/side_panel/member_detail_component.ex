@@ -14,7 +14,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
     socket =
       socket
       |> assign(:context, AsyncResult.loading())
-      |> assign(:active_tab, "units")
+      |> assign(:active_tab, "info")
 
     {:ok, socket}
   end
@@ -102,24 +102,15 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
         <AuroraGov.Web.CoreComponents.side_panel_layout close_path={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}>
           <:title_slot>
             <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+              <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
                 <i class="fa-regular fa-user text-2xl"></i>
               </div>
-              <div>
-                <h2 class="text-xl font-bold text-gray-900">
+              <div class="min-w-0">
+                <h2 class="text-xl font-bold text-gray-900 truncate">
                   {context.person.person_name}
                 </h2>
-                <p class="text-sm text-gray-500 flex items-center gap-2 mt-1">
-                  <i class="fa-regular fa-envelope"></i> {context.person.person_mail}
-                </p>
-                <div class="flex items-center gap-4 mt-2">
-                  <div class="flex items-center gap-2">
-                    <.person_id_badge id={context.person.person_id} />
-                  </div>
-                  <div class="flex items-center gap-1.5 text-xs text-gray-500">
-                    <i class="fa-regular fa-calendar-days"></i>
-                    <span>Registrado el {Timex.lformat!(context.person.created_at, "{0D}/{0M}/{YYYY}", "es")}</span>
-                  </div>
+                <div class="mt-1">
+                  <.person_id_badge id={context.person.person_id} />
                 </div>
               </div>
             </div>
@@ -127,6 +118,20 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
 
           <!-- Tabs -->
           <div class="flex gap-4 border-b border-gray-200 mb-6 shrink-0">
+            <button
+              phx-click="tab_change"
+              phx-value-tab="info"
+              phx-target={@myself}
+              class={[
+                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                if(@active_tab == "info",
+                  do: "border-aurora_orange text-aurora_orange",
+                  else: "border-transparent text-gray-500 hover:text-gray-700"
+                )
+              ]}
+            >
+              <i class="fa-solid fa-circle-info mr-1"></i> Información
+            </button>
             <button
               phx-click="tab_change"
               phx-value-tab="units"
@@ -139,7 +144,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
                 )
               ]}
             >
-              <i class="fa-solid fa-sitemap mr-1"></i> Unidades
+              <i class="fa-solid fa-sitemap mr-1"></i> Membresías
             </button>
             <button
               phx-click="tab_change"
@@ -174,6 +179,34 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
           <!-- Contenido -->
           <div class="pb-6">
             <%= case @active_tab do %>
+              <% "info" -> %>
+                <div class="space-y-4">
+                  <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm space-y-4">
+                    <div>
+                      <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-1">
+                        Correo electrónico
+                      </span>
+                      <div class="flex items-center gap-2 text-sm text-gray-800 font-medium">
+                        <i class="fa-regular fa-envelope text-gray-400"></i>
+                        <span>{context.person.person_mail}</span>
+                      </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-3">
+                      <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-1">
+                        Fecha de registro
+                      </span>
+                      <div class="flex items-center gap-2 text-sm text-gray-800 font-medium">
+                        <i class="fa-regular fa-calendar-days text-gray-400"></i>
+                        <span>{Timex.lformat!(context.person.created_at, "{0D}/{0M}/{YYYY}", "es")}</span>
+                        <span class="text-xs text-gray-400 font-normal">
+                          ({Timex.lformat!(context.person.created_at, "{relative}", "es", :relative)})
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               <% "units" -> %>
                 <div class="space-y-4">
                   <%= if context.memberships == [] do %>
