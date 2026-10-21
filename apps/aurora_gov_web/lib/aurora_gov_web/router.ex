@@ -26,6 +26,7 @@ defmodule AuroraGov.Web.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    live "/prueba-beta", Live.BetaTestLive, :index
     live "/install", Live.InstallLive, :new
   end
 
@@ -73,7 +74,7 @@ defmodule AuroraGov.Web.Router do
       live "/projects/:id", Live.Panel, :projects_show
 
       live "/tasks/:id", Live.Panel, :tasks_show
-      
+
       live "/ledger/:id", Live.Panel, :ledger_show
 
       live "/:module", Live.Panel, :module
