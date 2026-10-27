@@ -1,0 +1,61 @@
+{{- if or .Values.seed.enabled .Values.seed.name }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "aurora-gov.fullname" . }}-seed-{{ randAlphaNum 4 | lower }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aurora-gov.labels" . | nindent 4 }}
+    app.kubernetes.io/component: seed-job
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-weight": "10"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 3
+  ttlSecondsAfterFinished: 600
+  template:
+    metadata:
+      labels:
+        {{- include "aurora-gov.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: seed-job
+    spec:
+      restartPolicy: Never
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-postgres
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+          imagePullPolicy: {{ .Values.database.image.pullPolicy | default "IfNotPresent" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until pg_isready -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }}; do
+                echo "Waiting for postgresql to become ready..."
+                sleep 2
+              done
+      containers:
+        - name: seed
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          command:
+            - /app/bin/aurora_gov_web
+            - eval
+            - {{ printf "AuroraGov.Release.db_seed \"%s\"" (.Values.seed.name | default "seeds.exs") | quote }}
+          resources:
+            {{- toYaml .Values.seed.resources | nindent 12 }}
+          env:
+            - name: PHX_SERVER
+              value: "false"
+            - name: PHX_HOST
+              value: {{ .Values.ingress.host | quote }}
+            - name: SECRET_KEY_BASE
+              value: {{ .Values.app.secretKeyBase | quote }}
+            - name: PROJECTOR_DATABASE_URL
+              value: {{ printf "ecto://%s:%s@%s-database:%v/%s" .Values.database.user .Values.database.password (include "aurora-gov.fullname" .) .Values.database.port .Values.database.projectorDb | quote }}
+            - name: EVENTSTORE_DATABASE_URL
+              value: {{ printf "ecto://%s:%s@%s-database:%v/%s" .Values.database.user .Values.database.password (include "aurora-gov.fullname" .) .Values.database.port .Values.database.eventstoreDb | quote }}
+{{- end }}

@@ -16,18 +16,46 @@ spec:
       labels:
         app: aurora-gov
     spec:
+      initContainers:
+        - name: init-uploads-permissions
+          image: registry.weychafe.nicher.cl/aurora_gov:0
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mkdir -p /uploads
+              chown -R 65534:65534 /uploads 2>/dev/null || true
+              chmod 775 /uploads 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: aurora-gov-uploads-volume
+              mountPath: /uploads
       containers:
         - name: aurora-gov
           image: registry.weychafe.nicher.cl/aurora_gov:0
           resources:
             requests:
-                cpu: "200m"
-                memory: "256Mi"
-                ephemeral-storage: "100Mi"
+              cpu: "200m"
+              memory: "256Mi"
+              ephemeral-storage: "100Mi"
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 4000
               protocol: TCP
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    mkdir -p /uploads
+                    for d in /app/lib/aurora_gov_web-*/priv/static; do
+                      if [ -d "$d" ]; then
+                        ln -sfn /uploads "$d/uploads"
+                      fi
+                    done
           env:
             - name: PHX_SERVER
               value: "true"
@@ -37,7 +65,16 @@ spec:
               value: "gov.aurora.ong"
             - name: SECRET_KEY_BASE
               value: ""
+            - name: UPLOADS_DIR
+              value: "/uploads"
             - name: PROJECTOR_DATABASE_URL
               value: "ecto://postgres:password@aurora-gov-database-service:5432/aurora_gov_projector"
             - name: EVENTSTORE_DATABASE_URL
               value: "ecto://postgres:password@aurora-gov-database-service:5432/aurora_gov_eventstore"
+          volumeMounts:
+            - name: aurora-gov-uploads-volume
+              mountPath: /uploads
+      volumes:
+        - name: aurora-gov-uploads-volume
+          persistentVolumeClaim:
+            claimName: aurora-gov-uploads-pvc

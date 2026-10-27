@@ -1,0 +1,51 @@
+{{- if .Values.database.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "aurora-gov.fullname" . }}-database
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aurora-gov.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  selector:
+    matchLabels:
+      {{- include "aurora-gov.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: database
+  serviceName: {{ include "aurora-gov.fullname" . }}-database
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        {{- include "aurora-gov.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: database
+    spec:
+      containers:
+        - name: postgres
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+          imagePullPolicy: {{ .Values.database.image.pullPolicy | default "IfNotPresent" }}
+          resources:
+            {{- toYaml .Values.database.resources | nindent 12 }}
+          env:
+            - name: POSTGRES_USER
+              value: {{ .Values.database.user | quote }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.database.password | quote }}
+            - name: PGDATA
+              value: "/pgsql_data/"
+          ports:
+            - containerPort: {{ .Values.database.port | default 5432 }}
+              name: postgres
+              protocol: TCP
+          volumeMounts:
+            - mountPath: "/pgsql_data/"
+              name: database-volume
+      volumes:
+        - name: database-volume
+          {{- if .Values.database.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "aurora-gov.fullname" . }}-database-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}
+{{- end }}

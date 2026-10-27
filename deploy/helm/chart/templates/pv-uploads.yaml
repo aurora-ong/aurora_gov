@@ -1,0 +1,20 @@
+{{- if and .Values.uploads.persistence.enabled .Values.uploads.persistence.createPV }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Namespace }}-{{ include "aurora-gov.fullname" . }}-uploads-pv
+  labels:
+    {{- include "aurora-gov.labels" . | nindent 4 }}
+    app.kubernetes.io/component: uploads
+spec:
+  storageClassName: {{ .Values.uploads.persistence.storageClass | default (printf "%s-%s-uploads-hostpath" .Release.Namespace (include "aurora-gov.fullname" .)) }}
+  capacity:
+    storage: {{ .Values.uploads.persistence.size | default "10Gi" }}
+  accessModes:
+    - {{ .Values.uploads.persistence.accessMode | default "ReadWriteMany" }}
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: {{ include "aurora-gov.fullname" . }}-uploads-pvc
+  hostPath:
+    path: {{ .Values.uploads.persistence.hostPath | default (printf "/opt/aurora-gov/%s/uploads" .Release.Namespace) }}
+{{- end }}

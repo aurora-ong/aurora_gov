@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: aurora-gov-uploads-pvc
+  namespace: aurora-gov
+spec:
+  storageClassName: aurora-gov-uploads-hostpath
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Gi

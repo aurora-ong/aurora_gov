@@ -1,0 +1,106 @@
+# Default values for aurora-gov.
+
+# Application image configuration
+image:
+  repository: registry.weychafe.nicher.cl/aurora_gov
+  tag: "latest"
+  pullPolicy: IfNotPresent
+  imagePullSecrets: []
+
+# Ingress & domain configuration
+ingress:
+  enabled: true
+  className: public
+  host: gov.aurora.ong
+  path: /
+  pathType: Prefix
+  clusterIssuer: weychafe-letsencrypt
+  annotations:
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "120"
+  tls:
+    enabled: true
+    secretName: ""  # If empty, defaults to {{ fullname }}-tls
+
+# Web application runtime configuration
+app:
+  secretKeyBase: ""  # Passed via --set or install script
+  phxServer: "true"
+  port: 4000
+  replicas: 1
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+      ephemeral-storage: "100Mi"
+    limits: {}
+
+# Persistent Volume for uploads (/uploads/)
+uploads:
+  mountPath: /uploads
+  persistence:
+    enabled: true
+    # Si createPV es true, crea un PersistentVolume hostPath dedicado y aislado para esta instancia.
+    # Si createPV es false, el PVC utilizará aprovisionamiento dinámico (ej: microk8s-hostpath).
+    createPV: true
+    size: 10Gi
+    accessMode: ReadWriteMany
+    storageClass: ""  # Si se deja vacío, genera {{ .Release.Namespace }}-{{ fullname }}-uploads-hostpath
+    hostPath: ""      # Si se deja vacío, genera /opt/aurora-gov/{{ .Release.Namespace }}/uploads
+
+# Embedded PostgreSQL Database configuration
+database:
+  enabled: true
+  image:
+    repository: postgres
+    tag: latest
+    pullPolicy: IfNotPresent
+  user: postgres
+  password: "password"
+  port: 5432
+  projectorDb: aurora_gov_projector
+  eventstoreDb: aurora_gov_eventstore
+  resources:
+    requests:
+      cpu: "250m"
+      memory: "512Mi"
+      ephemeral-storage: "100Mi"
+  persistence:
+    enabled: true
+    # Si createPV es true, crea un PersistentVolume hostPath dedicado y aislado para esta instancia.
+    # Si createPV es false, el PVC utilizará aprovisionamiento dinámico (ej: microk8s-hostpath).
+    createPV: true
+    size: 10Gi
+    accessMode: ReadWriteOnce
+    storageClass: ""  # Si se deja vacío, genera {{ .Release.Namespace }}-{{ fullname }}-database-hostpath
+    hostPath: ""      # Si se deja vacío, genera /opt/aurora-gov/{{ .Release.Namespace }}/postgres
+
+# Automatic Database Creation & Migration Job
+# Runs AuroraGov.Release.db_create and db_migrate automatically (idempotent)
+migration:
+  enabled: true
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+      ephemeral-storage: "100Mi"
+
+# Optional Seed Job
+# Triggered when seed.name is set (e.g. "seeds.exs" or "seeds")
+seed:
+  enabled: false
+  name: ""  # e.g., "seeds.exs"
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+      ephemeral-storage: "100Mi"
+
+# Optional DB Reset Job (drops, creates, migrates)
+dbReset:
+  enabled: false
+  resources:
+    requests:
+      cpu: "200m"
+      memory: "256Mi"
+      ephemeral-storage: "100Mi"

@@ -1,0 +1,90 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "aurora-gov.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aurora-gov.labels" . | nindent 4 }}
+    app.kubernetes.io/component: app
+spec:
+  replicas: {{ .Values.app.replicas | default 1 }}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      {{- include "aurora-gov.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: app
+  template:
+    metadata:
+      labels:
+        {{- include "aurora-gov.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: app
+    spec:
+      {{- with .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      initContainers:
+        - name: init-uploads-permissions
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              mkdir -p {{ .Values.uploads.mountPath | default "/uploads" }}
+              chown -R 65534:65534 {{ .Values.uploads.mountPath | default "/uploads" }} 2>/dev/null || true
+              chmod 775 {{ .Values.uploads.mountPath | default "/uploads" }} 2>/dev/null || true
+          securityContext:
+            runAsUser: 0
+          volumeMounts:
+            - name: uploads-volume
+              mountPath: {{ .Values.uploads.mountPath | default "/uploads" }}
+      containers:
+        - name: aurora-gov
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
+          resources:
+            {{- toYaml .Values.app.resources | nindent 12 }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.app.port | default 4000 }}
+              protocol: TCP
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - /bin/sh
+                  - -c
+                  - |
+                    mkdir -p {{ .Values.uploads.mountPath | default "/uploads" }}
+                    for d in /app/lib/aurora_gov_web-*/priv/static; do
+                      if [ -d "$d" ]; then
+                        ln -sfn {{ .Values.uploads.mountPath | default "/uploads" }} "$d/uploads"
+                      fi
+                    done
+          env:
+            - name: PHX_SERVER
+              value: {{ .Values.app.phxServer | default "true" | quote }}
+            - name: PORT
+              value: {{ .Values.app.port | default 4000 | quote }}
+            - name: PHX_HOST
+              value: {{ .Values.ingress.host | quote }}
+            - name: SECRET_KEY_BASE
+              value: {{ .Values.app.secretKeyBase | quote }}
+            - name: UPLOADS_DIR
+              value: {{ .Values.uploads.mountPath | default "/uploads" | quote }}
+            - name: PROJECTOR_DATABASE_URL
+              value: {{ printf "ecto://%s:%s@%s-database:%v/%s" .Values.database.user .Values.database.password (include "aurora-gov.fullname" .) .Values.database.port .Values.database.projectorDb | quote }}
+            - name: EVENTSTORE_DATABASE_URL
+              value: {{ printf "ecto://%s:%s@%s-database:%v/%s" .Values.database.user .Values.database.password (include "aurora-gov.fullname" .) .Values.database.port .Values.database.eventstoreDb | quote }}
+          volumeMounts:
+            - name: uploads-volume
+              mountPath: {{ .Values.uploads.mountPath | default "/uploads" }}
+      volumes:
+        - name: uploads-volume
+          {{- if .Values.uploads.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ include "aurora-gov.fullname" . }}-uploads-pvc
+          {{- else }}
+          emptyDir: {}
+          {{- end }}

@@ -7,6 +7,15 @@ defmodule AuroraGov.Release do
   """
   @app :aurora_gov
 
+  def db_setup do
+    Logger.info("DB Setup...")
+    db_create()
+    db_migrate()
+    Logger.info("DB Setup completado")
+
+    :ok
+  end
+
   def db_reset do
     Logger.info("DB Reset...")
     db_drop()

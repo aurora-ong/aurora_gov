@@ -1,0 +1,20 @@
+{{- if .Values.database.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "aurora-gov.fullname" . }}-database
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "aurora-gov.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "aurora-gov.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+  ports:
+    - protocol: TCP
+      port: {{ .Values.database.port | default 5432 }}
+      targetPort: {{ .Values.database.port | default 5432 }}
+      name: postgres
+{{- end }}

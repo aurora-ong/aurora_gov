@@ -3,7 +3,10 @@ defmodule AuroraGov.Storage.Local do
   
   @impl true
   def put_file(binary_content, filename, _content_type) do
-    dest_dir = Path.join([:code.priv_dir(:aurora_gov_web), "static", "uploads"])
+    dest_dir =
+      System.get_env("UPLOADS_DIR") ||
+        Path.join([:code.priv_dir(:aurora_gov_web), "static", "uploads"])
+
     File.mkdir_p!(dest_dir)
     
     unique_filename = "#{Ecto.UUID.generate()}-#{filename}"

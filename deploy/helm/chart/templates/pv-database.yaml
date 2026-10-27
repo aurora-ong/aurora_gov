@@ -1,0 +1,20 @@
+{{- if and .Values.database.enabled .Values.database.persistence.enabled .Values.database.persistence.createPV }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ .Release.Namespace }}-{{ include "aurora-gov.fullname" . }}-database-pv
+  labels:
+    {{- include "aurora-gov.labels" . | nindent 4 }}
+    app.kubernetes.io/component: database
+spec:
+  storageClassName: {{ .Values.database.persistence.storageClass | default (printf "%s-%s-database-hostpath" .Release.Namespace (include "aurora-gov.fullname" .)) }}
+  capacity:
+    storage: {{ .Values.database.persistence.size | default "10Gi" }}
+  accessModes:
+    - {{ .Values.database.persistence.accessMode | default "ReadWriteOnce" }}
+  claimRef:
+    namespace: {{ .Release.Namespace }}
+    name: {{ include "aurora-gov.fullname" . }}-database-pvc
+  hostPath:
+    path: {{ .Values.database.persistence.hostPath | default (printf "/opt/aurora-gov/%s/postgres" .Release.Namespace) }}
+{{- end }}
