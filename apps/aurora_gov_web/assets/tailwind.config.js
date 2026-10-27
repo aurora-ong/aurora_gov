@@ -5,7 +5,11 @@ const plugin = require("tailwindcss/plugin")
 const fs = require("fs")
 const path = require("path")
 
+
+
 module.exports = {
+
+  darkMode: "class",
   content: [
     "./js/**/*.js",
     "../lib/aurora_gov_web.ex",
