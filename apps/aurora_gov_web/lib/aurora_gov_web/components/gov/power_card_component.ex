@@ -6,26 +6,26 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
   def render(assigns) do
     ~H"""
     <div
-      class="border p-4 sm:p-5 rounded-lg flex flex-col justify-between cursor-pointer hover:border-blue-400 transition-all hover:shadow-md"
+      class="w-full min-w-0 border p-4 sm:p-5 rounded-lg flex flex-col justify-between cursor-pointer hover:border-blue-400 transition-all hover:shadow-md"
       phx-click="open_power_detail"
       phx-target={@myself}
       phx-value-power_id={@power_id}
     >
-      <div class="flex justify-between items-start">
-        <div>
-          <h3 class="text-lg font-semibold text-gray-900">{(@power_info && @power_info.name) || @power_id}</h3>
-          <p class="text-xs text-gray-500 line-clamp-2 mt-1">{(@power_info && @power_info.description) || ""}</p>
+      <div class="flex min-w-0 justify-between items-start">
+        <div class="min-w-0 w-full">
+          <h3 class="text-lg font-semibold  text-gray-900 break-words">{(@power_info && @power_info.name) || @power_id}</h3>
+          <p class="text-xs text-gray-500 line-clamp-2 mt-1 break-words">{(@power_info && @power_info.description) || ""}</p>
         </div>
       </div>
 
       <%!-- Caso: Tiene Power --%>
       <div :if={@ou_power != nil} class="mt-3">
-        <div class="grid grid-cols-2 gap-2 mt-4 text-white">
+        <div class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2 mt-4 text-white">
           <div
             class={"select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 #{quorum_color(to_percent(@ou_power.power_average))}"}
             title="Quórum"
           >
-            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex min-w-0 flex-wrap justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Quórum <i class="fa-solid fa-users"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">
@@ -37,7 +37,7 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
             class={"select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 #{participacion_color(participation_percent(@ou_power.power_count, @ou_vote_membership_count))}"}
             title="Participación"
           >
-            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex min-w-0 flex-wrap justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Participación <i class="fa-solid fa-check-to-slot"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">
@@ -50,12 +50,12 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
 
       <%!-- Caso: NO Tiene Power --%>
       <div :if={@ou_power == nil} class="mt-3">
-        <div class="grid grid-cols-2 gap-2 mt-4 text-white opacity-60">
+        <div class="grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-2 mt-4 text-white opacity-60">
           <div
             class="select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 bg-neutral-500 text-white"
             title="Quórum"
           >
-            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex min-w-0 flex-wrap justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Quórum <i class="fa-solid fa-users"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">
@@ -67,7 +67,7 @@ defmodule AuroraGov.Web.Components.Power.PowerCardComponent do
             class="select-none p-2.5 rounded-2xl shadow-md transition-all active:scale-95 bg-neutral-500 text-white"
             title="Participación"
           >
-            <div class="flex justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
+            <div class="flex min-w-0 flex-wrap justify-between items-center gap-1 text-[10px] font-bold uppercase tracking-wider opacity-90">
               Participación <i class="fa-solid fa-check-to-slot"></i>
             </div>
             <div class="text-2xl font-black leading-none mt-1.5">

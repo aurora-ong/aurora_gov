@@ -25,15 +25,19 @@ defmodule AuroraGov.Web.Components.FilterButtonGroup do
 
   def filter_button_group(assigns) do
     ~H"""
-    <.button_group class={
-      "rounded-lg overflow-hidden shadow-sm bg-gray-100 p-0 gap-0 border border-gray-200 " <>
-      @class
-    }>
-      <%= for {opt, _idx} <- Enum.with_index(@options) do %>
+      <div
+        role="group"
+        aria-label="Filtros"
+                class={
+          "flex w-full min-w-0 flex-wrap gap-2 " <>
+            @class
+        }
+      >
+        <%= for {opt, _idx} <- Enum.with_index(@options) do %>
         <.button
           type="button"
           class={
-            "transition-colors duration-150 !font-medium !text-sm px-4 py-2 max-sm:px-3 focus:z-10 focus:outline-none border-0 " <>
+            "min-w-0 max-w-full flex-auto sm:flex-none rounded-lg whitespace-normal transition-colors duration-150 !font-medium !text-sm px-3 py-2 sm:px-4 focus:z-10 border-0 " <>
             if(@selected == opt.value,
               do: " bg-aurora_orange! text-white",
               else: "bg-gray-400 text-black hover:bg-gray-500 hover:text-white"
@@ -46,7 +50,7 @@ defmodule AuroraGov.Web.Components.FilterButtonGroup do
           {opt.label}
         </.button>
       <% end %>
-    </.button_group>
+    </div>
     """
   end
 end

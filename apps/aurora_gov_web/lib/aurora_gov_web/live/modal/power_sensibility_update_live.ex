@@ -180,7 +180,7 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
       >
         <.async_result :let={power_context} assign={@power_update_context}>
           <:loading><.loading_spinner size="double_large" /></:loading>
-          
+
           <:failed :let={error}>
             <div class="w-full flex flex-col items-center justify-center gap-4 p-6">
               <div class="text-4xl">
@@ -192,7 +192,7 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
              end)}>
                 </i>
               </div>
-              
+
               <div class="text-center">
                 <h3 class="text-lg font-semibold">
                   {case error do
@@ -201,7 +201,7 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
                     _ -> "Error al cargar"
                   end}
                 </h3>
-                
+
                 <p class="mt-2 text-sm text-gray-600">
                   {case error do
                     :no_membership ->
@@ -215,58 +215,58 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
                   end}
                 </p>
               </div>
-              
+
               <.button phx-click="app_modal_close" phx-value-modal={@id} class="primary filled mt-5">
                 Aceptar
               </.button>
             </div>
           </:failed>
-          
+
           <.simple_form
             for={@form}
             id="power_update_form"
             phx-submit="update"
             phx-change="validate"
             phx-target={@myself}
-            class="w-full"
+            class="w-full min-w-0 max-w-full"
           >
             <% current = @form[:power_value].value || 50 %>
             <!-- Header -->
             <div class="mt-2 grid grid-cols-1 sm:grid-cols-12 gap-3 text-sm">
               <!-- Card: Unidad organizativa -->
-              <div class="sm:col-span-6 flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-black/90">
+                <div class="min-w-0 sm:col-span-6 flex items-start gap-3 rounded-xl border bg-white p-3 shadow-sm">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-black/90">
                   <i class="fa-solid fa-sitemap rotate-180 text-white"></i>
                 </div>
-                
+
                 <div class="min-w-0 flex-1">
-                  <div class="text-gray-900 font-medium truncate" title={power_context.ou.ou_name}>
+                  <div class="text-gray-900 font-medium break-words" title={power_context.ou.ou_name}>
                     {power_context.ou.ou_name}
                   </div>
-                  
+
                   <div class="mt-1">
-                    <span class="inline-flex items-center rounded px-2 py-0.5 bg-black text-white text-xs font-semibold">
+                    <span class="inline-block max-w-full whitespace-normal break-all rounded px-2 py-0.5 bg-black text-white text-xs font-semibold">
                       {power_context.ou.ou_id}
                     </span>
                   </div>
                 </div>
               </div>
               <!-- Card: Poder -->
-              <div class="sm:col-span-6 flex items-center gap-3 rounded-xl border bg-white p-3 shadow-sm">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-aurora_orange/10">
+                <div class="min-w-0 sm:col-span-6 flex items-start gap-3 rounded-xl border bg-white p-3 shadow-sm">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-aurora_orange/10">
                   <i class="fa-solid fa-bolt text-aurora_orange"></i>
                 </div>
-                
+
                 <div class="min-w-0 flex-1">
                   <div
-                    class="text-gray-900 font-medium truncate"
+                    class="text-gray-900 font-medium break-words"
                     title={power_context.power.power_name}
                   >
                     {power_context.power.power_name}
                   </div>
-                  
+
                   <div class="mt-1">
-                    <span class="inline-flex items-center rounded px-2 py-0.5 bg-aurora_orange/10 text-aurora_orange text-xs font-semibold">
+                    <span class="inline-block max-w-full whitespace-normal break-all rounded px-2 py-0.5 bg-aurora_orange/10 text-aurora_orange text-xs font-semibold">
                       {power_context.power.power_id}
                     </span>
                   </div>
@@ -274,28 +274,28 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
               </div>
               <!-- Card: Descripción del poder (ocupa 12 columnas) -->
               <div class="sm:col-span-12 rounded-xl border bg-white p-4 sm:px-3 sm:py-3 shadow-sm">
-                <div class="flex items-center gap-2">
-                  <i class="fa-solid fa-circle-info text-blue-600"></i>
-                  <p class="text-sm leading-relaxed text-gray-600">
+                <div class="flex min-w-0 items-start gap-2">
+                  <i class="fa-solid fa-circle-info shrink-0 mt-1 text-blue-600"></i>
+                  <p class="min-w-0 break-words text-sm leading-relaxed text-gray-600">
                     {power_context.power.power_description || "Sin descripción disponible."}
                   </p>
                 </div>
               </div>
             </div>
             <!-- Tarjeta de métricas -->
-            <div class="mt-6 rounded-2xl border shadow-sm p-6">
+            <div class="mt-4 sm:mt-6 min-w-0 rounded-2xl border shadow-sm p-3 sm:p-6">
               <div class="grid grid-cols-2 divide-x">
-                <div class="text-center">
-                  <div class="text-6xl font-semibold leading-none">{current}</div>
-                  
+                <div class="min-w-0 px-2 text-center">
+                  <div class="text-4xl sm:text-6xl font-semibold leading-none">{current}</div>
+
                   <div class="mt-2 text-sm text-gray-500">Mi postura actual</div>
                 </div>
-                
-                <div class="text-center">
-                  <div class="text-6xl font-semibold text-aurora_orange leading-none">
+
+                <div class="min-w-0 px-2 text-center">
+                  <div class="text-4xl sm:text-6xl font-semibold text-aurora_orange leading-none">
                     {power_context.collective_value}
                   </div>
-                  
+
                   <div class="mt-2 text-sm text-gray-500">Postura colectiva</div>
                 </div>
               </div>
@@ -310,15 +310,16 @@ defmodule AuroraGov.Web.Live.Power.SensibilityUpdate do
                 step="5"
                 class="accent-aurora_orange"
               />
-              <!-- leyenda dinámica -->
+                            <!-- leyenda dinámica -->
               <% {label, icon, label_class, description} = posture_meta(current) %>
-              <div class="mt-3 flex items-center gap-2 text-sm select-none">
-                <i class={"fa-solid #{icon} #{label_class}"}></i>
-                <span class={"font-semibold #{label_class}"}>{label}</span>
-                <span class="text-gray-500">{description}</span>
+              <div class="mt-3 flex min-w-0 flex-col items-start gap-2 text-sm select-none sm:flex-row sm:gap-4">
+                <div class="flex shrink-0 items-center gap-2">
+                  <i class={"fa-solid #{icon} #{label_class}"}></i>
+                  <span class={"font-semibold #{label_class}"}>{label}</span>
+                </div>
+                <span class="min-w-0 break-words text-gray-500">{description}</span>
               </div>
             </div>
-            
             <:actions>
               <.button phx-disable-with="..." class="w-full primary filled">Actualizar</.button>
             </:actions>
