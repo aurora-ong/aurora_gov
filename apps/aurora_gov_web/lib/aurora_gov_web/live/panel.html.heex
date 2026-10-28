@@ -263,14 +263,14 @@
   <%!-- Main Content: Contiene el contenido del módulo y el panel lateral con scrolls independientes --%>
   <div
     id="panel-main-content"
-    class={"flex-1 min-h-0 flex flex-row gap-4 sm:gap-6 items-stretch w-full px-3 sm:px-6 pt-2 pb-4 overflow-hidden " <> if @app_side_panel != nil, do: "has-side-panel", else: ""}
+    class={"flex-1 min-w-0 min-h-0 flex flex-row gap-4 sm:gap-6 items-stretch w-full px-3 sm:px-6 pt-2 pb-4 overflow-hidden " <> if @app_side_panel != nil, do: "has-side-panel", else: ""}
   >
     <%!-- Columna de Contenido del Módulo --%>
     <section
       id="panel-module-content"
       class={"flex-1 min-w-0 min-h-0 h-full overflow-y-auto flex flex-col pr-2 " <> if @app_side_panel != nil, do: "max-lg:hidden", else: ""}
     >
-      <div class="flex flex-col items-center flex-1 min-w-0 pb-4">
+      <div class="flex w-full min-w-0 flex-col items-stretch pb-4">
         <%= case @app_context.current_module do %>
           <% "home" -> %>
             <.live_component
