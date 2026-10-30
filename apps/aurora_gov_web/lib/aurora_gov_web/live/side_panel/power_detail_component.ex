@@ -195,19 +195,19 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="flex flex-col h-full">
+    <div class="w-full min-w-0 min-h-0 flex-1 overflow-y-auto pr-1">
       <.async_result :let={context} assign={@context}>
         <:loading><.loading_spinner size="double_large" /></:loading>
 
         <div class="mb-4">
-          <div class="flex items-center justify-between border-b border-gray-100 pb-3 mb-3">
-            <div class="flex items-center gap-3">
-              <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
+          <div class="flex min-w-0 items-start justify-between gap-2 border-b border-gray-100 pb-3 mb-3">
+            <div class="flex min-w-0 flex-1 items-start gap-3">
+              <div class="shrink-0 p-2 bg-blue-50 text-blue-600 rounded-lg">
                 <i class="fa-solid fa-bolt text-xl"></i>
               </div>
-              <h2 class="text-xl font-bold text-gray-900 m-0">{context.power_info.name}</h2>
+              <h2 class="min-w-0 break-words text-lg sm:text-xl font-bold text-gray-900 m-0">{context.power_info.name}</h2>
             </div>
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-2 shrink-0">
               <.link
                 patch={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}
                 class="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-200 transition-colors"
@@ -221,7 +221,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
           </div>
           <p class="text-sm text-gray-500 mb-3">{context.power_info.description}</p>
 
-          <div class="mt-4 grid grid-cols-2 gap-3">
+          <div class="mt-4 grid min-w-0 grid-cols-[repeat(auto-fit,minmax(min(100%,9rem),1fr))] gap-3">
             <div class="p-4 bg-blue-600 rounded-2xl text-white shadow-lg shadow-blue-100 flex flex-col justify-between h-28">
               <div class="flex justify-between items-start">
                 <div class="text-[10px] font-bold uppercase tracking-widest opacity-80">Quorum Colectivo</div>
@@ -266,7 +266,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
           </div>
         </div>
 
-        <div class="flex border-b border-gray-200 mb-4 mt-6">
+        <div class="flex min-w-0 flex-wrap gap-y-2 border-b border-gray-200 mb-4 mt-6">
           <button
             phx-click="select_tab"
             phx-value-tab="sensitivities"
@@ -298,7 +298,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.PowerDetail do
           </button>
         </div>
 
-        <div class="flex-1 overflow-y-auto pr-2">
+        <div class="w-full min-w-0 pb-4">
           <%= if @active_tab == "sensitivities" do %>
             <div class="space-y-4">
               <div :if={Enum.empty?(context.sensitivities)} class="text-center py-8 text-gray-500">

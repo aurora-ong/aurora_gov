@@ -143,7 +143,25 @@
   phx-click={JS.remove_class("sidebar-open", to: "html")}
 ></div>
 
-<div id="panel-main-wrapper" class="flex-1 min-w-0 min-h-0 h-full flex flex-col overflow-hidden">
+  <div
+  id="panel-main-wrapper"
+  class={[
+    "flex-1 min-w-0 min-h-0 h-full flex flex-col overflow-hidden",
+    @app_side_panel != nil &&
+      @app_side_panel.view_module == AuroraGov.Web.Live.Panel.Side.MemberDetail &&
+      "member-detail-open",
+    @app_side_panel != nil &&
+      @app_side_panel.view_module == AuroraGov.Web.Live.Panel.Side.ProjectDetail &&
+      "project-detail-open",
+    @app_context.current_module == "projects" &&
+      @app_side_panel == nil &&
+      "projects-list-open",
+    @app_side_panel != nil &&
+      @app_side_panel.view_module == AuroraGov.Web.Live.Panel.Side.ProposalDetail &&
+      "proposal-detail-open"
+  
+  ]}
+>
   <div class="shrink-0 z-20 bg-white border-b border-gray-200 px-3 sm:px-6 py-3 flex flex-row items-center gap-2 sm:gap-4">
       <button
         type="button"
@@ -263,14 +281,14 @@
   <%!-- Main Content: Contiene el contenido del módulo y el panel lateral con scrolls independientes --%>
   <div
     id="panel-main-content"
-    class={"flex-1 min-h-0 flex flex-row gap-4 sm:gap-6 items-stretch w-full px-3 sm:px-6 pt-2 pb-4 overflow-hidden " <> if @app_side_panel != nil, do: "has-side-panel", else: ""}
+    class={"flex-1 min-w-0 min-h-0 flex flex-row gap-4 sm:gap-6 items-stretch w-full px-3 sm:px-6 pt-2 pb-4 overflow-hidden " <> if @app_side_panel != nil, do: "has-side-panel", else: ""}
   >
     <%!-- Columna de Contenido del Módulo --%>
     <section
       id="panel-module-content"
       class={"flex-1 min-w-0 min-h-0 h-full overflow-y-auto flex flex-col pr-2 " <> if @app_side_panel != nil, do: "max-lg:hidden", else: ""}
     >
-      <div class="flex flex-col items-center flex-1 min-w-0 pb-4">
+      <div class="flex w-full min-w-0 flex-col items-stretch pb-4">
         <%= case @app_context.current_module do %>
           <% "home" -> %>
             <.live_component
@@ -331,9 +349,8 @@
       id="panel-side-content"
       class={"h-full min-h-0 flex flex-col shrink-0 border rounded-xl border-gray-200 bg-white shadow-sm overflow-hidden max-lg:!w-full " <> (@app_side_panel.view_options[:panel_size] || "w-4/12")}
     >
-      <div class="flex flex-col flex-1 min-h-0 w-full py-4 px-4 sm:py-5 sm:px-5 overflow-hidden">
+      <div class="flex panel-side-inner flex-col flex-1 min-w-0 min-h-0 w-full py-4 px-4 sm:py-5 sm:px-5 overflow-hidden">
         <.live_component
-          :if={@app_side_panel != nil}
           id={@app_side_panel.view_id}
           module={@app_side_panel.view_module}
           app_context={@app_context}

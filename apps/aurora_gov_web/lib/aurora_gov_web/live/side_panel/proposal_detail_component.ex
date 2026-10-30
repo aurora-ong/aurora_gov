@@ -106,7 +106,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProposalDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="h-full">
+    <div id={@id} class="proposal-detail-root h-full min-w-0">
       <.async_result :let={context} assign={@context}>
         <:loading><.loading_spinner size="double_large" /></:loading>
 

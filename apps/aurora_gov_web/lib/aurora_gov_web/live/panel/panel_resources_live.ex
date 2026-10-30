@@ -77,13 +77,13 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full">
-      <div class="flex w-full flex-row justify-between mb-8 items-center border-b border-gray-100 pb-4">
-        <div>
+    <div class="w-full min-w-0">
+      <div class="flex w-full min-w-0 flex-col items-stretch gap-4 mb-4 border-b border-gray-100 pb-3 xl:flex-row xl:items-center xl:justify-between">
+        <div class="min-w-0 flex-1">
           <h2 class="text-2xl font-bold text-gray-800">Recursos y Cuentas</h2>
           <p class="text-sm text-gray-500">Gestión contable e inventario base de la unidad organizativa</p>
         </div>
-        <div class="flex flex-row gap-3">
+        <div class="grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 xl:flex xl:w-auto xl:flex-wrap">
           <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
@@ -124,7 +124,7 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
           <.loading_spinner size="double_large" />
         </div>
       <% else %>
-        <div class="flex flex-row gap-8 mb-6 border-b border-gray-200">
+        <div class="flex flex-row gap-8 mb-4 border-b border-gray-200">
           <button phx-click="set_tab" phx-target={@myself} phx-value-tab="cuentas" class={"pb-2 text-sm font-bold border-b-2 transition-all duration-200 " <> if(@active_tab == "cuentas", do: "border-aurora_orange text-aurora_orange", else: "border-transparent text-gray-500 hover:text-gray-700")}>
             <i class="fa-solid fa-wallet mr-2"></i>Cuentas
           </button>
@@ -136,7 +136,7 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
         <div>
           <%= case @active_tab do %>
             <% "cuentas" -> %>
-              <div class="mb-5 flex gap-2">
+              <div class="mb-5 flex flex-wrap gap-2">
                 <button phx-click="set_filter" phx-target={@myself} phx-value-filter="all" class={"px-3 py-1 rounded-full text-xs font-semibold " <> if(@active_ledger_filter == "all", do: "bg-gray-800 text-white", else: "bg-gray-100 text-gray-600 hover:bg-gray-200")}>Todas</button>
                 <button phx-click="set_filter" phx-target={@myself} phx-value-filter="asset" class={"px-3 py-1 rounded-full text-xs font-semibold " <> if(@active_ledger_filter == "asset", do: "bg-green-100 text-green-800 border border-green-300", else: "bg-gray-50 text-gray-500 hover:bg-gray-100")}>Activos</button>
                 <button phx-click="set_filter" phx-target={@myself} phx-value-filter="liability" class={"px-3 py-1 rounded-full text-xs font-semibold " <> if(@active_ledger_filter == "liability", do: "bg-red-100 text-red-800 border border-red-300", else: "bg-gray-50 text-gray-500 hover:bg-gray-100")}>Pasivos</button>
@@ -189,7 +189,7 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
                   </div>
                 <% end %>
                 <%= if Enum.empty?(@ledgers) do %>
-                  <div class="col-span-full flex flex-col items-center justify-center p-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                <div class="col-span-full min-w-0 flex flex-col items-center justify-center px-4 py-6 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
                      <i class="fa-solid fa-wallet text-3xl text-gray-300 mb-3"></i>
                      <p class="text-gray-500 text-sm font-medium">Esta unidad aún no tiene cuentas</p>
                   </div>
@@ -223,7 +223,7 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
                   </div>
                 <% end %>
                 <%= if Enum.empty?(@resources) do %>
-                  <div class="col-span-full flex flex-col items-center justify-center p-12 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
+                <div class="col-span-full min-w-0 flex flex-col items-center justify-center px-4 py-6 text-center bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
                      <i class="fa-solid fa-cube text-3xl text-gray-300 mb-3"></i>
                      <p class="text-gray-500 text-sm font-medium">No hay recursos definidos</p>
                   </div>

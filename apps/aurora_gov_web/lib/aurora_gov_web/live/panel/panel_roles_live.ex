@@ -119,9 +119,9 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full">
-      <div class="flex w-full h-12 flex-row justify-between mb-5 items-center">
-        <div class="flex flex-row items-center gap-6">
+    <div class="roles-panel w-full min-w-0">
+      <div class="flex w-full min-w-0 flex-col items-stretch gap-4 mb-5 lg:flex-row lg:items-center lg:justify-between">
+        <div class="min-w-0 max-w-full">
           <.filter_button_group
             options={[
               %{label: "Todos", value: "all"},
@@ -133,7 +133,7 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
             phx_target={@myself}
           />
         </div>
-        <div class="flex flex-row gap-3">
+        <div class="flex shrink-03">
           <.app_button
             phx-click="open_proposal_create_modal"
             phx-value-proposal_ou_origin={@app_context.current_ou_id}
@@ -150,6 +150,8 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
       <div class="w-full">
         <.table
           id="roles-table"
+          responsive={true}
+          responsive_mobile_only={true}
           rows={@streams.role_list}
           page={@current_page}
           loading={@loading}
@@ -212,34 +214,40 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
           </:col>
 
           <:action :let={role}>
+            <div class="role-actions">
             <%= if role.status == "active" do %>
-              <button
-                phx-click="open_proposal_create_modal"
-                phx-value-proposal_ou_origin={@app_context.current_ou_id}
-                phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_power_id="org.role.assign"
-                phx-value-power-role_id={role.role_id}
-                class="text-blue-600 hover:text-blue-900 mr-2"
-                title="Asignar"
-              >
-                <i class="fa-solid fa-user-plus"></i>
-              </button>
+            <button
+            type="button"
+            phx-click="open_proposal_create_modal"
+            phx-value-proposal_ou_origin={@app_context.current_ou_id}
+            phx-value-proposal_ou_end={@app_context.current_ou_id}
+            phx-value-proposal_power_id="org.role.assign"
+            phx-value-power-role_id={role.role_id}
+            class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-blue-600 hover:text-blue-900 hover:bg-blue-50"
+            title="Asignar"
+            aria-label="Asignar rol"
+            >
+            <i class="fa-solid fa-user-plus" aria-hidden="true"></i>
+          </button>
 
-              <button
-                phx-click="open_proposal_create_modal"
-                phx-value-proposal_ou_origin={@app_context.current_ou_id}
-                phx-value-proposal_ou_end={@app_context.current_ou_id}
-                phx-value-proposal_power_id="org.role.archive"
-                phx-value-power-role_id={role.role_id}
-                class="text-red-600 hover:text-red-900"
-                title="Archivar"
-              >
-                <i class="fa-solid fa-box-archive"></i>
-              </button>
-            <% else %>
-              <span class="text-xs text-gray-400 italic">Archivado</span>
-            <% end %>
-          </:action>
+          <button
+            type="button"
+            phx-click="open_proposal_create_modal"
+            phx-value-proposal_ou_origin={@app_context.current_ou_id}
+            phx-value-proposal_ou_end={@app_context.current_ou_id}
+            phx-value-proposal_power_id="org.role.archive"
+            phx-value-power-role_id={role.role_id}
+            class="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg text-red-600 hover:text-red-900 hover:bg-red-50"
+            title="Archivar"
+            aria-label="Archivar rol"
+            >
+            <i class="fa-solid fa-box-archive" aria-hidden="true"></i>
+          </button>
+          <% else %>
+          <span class="text-xs text-gray-400 italic">Archivado</span>
+          <% end %>
+        </div>
+      </:action>
         </.table>
       </div>
     </div>
