@@ -201,7 +201,7 @@
   overflow-wrap: anywhere;
 }
 
-/* Mobile y tablet: cabeceras y detalle comparten el scroll exterior. */
+
 @media (max-width: 63.999rem) {
   #panel-main-wrapper.member-detail-open {
     overflow-y: auto;
@@ -230,7 +230,7 @@
   }
 }
 /* responsive mobile roles */
-/* Roles: las tarjetas aprovechan todo el ancho disponible. */
+
 @media (max-width: 63.999rem) {
   .roles-panel .responsive-mobile-table table > tbody > tr > td {
     width: 100%;
@@ -241,6 +241,69 @@
     flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem;
+  }
+}
+/* responsive mobile proyect */
+
+@media (max-width: 63.999rem) {
+  #panel-main-wrapper.project-detail-open {
+    overflow-y: auto;
+  }
+
+  .project-detail-open #panel-main-content {
+    flex: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .project-detail-open #panel-side-content {
+    height: auto;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .project-detail-open .panel-side-inner {
+    flex: none;
+    overflow: visible;
+  }
+
+  .project-detail-open .project-detail-root {
+    height: auto;
+    overflow: visible;
+  }
+
+  /* Contenedor principal que genera side_panel_layout. */
+  .project-detail-open .project-detail-root > div {
+    height: auto;
+    min-width: 0;
+  }
+
+  /* Cuerpo del layout: descripción, acciones y tareas. */
+  .project-detail-open .project-detail-root > div > div:last-child {
+    flex: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+}
+
+/* Proyectos: desplazamiento general del listado en mobile y tablet. */
+@media (max-width: 63.999rem) {
+  #panel-main-wrapper.projects-list-open {
+    overflow-y: auto;
+  }
+
+  .projects-list-open #panel-main-content {
+    flex: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .projects-list-open #panel-module-content {
+    flex: none;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    padding-right: 0;
   }
 }
 

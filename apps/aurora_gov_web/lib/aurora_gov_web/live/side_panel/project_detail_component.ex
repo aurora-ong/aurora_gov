@@ -91,7 +91,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
   @impl true
   def render(assigns) do
     ~H"""
-    <div id={@id} class="h-full">
+    <div id={@id} class="project-detail-root h-full min-w-0">
       <%= if @loading or is_nil(@project) do %>
         <div class="w-full h-full flex justify-center items-center">
           <.loading_spinner size="double_large" />
@@ -206,9 +206,9 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                   <i class="fa-solid fa-chart-line text-gray-400"></i> Progreso de Tareas
                 </h3>
 
-                <div class="grid grid-cols-4 gap-4">
-                  <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
-                    <div class="text-3xl font-black text-gray-800 mb-1">{length(@tasks)}</div>
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
+                  <div class="min-w-0 p-3 lg:p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
+                    <div class="text-2xl lg:text-3xl font-black text-gray-800 mb-1">{length(@tasks)}</div>
 
                     <div class="text-[10px] uppercase font-bold text-gray-400 tracking-wider mt-1 text-center">
                       Tareas Totales
@@ -216,7 +216,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                   </div>
 
                   <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
-                    <div class="text-3xl font-black text-aurora_orange mb-1">
+                    <div class="text-2xl lg:text-3xl font-black text-aurora_orange mb-1">
                       {Enum.count(@tasks, fn t -> t.status == :in_progress end)}
                     </div>
 
@@ -226,7 +226,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                   </div>
 
                   <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
-                    <div class="text-3xl font-black text-emerald-600 mb-1">
+                    <div class="text-2xl lg:text-3xl font-black text-emerald-600 mb-1">
                       {Enum.count(@tasks, fn t -> t.status == :completed end)}
                     </div>
 
@@ -236,7 +236,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
                   </div>
 
                   <div class="p-4 border border-gray-200 rounded-lg bg-white shadow-sm flex flex-col items-center justify-center">
-                    <div class="text-3xl font-black text-purple-600 mb-1">
+                    <div class="text-2xl lg:text-3xl font-black text-purple-600 mb-1">
                       {Enum.count(@tasks, fn t -> t.status == :backlog end)}
                     </div>
 
@@ -298,7 +298,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.ProjectDetail do
 
                 <%= if Enum.empty?(@tasks) do %>
                   <div class="text-center py-10 bg-gray-50 rounded-xl border-2 border-dashed border-gray-200">
-                    <i class="fa-solid fa-clipboard-list text-3xl text-gray-300 mb-3"></i>
+                    <i class="fa-solid fa-clipboard-list text-2xl lg:text-3xl text-gray-300 mb-3"></i>
                     <p class="text-sm text-gray-500">
                       Este proyecto no tiene tareas registradas aún.
                     </p>
