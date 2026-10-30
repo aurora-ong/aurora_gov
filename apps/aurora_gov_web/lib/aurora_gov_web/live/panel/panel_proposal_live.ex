@@ -111,10 +111,11 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full">
+    <div class="w-full min-w-0">
       <.table
         id="proposal-table"
         rows={@streams.proposal_list}
+        responsive={true}
         page={@current_page}
         loading={@loading}
         total_pages={@total_pages}
@@ -130,8 +131,8 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
         }
       >
         <:top_content>
-          <div class="flex flex-col md:flex-row w-full justify-between items-center mb-4 gap-2">
-            <div class="flex gap-2">
+          <div class="proposal-toolbar flex w-full min-w-0 flex-wrap items-center gap-3 mb-4">
+            <div class="min-w-0 max-w-full">
               <.filter_button_group
                 options={[
                   %{label: "Todas", value: "all"},
@@ -144,7 +145,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
               />
             </div>
 
-            <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2">
+            <form phx-submit="search" phx-change="search" phx-target={@myself} class="proposal-search flex min-w-0 items-center gap-2">
               <.search_field
                 search_button
                 name="search"
@@ -185,7 +186,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
 
         <:col :let={proposal} label="Propuesta">
           <div class="flex flex-col">
-            <div class="flex-row flex">
+            <div class="flex min-w-0 flex-wrap items-center gap-y-2">
               <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
                 <.ou_id_badge id={proposal.proposal_ou_start_id}
                   title={proposal.proposal_ou_start.ou_name}
@@ -206,7 +207,14 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
               <% end %>
             </div>
 
-            <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
+          <h3 class="text-lg font-semibold text-black">
+            <.link
+            patch={~p"/app/proposals/#{proposal.proposal_id}?context=#{@app_context.current_ou_id}"}
+            class="inline-block py-2 underline decoration-gray-300 underline-offset-4 hover:text-aurora_orange focus-visible:outline focus-visible:outline-2"
+            >
+            {proposal.proposal_title}
+            </.link>
+          </h3>
           </div>
         </:col>
 
@@ -217,7 +225,12 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
         </:col>
 
         <:col :let={proposal} label="Responsable" align="center">
-          <.person_id_badge class="mx-auto" id={proposal.proposal_owner.person_id} title={proposal.proposal_owner.person_name} patch={~p"/app/members/#{proposal.proposal_owner.person_id}"} />
+          <.link
+          patch={~p"/app/members/#{proposal.proposal_owner.person_id}?context=#{@app_context.current_ou_id}"}
+          class="inline-block max-w-full py-2 font-medium text-gray-700 underline decoration-gray-300 underline-offset-4 hover:text-aurora_orange [overflow-wrap:anywhere]"
+          >
+          {proposal.proposal_owner.person_name || proposal.proposal_owner.person_id}
+          </.link>
         </:col>
 
         <:col :let={proposal} label="Poder" align="center">

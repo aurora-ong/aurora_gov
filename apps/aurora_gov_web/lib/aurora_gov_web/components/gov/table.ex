@@ -11,6 +11,7 @@ defmodule AuroraGov.Web.Components.Table do
   attr :class, :string, default: nil
   attr :table_class, :string, default: nil
   attr :loading, :boolean, default: false
+  attr :responsive, :boolean, default: false
 
   # NUEVO: Target para LiveComponents
   attr :target, :any, default: nil
@@ -45,8 +46,11 @@ defmodule AuroraGov.Web.Components.Table do
     assigns = assign(assigns, :col_count, length(assigns.col) + if(assigns.action != [], do: 1, else: 0))
 
     ~H"""
-    <div class={["flex flex-col gap-4 relative", @class]}>
-
+    <div class={[
+      "flex flex-col gap-4 relative",
+      @responsive && "responsive-data-table",
+      @class
+    ]}>
       <div :if={@loading} class="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-[1px] rounded-lg transition-all duration-300">
         <div class="flex flex-col items-center bg-white p-3 rounded-full shadow-lg">
            <i class="fa-solid fa-circle-notch fa-spin text-aurora_orange text-2xl"></i>
@@ -101,12 +105,21 @@ defmodule AuroraGov.Web.Components.Table do
                   <%= if @custom_row != [] do %>
                     {render_slot(@custom_row, item)}
                   <% else %>
-                    <td :for={col <- @col} class={[
-                      "px-6 py-4 text-sm text-gray-700",
-                      unless(col[:class] && (String.contains?(col[:class], "whitespace-") or String.contains?(col[:class], "break-")), do: "whitespace-nowrap"),
-                      "text-#{Map.get(col, :align, "left")}",
-                      col[:class]
-                    ]}>
+                    <td
+                    :for={col <- @col}
+                    data-label={if @responsive, do: col[:label], else: nil}
+                    class={[
+                    "px-6 py-4 text-sm text-gray-700",
+                    unless(
+                    col[:class] &&
+                    (String.contains?(col[:class], "whitespace-") ||
+                    String.contains?(col[:class], "break-")),
+                    do: "whitespace-nowrap"
+                    ),
+                    "text-#{Map.get(col, :align, "left")}",
+                    col[:class]
+                    ]}
+                    >
                       {render_slot(col, item)}
                     </td>
                     <td :if={@action != []} class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium w-24">
@@ -126,7 +139,10 @@ defmodule AuroraGov.Web.Components.Table do
             </table>
           </div>
 
-          <div :if={@total_pages > 0} class="border-t border-gray-200 bg-gray-50 px-6 py-3 flex items-center justify-between sm:justify-end gap-4">
+            <div
+              :if={@total_pages > 0}
+              class="table-pagination border-t border-gray-200 bg-gray-50 px-6 py-3 flex items-center justify-between sm:justify-end gap-4"
+            >
             <div class="hidden sm:block text-xs text-gray-500 mr-auto">
                Total: <span class="font-medium text-gray-900">{@total_count}</span> registros.
                Página <span class="font-medium">{@page}</span> de <span class="font-medium">{@total_pages}</span>
