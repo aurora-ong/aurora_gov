@@ -116,6 +116,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
         id="proposal-table"
         rows={@streams.proposal_list}
         responsive={true}
+        responsive_mobile_only={true}
         page={@current_page}
         loading={@loading}
         total_pages={@total_pages}
@@ -150,7 +151,7 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
                 search_button
                 name="search"
                 value={@search}
-                placeholder="Buscar propuestas..."
+                placeholder="Buscar propuestas"
               />
             </form>
           </div>
