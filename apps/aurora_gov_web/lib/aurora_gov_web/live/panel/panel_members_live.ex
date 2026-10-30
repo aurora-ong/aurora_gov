@@ -182,39 +182,56 @@ require Logger
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full h-full">
-      <div class="flex w-full h-12 flex-row justify-between mb-5">
-        <.filter_button_group
-          options={[
-            %{label: "Todos", value: "all"},
-            %{label: "Activos", value: "active"},
-            %{label: "Inactivos", value: "inactive"}
-          ]}
-          selected={@filter}
-          on_select="update_filter"
-          phx_target={@myself}
-        />
-        <div class="flex flex-row gap-3">
-          <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2">
-            <.search_field name="search" value={@search_query} placeholder="Buscar miembros..." search_button />
-          </form>
-
-          <.app_button
-            phx-click="open_proposal_create_modal"
-            phx-value-proposal_ou_origin={@app_context.current_ou_id}
-            phx-value-proposal_ou_end={@app_context.current_ou_id}
-            phx-value-proposal_power_id="org.membership.start"
-            variant="primary"
-            icon="fa-solid fa-hand"
-          >
-            Nuevo miembro
-          </.app_button>
-        </div>
+    <div class="members-panel w-full min-w-0">
+      <div class="members-toolbar mb-5">
+      <div class="min-w-0 max-w-full mb-3">
+      <.filter_button_group
+      options={[
+        %{label: "Todos", value: "all"},
+        %{label: "Activos", value: "active"},
+        %{label: "Inactivos", value: "inactive"}
+      ]}
+      selected={@filter}
+      on_select="update_filter"
+      phx_target={@myself}
+      />
       </div>
+
+      <div class="members-tools">
+      <form
+      phx-submit="search"
+      phx-change="search"
+      phx-target={@myself}
+      class="members-search"
+      >
+      <.search_field
+        name="search"
+        value={@search_query}
+        placeholder="Buscar miembros"
+        search_button
+      />
+    </form>
+
+    <div class="members-create mt-3">
+      <.app_button
+        phx-click="open_proposal_create_modal"
+        phx-value-proposal_ou_origin={@app_context.current_ou_id}
+        phx-value-proposal_ou_end={@app_context.current_ou_id}
+        phx-value-proposal_power_id="org.membership.start"
+        variant="primary"
+        icon="fa-solid fa-hand"
+      >
+        Nuevo miembro
+      </.app_button>
+    </div>
+    </div>
+    </div>
 
       <div class="w-full">
         <.table
           id="membership-table"
+          responsive={true}
+          responsive_mobile_only={true}
           rows={@streams.member_list}
           page={@current_page}
           loading={@loading}
@@ -246,7 +263,10 @@ require Logger
 
           <:col :let={membership} label="Id" field={:person_id}>
 
-            <.person_id_badge id={membership.person.person_id} title={membership.person.person_name} patch={~p"/app/members/#{membership.person.person_id}"} />
+            <.person_id_badge id={membership.person.person_id}
+              title={membership.person.person_name}
+              patch={~p"/app/members/#{membership.person.person_id}?context=#{@app_context.current_ou_id}"}
+            />
 
           </:col>
 

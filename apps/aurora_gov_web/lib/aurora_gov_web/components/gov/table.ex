@@ -12,6 +12,7 @@ defmodule AuroraGov.Web.Components.Table do
   attr :table_class, :string, default: nil
   attr :loading, :boolean, default: false
   attr :responsive, :boolean, default: false
+  attr :responsive_mobile_only, :boolean, default: false
 
   # NUEVO: Target para LiveComponents
   attr :target, :any, default: nil
@@ -48,7 +49,11 @@ defmodule AuroraGov.Web.Components.Table do
     ~H"""
     <div class={[
       "flex flex-col gap-4 relative",
-      @responsive && "responsive-data-table",
+      @responsive &&
+        if(@responsive_mobile_only,
+        do: "responsive-mobile-table",
+        else: "responsive-data-table"
+        ),
       @class
     ]}>
       <div :if={@loading} class="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-[1px] rounded-lg transition-all duration-300">

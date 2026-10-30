@@ -83,47 +83,62 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
   end
 
   @impl true
-  def render(assigns) do
+    def render(assigns) do
     ~H"""
-    <div id={@id} class="h-full">
+    <div
+      id={@id}
+      class="member-detail-root h-full min-h-0 min-w-0 w-full overflow-y-auto"
+    >
       <.async_result :let={context} assign={@context}>
-        <:loading><.loading_spinner size="double_large" /></:loading>
+        <:loading>
+          <.loading_spinner size="double_large" />
+        </:loading>
 
         <:failed :let={_error}>
-          <div class="text-center py-8 flex-1 flex flex-col justify-center items-center">
+          <div class="text-center py-8 flex flex-col justify-center items-center">
             <i class="fa-solid fa-exclamation-triangle text-4xl text-gray-300 mb-4"></i>
-            <h3 class="text-lg font-medium text-gray-900 mb-2">Error al cargar</h3>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">
+              Error al cargar
+            </h3>
             <p class="text-gray-500 max-w-sm mx-auto">
               No se pudo cargar la información del miembro.
             </p>
           </div>
         </:failed>
 
-        <AuroraGov.Web.CoreComponents.side_panel_layout close_path={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}>
-          <:title_slot>
-            <div class="flex items-center gap-3">
-              <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-                <i class="fa-regular fa-user text-2xl"></i>
-              </div>
-              <div class="min-w-0">
-                <h2 class="text-xl font-bold text-gray-900 truncate">
-                  {context.person.person_name}
-                </h2>
-                <div class="mt-1">
-                  <.person_id_badge id={context.person.person_id} />
-                </div>
-              </div>
-            </div>
-          </:title_slot>
+        <div class="member-detail-layout min-w-0 w-full">
+        <div class="flex items-start gap-3 border-b border-gray-100 pb-4 mb-4">
+          <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 shrink-0">
+            <i class="fa-regular fa-user text-xl"></i>
+          </div>
+
+          <div class="min-w-0 flex-1">
+          <h2 class="text-lg font-bold text-gray-900 leading-snug [overflow-wrap:anywhere]">
+            {context.person.person_name}
+          </h2>
+
+          <p class="mt-1 text-xs text-gray-500 [overflow-wrap:anywhere]">
+            {context.person.person_id}
+          </p>
+          </div>
+
+          <.link
+          patch={AuroraGov.Web.Live.Panel.get_close_path(@socket, @app_context)}
+          aria-label="Cerrar detalle del miembro"
+          class="shrink-0 flex items-center justify-center w-10 h-10 rounded-md text-gray-400 hover:text-gray-700 hover:bg-gray-100"
+          >
+          <i class="fa-solid fa-close text-lg"></i>
+          </.link>
+          </div>
 
           <!-- Tabs -->
-          <div class="flex gap-4 border-b border-gray-200 mb-6 shrink-0">
+          <div class="member-detail-tabs border-b border-gray-200 mb-4">
             <button
               phx-click="tab_change"
               phx-value-tab="info"
               phx-target={@myself}
               class={[
-                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                "min-w-0 px-2 py-3 font-medium text-sm border-b-2 transition-colors whitespace-normal",
                 if(@active_tab == "info",
                   do: "border-aurora_orange text-aurora_orange",
                   else: "border-transparent text-gray-500 hover:text-gray-700"
@@ -137,7 +152,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
               phx-value-tab="units"
               phx-target={@myself}
               class={[
-                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                "min-w-0 px-2 py-3 font-medium text-sm border-b-2 transition-colors whitespace-normal",
                 if(@active_tab == "units",
                   do: "border-aurora_orange text-aurora_orange",
                   else: "border-transparent text-gray-500 hover:text-gray-700"
@@ -151,7 +166,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
               phx-value-tab="roles"
               phx-target={@myself}
               class={[
-                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                "min-w-0 px-2 py-3 font-medium text-sm border-b-2 transition-colors whitespace-normal",
                 if(@active_tab == "roles",
                   do: "border-aurora_orange text-aurora_orange",
                   else: "border-transparent text-gray-500 hover:text-gray-700"
@@ -165,7 +180,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
               phx-value-tab="proposals"
               phx-target={@myself}
               class={[
-                "px-4 py-2 font-medium text-sm border-b-2 transition-colors",
+                "min-w-0 px-2 py-3 font-medium text-sm border-b-2 transition-colors whitespace-normal",
                 if(@active_tab == "proposals",
                   do: "border-aurora_orange text-aurora_orange",
                   else: "border-transparent text-gray-500 hover:text-gray-700"
@@ -177,7 +192,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
           </div>
 
           <!-- Contenido -->
-          <div class="pb-6">
+          <div class="min-w-0 pb-4 [overflow-wrap:anywhere]">
             <%= case @active_tab do %>
               <% "info" -> %>
                 <div class="space-y-4">
@@ -186,9 +201,11 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
                       <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-1">
                         Correo electrónico
                       </span>
-                      <div class="flex items-center gap-2 text-sm text-gray-800 font-medium">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2 text-sm text-gray-800 font-medium">
                         <i class="fa-regular fa-envelope text-gray-400"></i>
-                        <span>{context.person.person_mail}</span>
+                        <span class="min-w-0 [overflow-wrap:anywhere]">
+                          {context.person.person_mail}
+                        </span>
                       </div>
                     </div>
 
@@ -196,7 +213,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
                       <span class="text-xs font-semibold uppercase tracking-wider text-gray-500 block mb-1">
                         Fecha de registro
                       </span>
-                      <div class="flex items-center gap-2 text-sm text-gray-800 font-medium">
+                      <div class="flex min-w-0 flex-wrap items-center gap-2 text-sm text-gray-800 font-medium">
                         <i class="fa-regular fa-calendar-days text-gray-400"></i>
                         <span>{Timex.lformat!(context.person.created_at, "{0D}/{0M}/{YYYY}", "es")}</span>
                         <span class="text-xs text-gray-400 font-normal">
@@ -222,14 +239,14 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
                         ]}
                         phx-click={JS.patch(~p"/app/members/#{@person_id}?context=#{membership.ou_id}")}
                       >
-                        <div class="flex justify-between items-start">
-                          <div class="flex flex-col">
+                        <div class="flex min-w-0 flex-wrap justify-between items-start gap-2">
+                          <div class="flex min-w-0 max-w-full flex-col">
                             <span class="font-semibold text-gray-900">{membership.ou.ou_name}</span>
                             <.ou_id_badge id={membership.ou_id} size="sm" class="mt-1" />
                           </div>
                           <.membership_status_badge status={membership.membership_status} />
                         </div>
-                        <div class="flex justify-between items-center text-sm mt-2 border-t pt-3 border-gray-100">
+                        <div class="flex flex-wrap justify-between items-center gap-2 text-sm mt-2 border-t pt-3 border-gray-100">
                           <div class="flex items-center gap-2 text-gray-500">
                             <i class="fa-solid fa-calendar-day"></i>
                             <span>Desde {Timex.lformat!(membership.created_at, "{relative}", "es", :relative)}</span>
@@ -284,7 +301,7 @@ defmodule AuroraGov.Web.Live.Panel.Side.MemberDetail do
                 </div>
             <% end %>
           </div>
-        </AuroraGov.Web.CoreComponents.side_panel_layout>
+        </div>
       </.async_result>
     </div>
     """
