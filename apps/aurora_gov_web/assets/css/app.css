@@ -110,6 +110,59 @@
   }
 }
 
+/* Propuestas: detalle con altura libre en mobile y tablet. */
+@media (max-width: 63.999rem) {
+  #panel-main-wrapper.proposal-detail-open {
+    overflow-y: auto;
+  }
+
+  .proposal-detail-open #panel-main-content {
+    flex: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .proposal-detail-open #panel-side-content {
+    height: auto;
+    min-width: 0;
+    overflow: visible;
+  }
+
+  .proposal-detail-open #panel-side-content > div {
+    flex: none;
+    height: auto;
+    overflow: visible;
+  }
+
+  .proposal-detail-open .proposal-detail-root {
+    height: auto;
+    overflow: visible;
+    overflow-wrap: anywhere;
+  }
+
+  /* Estructura generada por side_panel_layout. */
+  .proposal-detail-open .proposal-detail-root > div {
+    height: auto;
+    min-width: 0;
+  }
+
+  /* Cuerpo del detalle: información, estado y discusión. */
+  .proposal-detail-open .proposal-detail-root > div > div:last-child {
+    flex: none;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  /* Contenedores internos de las pestañas. */
+  .proposal-detail-open .proposal-detail-root .h-full {
+    height: auto;
+  }
+
+  .proposal-detail-open .proposal-detail-root .overflow-auto {
+    overflow: visible;
+  }
+}
+
 /* responsive  mobile members */
 
 /* Miembros: tabla en desktop y tarjetas en mobile. */

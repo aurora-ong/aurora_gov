@@ -155,7 +155,11 @@
       "project-detail-open",
     @app_context.current_module == "projects" &&
       @app_side_panel == nil &&
-      "projects-list-open"
+      "projects-list-open",
+    @app_side_panel != nil &&
+      @app_side_panel.view_module == AuroraGov.Web.Live.Panel.Side.ProposalDetail &&
+      "proposal-detail-open"
+  
   ]}
 >
   <div class="shrink-0 z-20 bg-white border-b border-gray-200 px-3 sm:px-6 py-3 flex flex-row items-center gap-2 sm:gap-4">
