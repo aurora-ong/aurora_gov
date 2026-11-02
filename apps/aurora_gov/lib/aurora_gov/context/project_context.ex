@@ -12,7 +12,7 @@ defmodule AuroraGov.Context.ProjectContext do
 
   def list_projects(ou_id) do
     Project
-    |> where([p], p.ou_id == ^ou_id and p.status != :archived)
+    |> where([p], p.ou_id == ^ou_id)
     |> order_by([p], desc: p.created_at)
     |> Repo.all()
     |> Repo.preload(:tasks)
@@ -34,8 +34,6 @@ defmodule AuroraGov.Context.ProjectContext do
   def get_task(task_id) do
     Repo.get(Task, task_id)
   end
-
-
 
   def count_active_tasks_by_ou(ou_id) do
     Task

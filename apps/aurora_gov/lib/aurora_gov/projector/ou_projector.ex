@@ -2,11 +2,40 @@ defmodule AuroraGov.Projector.OUProjector do
   import Ecto.Query
 
   alias AuroraGov.Event.{
+    OUCreated,
     OURenamed,
-    OUGoalUpdated
+    OUGoalUpdated,
+    OUAvatarUpdated
   }
 
   alias AuroraGov.Projector.Model.OU
+
+  def project(
+        %OUCreated{
+          ou_id: ou_id,
+          ou_name: ou_name,
+          ou_goal: ou_goal,
+          ou_description: ou_description
+        },
+        metadata,
+        multi
+      ) do
+    projection = %OU{
+      ou_id: ou_id,
+      ou_name: ou_name,
+      ou_goal: ou_goal,
+      ou_description: ou_description,
+      ou_status: :active,
+      created_at: metadata.created_at,
+      updated_at: metadata.created_at
+    }
+
+    multi
+    |> Ecto.Multi.insert(:ou_table, projection)
+    |> Ecto.Multi.run(:projector_update, fn _repo, %{ou_table: created_ou} ->
+      {:ok, {:ou_created, created_ou}}
+    end)
+  end
 
   def project(
         %OURenamed{
@@ -75,7 +104,7 @@ defmodule AuroraGov.Projector.OUProjector do
   end
 
   def project(
-        %AuroraGov.Event.OUAvatarUpdated{
+        %OUAvatarUpdated{
           ou_id: ou_id,
           ou_avatar_url: ou_avatar_url,
           file_hash: file_hash

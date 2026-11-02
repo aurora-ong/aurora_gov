@@ -25,7 +25,11 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
     socket =
       if proposal.proposal_ou_end_id == current_ou or proposal.proposal_ou_start_id == current_ou do
         proposal_with_assocs =
-          AuroraGov.Projector.Repo.preload(proposal, [:proposal_ou_start, :proposal_ou_end, :proposal_owner])
+          AuroraGov.Projector.Repo.preload(proposal, [
+            :proposal_ou_start,
+            :proposal_ou_end,
+            :proposal_owner
+          ])
 
         socket |> stream_insert(:proposal_list, proposal_with_assocs, at: 0)
       else
@@ -59,7 +63,10 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
 
     query =
       Proposal
-      |> where([p], p.proposal_ou_start_id == ^current_ou_id or p.proposal_ou_end_id == ^current_ou_id)
+      |> where(
+        [p],
+        p.proposal_ou_start_id == ^current_ou_id or p.proposal_ou_end_id == ^current_ou_id
+      )
       |> preload([:proposal_ou_start, :proposal_ou_end, :proposal_owner])
 
     filters = []
@@ -87,11 +94,13 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
     }
 
     case Flop.validate_and_run(query, flop_params) do
-      {:ok, {proposals, meta}} -> {proposals, meta}
+      {:ok, {proposals, meta}} ->
+        {proposals, meta}
+
       {:error, meta} ->
-         require Logger
-         Logger.error("Flop validation failed: #{inspect(meta)}")
-         {[], %{current_page: 1, total_pages: 0, total_count: 0}}
+        require Logger
+        Logger.error("Flop validation failed: #{inspect(meta)}")
+        {[], %{current_page: 1, total_pages: 0, total_count: 0}}
     end
   end
 
@@ -112,118 +121,140 @@ defmodule AuroraGov.Web.Live.Panel.Proposals do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full">
-      <.table
-        id="proposal-table"
-        rows={@streams.proposal_list}
-        page={@current_page}
-        loading={@loading}
-        total_pages={@total_pages}
-        total_count={@total_count}
-        target={@myself}
-        on_paginate="paginate"
-        on_sort="sort"
-        on_row_click={
-          fn proposal ->
-            params = [context: @app_context.current_ou_id]
-            JS.patch(~p"/app/proposals/#{proposal.proposal_id}?#{params}")
-          end
-        }
-      >
-        <:top_content>
-          <div class="flex flex-col md:flex-row w-full justify-between items-center mb-4 gap-2">
-            <div class="flex gap-2">
-              <.filter_button_group
-                options={[
-                  %{label: "Todas", value: "all"},
-                  %{label: "Activas", value: "active"},
-                  %{label: "Completadas", value: "consumed"}
-                ]}
-                selected={@filter}
-                on_select="update_filter"
-                phx_target={@myself}
-              />
+      <div class="flex w-full min-h-12 flex-wrap sm:flex-nowrap justify-between items-center gap-3 mb-5">
+        <.filter_button_group
+          options={[
+            %{label: "Todas", value: "all"},
+            %{label: "Activas", value: "active"},
+            %{label: "Completadas", value: "consumed"}
+          ]}
+          selected={@filter}
+          on_select="update_filter"
+          phx_target={@myself}
+        />
+
+        <div class="flex flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+          <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2 flex-1 sm:flex-initial">
+            <.search_field
+              search_button
+              name="search"
+              value={@search}
+              placeholder="Buscar propuestas..."
+            />
+          </form>
+
+          <.action_dropdown id="proposals-actions">
+            <:item
+              icon="fa-solid fa-hand"
+              label="Nueva propuesta"
+              proposal_ou_origin={@app_context.current_ou_id}
+            />
+          </.action_dropdown>
+        </div>
+      </div>
+
+      <div class="w-full">
+        <.table
+          id="proposal-table"
+          rows={@streams.proposal_list}
+          page={@current_page}
+          loading={@loading}
+          total_pages={@total_pages}
+          total_count={@total_count}
+          target={@myself}
+          on_paginate="paginate"
+          on_sort="sort"
+          on_row_click={
+            fn proposal ->
+              params = [context: @app_context.current_ou_id]
+              JS.patch(~p"/app/proposals/#{proposal.proposal_id}?#{params}")
+            end
+          }
+        >
+          <:empty_state>
+            <div class="flex flex-col items-center justify-center py-4">
+              <i class="fa-solid fa-hand text-4xl text-gray-300 mb-3"></i>
+              <h3 class="text-lg font-medium text-gray-900">No se encontraron resultados.</h3>
             </div>
+          </:empty_state>
 
-            <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2">
-              <.search_field
-                search_button
-                name="search"
-                value={@search}
-                placeholder="Buscar propuestas..."
-              />
-            </form>
-          </div>
-        </:top_content>
-
-        <:empty_state>
-          <div class="flex flex-col items-center justify-center py-4">
-            <i class="fa-solid fa-hand text-4xl text-gray-300 mb-3"></i>
-            <h3 class="text-lg font-medium text-gray-900">No se encontraron resultados.</h3>
-          </div>
-        </:empty_state>
-
-        <:col :let={proposal} label="Estado" align="center" class="align-middle">
-          <div class="flex justify-center items-center h-full">
-            <%= case proposal.proposal_status do %>
-              <% :consumed -> %>
-                <div class="flex items-center" title="Completada">
-                  <i class={"fa fa-check-circle text-3xl " <> if proposal.proposal_execution_result == :success, do: "text-green-600", else: "text-red-600"}>
-                  </i>
-                </div>
-              <% :executing -> %>
-                <div class="flex items-center" title="Ejecutando">
-                  <i class="fa-regular fa-circle text-blue-500 text-3xl animate-pulse"></i>
-                </div>
-              <% :active -> %>
-                <div class="flex items-center" title="Activa">
-                  <i class="fa fa-play-circle text-aurora_orange text-3xl"></i>
-                </div>
-              <% _ -> %>
-            <% end %>
-          </div>
-        </:col>
-
-        <:col :let={proposal} label="Propuesta">
-          <div class="flex flex-col">
-            <div class="flex-row flex">
-              <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
-                <.ou_id_badge id={proposal.proposal_ou_start_id}
-                  title={proposal.proposal_ou_start.ou_name}
-                  size="sm"
-                />
-                <span class="mx-2 text-gray-400 flex items-center">
-                  <i class="fa fa-arrow-right"></i>
-                </span>
-                <.ou_id_badge id={proposal.proposal_ou_end_id}
-                  title={proposal.proposal_ou_end.ou_name}
-                  size="sm"
-                />
-              <% else %>
-                <.ou_id_badge id={proposal.proposal_ou_end_id}
-                  title={proposal.proposal_ou_end.ou_name}
-                  size="sm"
-                />
+          <:col :let={proposal} label="Estado" align="center" class="align-middle">
+            <div class="flex justify-center items-center h-full">
+              <%= case proposal.proposal_status do %>
+                <% :consumed -> %>
+                  <div class="flex items-center" title="Completada">
+                    <i class={"fa fa-check-circle text-3xl " <> if proposal.proposal_execution_result == :success, do: "text-green-600", else: "text-red-600"}>
+                    </i>
+                  </div>
+                <% :executing -> %>
+                  <div class="flex items-center" title="Ejecutando">
+                    <i class="fa-regular fa-circle text-blue-500 text-3xl animate-pulse"></i>
+                  </div>
+                <% :active -> %>
+                  <div class="flex items-center" title="Activa">
+                    <i class="fa fa-play-circle text-aurora_orange text-3xl"></i>
+                  </div>
+                <% _ -> %>
               <% end %>
             </div>
+          </:col>
 
-            <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
-          </div>
-        </:col>
+          <:col :let={proposal} label="Propuesta">
+            <div class="flex flex-col">
+              <div class="flex-row flex">
+                <%= if proposal.proposal_ou_start_id != proposal.proposal_ou_end_id do %>
+                  <.ou_id_badge
+                    id={proposal.proposal_ou_start_id}
+                    title={proposal.proposal_ou_start.ou_name}
+                    size="sm"
+                  />
+                  <span class="mx-2 text-gray-400 flex items-center">
+                    <i class="fa fa-arrow-right"></i>
+                  </span>
+                  <.ou_id_badge
+                    id={proposal.proposal_ou_end_id}
+                    title={proposal.proposal_ou_end.ou_name}
+                    size="sm"
+                  />
+                <% else %>
+                  <.ou_id_badge
+                    id={proposal.proposal_ou_end_id}
+                    title={proposal.proposal_ou_end.ou_name}
+                    size="sm"
+                  />
+                <% end %>
+              </div>
 
-        <:col :let={proposal} label="Fecha" align="center">
-          <p class="text-md text-gray-600 font-normal">
-            {Timex.lformat!(proposal.created_at, "{relative}", "es", :relative)}
-          </p>
-        </:col>
+              <h3 class="text-lg text-black">{proposal.proposal_title}</h3>
+            </div>
+          </:col>
 
-        <:col :let={proposal} label="Responsable" align="center">
-          <.person_id_badge class="mx-auto" id={proposal.proposal_owner.person_id} title={proposal.proposal_owner.person_name} patch={~p"/app/members/#{proposal.proposal_owner.person_id}"} />
-        </:col>
+          <:col :let={proposal} label="Fecha" align="center">
+            <p class="text-md text-gray-600 font-normal">
+              {Timex.lformat!(proposal.created_at, "{relative}", "es", :relative)}
+            </p>
+          </:col>
 
-        <:col :let={proposal} label="Poder" align="center">
-          <.power_id_badge class="mx-auto" id={proposal.proposal_power_id} title={AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name} />
-        </:col>
-      </.table>
+          <:col :let={proposal} label="Responsable" align="center">
+            <.person_id_badge
+              class="mx-auto"
+              id={proposal.proposal_owner.person_id}
+              title={proposal.proposal_owner.person_name}
+              patch={~p"/app/members/#{proposal.proposal_owner.person_id}"}
+            />
+          </:col>
+
+          <:col :let={proposal} label="Poder" align="center">
+            <.power_id_badge
+              class="mx-auto"
+              id={proposal.proposal_power_id}
+              title={
+                AuroraGov.Context.GovPowerContext.get_gov_power!(proposal.proposal_power_id).name
+              }
+            />
+          </:col>
+        </.table>
+      </div>
     </div>
     """
   end

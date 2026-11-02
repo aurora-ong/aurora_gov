@@ -170,6 +170,7 @@ defmodule AuroraGov.Web.Components.MishkaComponents do
       import AuroraGov.Web.Components.UrlField, only: [url_field: 1]
       import AuroraGov.Web.Components.Video, only: [video: 1]
 
+      import AuroraGov.Web.Components.ActionDropdown
       import AuroraGov.Web.Components.FilterButtonGroup
       import AuroraGov.Web.Components.ProposalVoteProgress
       import AuroraGov.Web.Components.Table

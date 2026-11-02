@@ -91,8 +91,8 @@ defmodule AuroraGov.Web.Live.Panel.Power do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="h-full w-full p-6">
-      <div class="flex w-full h-12 flex-row justify-between mb-5 items-center">
+    <div class="w-full h-full">
+      <div class="flex w-full min-h-12 flex-row justify-between items-center gap-3 mb-5">
         <.filter_button_group
           options={[
             %{label: "Todos", value: "all"},
@@ -113,7 +113,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
 
         <:failed :let={_failure}>error loading</:failed>
 
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid w-full min-w-0 grid-cols-1 gap-4 md:grid-cols-2 2xl:grid-cols-3">
           <%= for power <- filter_powers(ou_power_list, @filter) do %>
             <.live_component
               module={AuroraGov.Web.Components.Power.PowerCardComponent}
@@ -134,6 +134,7 @@ defmodule AuroraGov.Web.Live.Panel.Power do
   end
 
   defp filter_powers(ou_power_list, "all"), do: ou_power_list
+
   defp filter_powers(ou_power_list, category) do
     Enum.filter(ou_power_list, fn power ->
       power.power_info && to_string(power.power_info.category) == to_string(category)

@@ -120,30 +120,27 @@ defmodule AuroraGov.Web.Live.Panel.Roles do
   def render(assigns) do
     ~H"""
     <div class="w-full h-full">
-      <div class="flex w-full h-12 flex-row justify-between mb-5 items-center">
-        <div class="flex flex-row items-center gap-6">
-          <.filter_button_group
-            options={[
-              %{label: "Todos", value: "all"},
-              %{label: "Activos", value: "active"},
-              %{label: "Inactivos", value: "archived"}
-            ]}
-            selected={@filter}
-            on_select="update_filter"
-            phx_target={@myself}
-          />
-        </div>
-        <div class="flex flex-row gap-3">
-          <.app_button
-            phx-click="open_proposal_create_modal"
-            phx-value-proposal_ou_origin={@app_context.current_ou_id}
-            phx-value-proposal_ou_end={@app_context.current_ou_id}
-            phx-value-proposal_power_id="org.role.create"
-            variant="primary"
-            icon="fa-solid fa-plus"
-          >
-            Nuevo rol
-          </.app_button>
+      <div class="flex w-full min-h-12 flex-row justify-between items-center gap-3 mb-5">
+        <.filter_button_group
+          options={[
+            %{label: "Todos", value: "all"},
+            %{label: "Activos", value: "active"},
+            %{label: "Inactivos", value: "archived"}
+          ]}
+          selected={@filter}
+          on_select="update_filter"
+          phx_target={@myself}
+        />
+        <div class="flex flex-row items-center gap-2 sm:gap-3 shrink-0">
+          <.action_dropdown id="roles-actions">
+            <:item
+              icon="fa-solid fa-plus"
+              label="Nuevo rol"
+              proposal_ou_origin={@app_context.current_ou_id}
+              proposal_ou_end={@app_context.current_ou_id}
+              proposal_power_id="org.role.create"
+            />
+          </.action_dropdown>
         </div>
       </div>
 

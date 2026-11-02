@@ -9,24 +9,74 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   import AuroraGov.Web.ToastHelper
 
   # ===========================================================================
-  # 1. ORGANIZACIÓN (OU)
+  # 1. ORGANIZACIÓN (OU) Y PERSONAS
   # ===========================================================================
+
+  def handle_event({:ou_created, ou}, socket) do
+    put_toast(
+      socket,
+      "success",
+      "Se creó la unidad #{ou.ou_name} (#{ou.ou_id}).",
+      "Nueva unidad",
+      "fa-sitemap"
+    )
+  end
+
+  def handle_event({:person_registered, person}, socket) do
+    put_toast(
+      socket,
+      "success",
+      "#{person.person_name} (#{person.person_id}) se registró en la plataforma.",
+      "Nueva persona registrada",
+      "fa-user-plus"
+    )
+  end
 
   def handle_event({type, ou}, socket)
       when type in [:ou_renamed, :ou_goal_updated, :ou_avatar_updated] do
     if socket.assigns.app_context.current_ou_id == ou.ou_id do
       case type do
         :ou_renamed ->
-          send_update(AuroraGov.Web.Live.Panel.Header, id: "header", app_context: socket.assigns.app_context)
-          put_toast(socket, "info", "Ahora se llama #{ou.ou_name}.", "Organización renombrada", "fa-sitemap")
+          send_update(AuroraGov.Web.Live.Panel.Header,
+            id: "header",
+            app_context: socket.assigns.app_context
+          )
+
+          put_toast(
+            socket,
+            "info",
+            "Ahora se llama #{ou.ou_name}.",
+            "Organización renombrada",
+            "fa-sitemap"
+          )
 
         :ou_goal_updated ->
-          send_update(AuroraGov.Web.Live.Panel.Home, id: "panel-home", app_context: socket.assigns.app_context)
-          put_toast(socket, "info", "#{ou.ou_name} tiene un nuevo objetivo.", "Objetivo actualizado", "fa-bullseye")
+          send_update(AuroraGov.Web.Live.Panel.Home,
+            id: "panel-home",
+            app_context: socket.assigns.app_context
+          )
+
+          put_toast(
+            socket,
+            "info",
+            "#{ou.ou_name} tiene un nuevo objetivo.",
+            "Objetivo actualizado",
+            "fa-bullseye"
+          )
 
         :ou_avatar_updated ->
-          send_update(AuroraGov.Web.Live.Panel.Header, id: "header", app_context: socket.assigns.app_context)
-          put_toast(socket, "info", "Se actualizó el avatar de #{ou.ou_name}.", "Avatar actualizado", "fa-sitemap")
+          send_update(AuroraGov.Web.Live.Panel.Header,
+            id: "header",
+            app_context: socket.assigns.app_context
+          )
+
+          put_toast(
+            socket,
+            "info",
+            "Se actualizó el avatar de #{ou.ou_name}.",
+            "Avatar actualizado",
+            "fa-sitemap"
+          )
       end
     else
       socket
@@ -38,23 +88,65 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
   # ===========================================================================
 
   def handle_event({type, data}, socket)
-      when type in [:membership_started, :membership_promoted, :membership_demoted, :membership_revoked] do
+      when type in [
+             :membership_started,
+             :membership_promoted,
+             :membership_demoted,
+             :membership_revoked
+           ] do
     case type do
       :membership_started ->
         send_update(AuroraGov.Web.Live.Panel.Members, id: "panel-members", new_membership: data)
-        put_toast(socket, "success", "#{data.person.person_name} se unió a #{data.ou.ou_name}.", "Nuevo miembro", "fa-users-between-lines")
+
+        put_toast(
+          socket,
+          "success",
+          "#{data.person.person_name} se unió a #{data.ou.ou_name}.",
+          "Nuevo miembro",
+          "fa-users-between-lines"
+        )
 
       :membership_promoted ->
-        send_update(AuroraGov.Web.Live.Panel.Members, id: "panel-members", updated_membership: data)
-        put_toast(socket, "info", "#{data.person.person_name} ahora es #{data.membership_rank} en #{data.ou.ou_name}.", "Cambio de rango", "fa-users-between-lines")
+        send_update(AuroraGov.Web.Live.Panel.Members,
+          id: "panel-members",
+          updated_membership: data
+        )
+
+        put_toast(
+          socket,
+          "info",
+          "#{data.person.person_name} ahora es #{data.membership_rank} en #{data.ou.ou_name}.",
+          "Cambio de rango",
+          "fa-users-between-lines"
+        )
 
       :membership_demoted ->
-        send_update(AuroraGov.Web.Live.Panel.Members, id: "panel-members", updated_membership: data)
-        put_toast(socket, "info", "#{data.person.person_name} ahora es #{data.membership_rank} en #{data.ou.ou_name}.", "Cambio de rango", "fa-users-between-lines")
+        send_update(AuroraGov.Web.Live.Panel.Members,
+          id: "panel-members",
+          updated_membership: data
+        )
+
+        put_toast(
+          socket,
+          "info",
+          "#{data.person.person_name} ahora es #{data.membership_rank} en #{data.ou.ou_name}.",
+          "Cambio de rango",
+          "fa-users-between-lines"
+        )
 
       :membership_revoked ->
-        send_update(AuroraGov.Web.Live.Panel.Members, id: "panel-members", revoked_membership: %{person_id: data.person_id, ou_id: data.ou_id})
-        put_toast(socket, "info", "La membresía de #{data.person_id} fue revocada en #{data.ou_id}.", "Membresía revocada", "fa-users-slash")
+        send_update(AuroraGov.Web.Live.Panel.Members,
+          id: "panel-members",
+          revoked_membership: %{person_id: data.person_id, ou_id: data.ou_id}
+        )
+
+        put_toast(
+          socket,
+          "info",
+          "La membresía de #{data.person_id} fue revocada en #{data.ou_id}.",
+          "Membresía revocada",
+          "fa-users-slash"
+        )
     end
   end
 
@@ -83,7 +175,10 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
 
   def handle_event({type, data} = update, socket)
       when type in [:power_updated, :power_delegation_activated, :power_delegation_deactivated] do
-    send_update(AuroraGov.Web.Live.Panel.Side.PowerDetail, id: "power-detail-#{data.power_id}", update: update)
+    send_update(AuroraGov.Web.Live.Panel.Side.PowerDetail,
+      id: "power-detail-#{data.power_id}",
+      update: update
+    )
 
     case type do
       :power_updated ->
@@ -103,21 +198,45 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
       when type in [:proposal_created, :vote_emited, :proposal_executing, :proposal_consumed] do
     case type do
       :proposal_created ->
-        send_update(AuroraGov.Web.Live.Panel.Proposals, id: "panel-proposal", proposal_event: update)
+        send_update(AuroraGov.Web.Live.Panel.Proposals,
+          id: "panel-proposal",
+          proposal_event: update
+        )
+
         put_toast(socket, "success", "#{data.proposal_title}", "Nueva propuesta", "fa-hand")
 
       :vote_emited ->
-        send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail, id: "panel-proposal-#{data.proposal_id}", update: update)
+        send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
+          id: "panel-proposal-#{data.proposal_id}",
+          update: update
+        )
+
         put_toast(socket, "info", "Se emitió un voto en una propuesta.", "Nuevo voto", "fa-check-to-slot")
 
       :proposal_executing ->
-        send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail, id: "panel-proposal-#{data.proposal_id}", update: update)
-        send_update(AuroraGov.Web.Live.Panel.Proposals, id: "panel-proposal", proposal_event: update)
+        send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
+          id: "panel-proposal-#{data.proposal_id}",
+          update: update
+        )
+
+        send_update(AuroraGov.Web.Live.Panel.Proposals,
+          id: "panel-proposal",
+          proposal_event: update
+        )
+
         # put_toast(socket, "info", "#{data.proposal_title}", "Promulgando propuesta", "fa-hand")
         socket
+
       :proposal_consumed ->
-        send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail, id: "panel-proposal-#{data.proposal_id}", update: update)
-        send_update(AuroraGov.Web.Live.Panel.Proposals, id: "panel-proposal", proposal_event: update)
+        send_update(AuroraGov.Web.Live.Panel.Side.ProposalDetail,
+          id: "panel-proposal-#{data.proposal_id}",
+          update: update
+        )
+
+        send_update(AuroraGov.Web.Live.Panel.Proposals,
+          id: "panel-proposal",
+          proposal_event: update
+        )
 
         {kind, title, icon} =
           if Map.get(data, :proposal_execution_result) == "failed",
@@ -146,7 +265,11 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
              :task_cancelled
            ] do
     send_update(AuroraGov.Web.Live.Panel.Projects, id: "panel-projects", project_event: event)
-    send_update(AuroraGov.Web.Live.Panel.Side.ProjectDetail, id: "panel-project-#{data.project_id}", update: event)
+
+    send_update(AuroraGov.Web.Live.Panel.Side.ProjectDetail,
+      id: "panel-project-#{data.project_id}",
+      update: event
+    )
 
     {kind, title, msg} =
       case type do
@@ -182,12 +305,19 @@ defmodule AuroraGov.Web.Panel.EventRouter.ProjectorUpdate do
           {"info", "Recurso actualizado", "#{data.name}", "fa-piggy-bank"}
 
         :ledger_created ->
-          send_update(AuroraGov.Web.Live.Panel.Side.LedgerDetail, id: "panel-ledger-#{data.ledger_id}", update: event)
+          send_update(AuroraGov.Web.Live.Panel.Side.LedgerDetail,
+            id: "panel-ledger-#{data.ledger_id}",
+            update: event
+          )
+
           {"success", "Cuenta contable creada", "#{data.name}", "fa-book"}
 
         :transaction_recorded ->
           if data.reference_id do
-            send_update(AuroraGov.Web.Live.Panel.Side.LedgerDetail, id: "panel-ledger-#{data.reference_id}", update: event)
+            send_update(AuroraGov.Web.Live.Panel.Side.LedgerDetail,
+              id: "panel-ledger-#{data.reference_id}",
+              update: event
+            )
           end
 
           {"info", "Nueva transacción", "Transacción registrada en el libro mayor.", "fa-receipt"}

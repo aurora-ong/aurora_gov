@@ -7,13 +7,11 @@ defmodule AuroraGov.Projector do
 
   require Logger
 
-  alias AuroraGov.Projector.PowerDelegationProjector
-  alias AuroraGov.Event.PowerDelegationActivated
-  alias AuroraGov.Event.VoteEmited
-
   alias AuroraGov.Projector.{
+    PersonProjector,
     MembershipProjector,
     PowerProjector,
+    PowerDelegationProjector,
     ProposalProjector,
     OURoleProjector,
     OUProjector,
@@ -21,21 +19,22 @@ defmodule AuroraGov.Projector do
     LedgerProjector
   }
 
-  alias AuroraGov.Projector.{MembershipProjector, PowerProjector, ProposalProjector, OURoleProjector, ProjectProjector, LedgerProjector}
-  alias AuroraGov.Event.PowerUpdated
-
   alias AuroraGov.Event.{
     PersonRegistered,
     OUCreated,
     OURenamed,
     OUGoalUpdated,
+    OUAvatarUpdated,
     MembershipStarted,
     ProposalCreated,
     ProposalExecuted,
     ProposalConsumed,
+    VoteEmited,
     MembershipPromoted,
     MembershipDemoted,
     MembershipRevoked,
+    PowerUpdated,
+    PowerDelegationActivated,
     PowerDelegationDeactivated,
     OURoleCreated,
     OURoleAssigned,
@@ -58,53 +57,15 @@ defmodule AuroraGov.Projector do
     TransactionRecorded
   }
 
-  alias AuroraGov.Projector.Model.{Person, OU}
+  project(%PersonRegistered{} = evt, metadata, &PersonProjector.project(evt, metadata, &1))
 
-  project(
-    %PersonRegistered{
-      person_id: person_id,
-      person_name: person_name,
-      person_mail: person_mail,
-      person_secret: person_secret
-    },
-    metadata,
-    fn multi ->
-      projection = %Person{
-        person_id: person_id,
-        person_name: person_name,
-        person_mail: person_mail,
-        person_secret: person_secret,
-        created_at: metadata.created_at,
-        updated_at: metadata.created_at
-      }
-
-      Ecto.Multi.insert(multi, :person_table, projection)
-    end
-  )
-
-  project(
-    %OUCreated{ou_id: ou_id, ou_name: ou_name, ou_goal: ou_goal, ou_description: ou_description},
-    metadata,
-    fn multi ->
-      projection = %OU{
-        ou_id: ou_id,
-        ou_name: ou_name,
-        ou_goal: ou_goal,
-        ou_description: ou_description,
-        ou_status: :active,
-        created_at: metadata.created_at,
-        updated_at: metadata.created_at
-      }
-
-      Ecto.Multi.insert(multi, :ou_table, projection)
-    end
-  )
+  project(%OUCreated{} = evt, metadata, &OUProjector.project(evt, metadata, &1))
 
   project(%OURenamed{} = evt, metadata, &OUProjector.project(evt, metadata, &1))
 
   project(%OUGoalUpdated{} = evt, metadata, &OUProjector.project(evt, metadata, &1))
 
-  project(%AuroraGov.Event.OUAvatarUpdated{} = evt, metadata, &OUProjector.project(evt, metadata, &1))
+  project(%OUAvatarUpdated{} = evt, metadata, &OUProjector.project(evt, metadata, &1))
 
   project(%MembershipStarted{} = evt, metadata, &MembershipProjector.project(evt, metadata, &1))
 
@@ -124,9 +85,17 @@ defmodule AuroraGov.Projector do
 
   project(%PowerUpdated{} = evt, metadata, &PowerProjector.project(evt, metadata, &1))
 
-  project(%PowerDelegationActivated{} = evt,metadata,&PowerDelegationProjector.project(evt, metadata, &1))
+  project(
+    %PowerDelegationActivated{} = evt,
+    metadata,
+    &PowerDelegationProjector.project(evt, metadata, &1)
+  )
 
-  project(%PowerDelegationDeactivated{} = evt,metadata,&PowerDelegationProjector.project(evt, metadata, &1))
+  project(
+    %PowerDelegationDeactivated{} = evt,
+    metadata,
+    &PowerDelegationProjector.project(evt, metadata, &1)
+  )
 
   project(%OURoleCreated{} = evt, metadata, &OURoleProjector.project(evt, metadata, &1))
 
@@ -153,6 +122,7 @@ defmodule AuroraGov.Projector do
   project(%ResourceUpdated{} = evt, metadata, &LedgerProjector.project(evt, metadata, &1))
   project(%LedgerCreated{} = evt, metadata, &LedgerProjector.project(evt, metadata, &1))
   project(%TransactionRecorded{} = evt, metadata, &LedgerProjector.project(evt, metadata, &1))
+
   @impl Commanded.Projections.Ecto
   def after_update(event, _metadata, %{projector_update: projector_update}) do
     Logger.debug(

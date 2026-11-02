@@ -4,6 +4,7 @@ defmodule AuroraGov.Web.Components.FilterButtonGroup do
 
   @doc """
   Renderiza un grupo de botones para filtros de tabla, usando los colores aurora_orange, negro y gris.
+  Soporta desplazamiento horizontal (scroll) responsivo en móviles o cuando los botones superan el ancho disponible.
 
   ## Ejemplo
 
@@ -20,33 +21,39 @@ defmodule AuroraGov.Web.Components.FilterButtonGroup do
   attr :options, :list, required: true, doc: "Lista de %{label, value} para los botones"
   attr :selected, :any, required: true, doc: "Valor seleccionado"
   attr :on_select, :any, required: true, doc: "Función o evento a disparar al seleccionar"
-  attr :class, :string, default: "", doc: "Clases CSS adicionales"
+  attr :class, :string, default: "", doc: "Clases CSS adicionales para el contenedor"
+  attr :group_class, :string, default: "", doc: "Clases CSS adicionales para el grupo de botones"
   attr :phx_target, :any, default: nil, doc: "Target opcional para el evento phx-click"
 
   def filter_button_group(assigns) do
     ~H"""
-    <.button_group class={
-      "rounded-lg overflow-hidden shadow-sm bg-gray-100 p-0 gap-0 border border-gray-200 " <>
+    <div class={
+      "overflow-x-auto max-w-full min-w-0 py-0.5 scroll-smooth overscroll-x-contain no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden " <>
       @class
     }>
-      <%= for {opt, _idx} <- Enum.with_index(@options) do %>
-        <.button
-          type="button"
-          class={
-            "transition-colors duration-150 !font-medium !text-sm px-4 py-2 max-sm:px-3 focus:z-10 focus:outline-none border-0 " <>
-            if(@selected == opt.value,
-              do: " bg-aurora_orange! text-white",
-              else: "bg-gray-400 text-black hover:bg-gray-500 hover:text-white"
-            )
-          }
-          phx-click={@on_select}
-          phx-value-filter={opt.value}
-          {if @phx_target, do: ["phx-target": @phx_target], else: []}
-        >
-          {opt.label}
-        </.button>
-      <% end %>
-    </.button_group>
+      <.button_group class={
+        "rounded-lg overflow-hidden shadow-sm bg-gray-100 p-0 gap-0 border border-gray-200 min-w-max flex-nowrap shrink-0 " <>
+        @group_class
+      }>
+        <%= for {opt, _idx} <- Enum.with_index(@options) do %>
+          <.button
+            type="button"
+            class={
+              "transition-colors duration-150 !font-medium !text-sm px-4 py-2 max-sm:px-3 focus:z-10 focus:outline-none border-0 shrink-0 whitespace-nowrap " <>
+              if(@selected == opt.value,
+                do: " bg-aurora_orange! text-white",
+                else: "bg-gray-400 text-black hover:bg-gray-500 hover:text-white"
+              )
+            }
+            phx-click={@on_select}
+            phx-value-filter={opt.value}
+            {if @phx_target, do: ["phx-target": @phx_target], else: []}
+          >
+            {opt.label}
+          </.button>
+        <% end %>
+      </.button_group>
+    </div>
     """
   end
 end

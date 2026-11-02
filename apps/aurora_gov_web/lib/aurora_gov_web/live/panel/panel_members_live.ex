@@ -1,5 +1,5 @@
 defmodule AuroraGov.Web.Live.Panel.Members do
-require Logger
+  require Logger
   use AuroraGov.Web, :live_component
   alias AuroraGov.Context.MembershipContext
 
@@ -65,7 +65,9 @@ require Logger
 
   @impl true
   def update(assigns, socket) do
-    needs_reload = !Map.has_key?(socket.assigns, :app_context) or socket.assigns.app_context.current_ou_id != assigns.app_context.current_ou_id
+    needs_reload =
+      !Map.has_key?(socket.assigns, :app_context) or
+        socket.assigns.app_context.current_ou_id != assigns.app_context.current_ou_id
 
     socket =
       socket
@@ -84,9 +86,14 @@ require Logger
 
     filters =
       case socket.assigns[:filter] do
-        "active" -> [%{"field" => "membership_status", "op" => "==", "value" => "active"} | filters]
-        "inactive" -> [%{"field" => "membership_status", "op" => "!=", "value" => "active"} | filters]
-        _ -> filters
+        "active" ->
+          [%{"field" => "membership_status", "op" => "==", "value" => "active"} | filters]
+
+        "inactive" ->
+          [%{"field" => "membership_status", "op" => "!=", "value" => "active"} | filters]
+
+        _ ->
+          filters
       end
 
     filters =
@@ -113,8 +120,6 @@ require Logger
 
   @impl true
   def handle_async(:load_data, {:ok, {:ok, {members, meta}}}, socket) do
-
-
     socket =
       socket
       |> assign(:loading, false)
@@ -183,7 +188,7 @@ require Logger
   def render(assigns) do
     ~H"""
     <div class="w-full h-full">
-      <div class="flex w-full h-12 flex-row justify-between mb-5">
+      <div class="flex w-full min-h-12 flex-wrap sm:flex-nowrap justify-between items-center gap-3 mb-5">
         <.filter_button_group
           options={[
             %{label: "Todos", value: "all"},
@@ -194,21 +199,20 @@ require Logger
           on_select="update_filter"
           phx_target={@myself}
         />
-        <div class="flex flex-row gap-3">
-          <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2">
+        <div class="flex flex-row items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+          <form phx-submit="search" phx-change="search" phx-target={@myself} class="flex items-center gap-2 flex-1 sm:flex-initial">
             <.search_field name="search" value={@search_query} placeholder="Buscar miembros..." search_button />
           </form>
 
-          <.app_button
-            phx-click="open_proposal_create_modal"
-            phx-value-proposal_ou_origin={@app_context.current_ou_id}
-            phx-value-proposal_ou_end={@app_context.current_ou_id}
-            phx-value-proposal_power_id="org.membership.start"
-            variant="primary"
-            icon="fa-solid fa-hand"
-          >
-            Nuevo miembro
-          </.app_button>
+          <.action_dropdown id="members-actions">
+            <:item
+              icon="fa-solid fa-hand"
+              label="Nuevo miembro"
+              proposal_ou_origin={@app_context.current_ou_id}
+              proposal_ou_end={@app_context.current_ou_id}
+              proposal_power_id="org.membership.start"
+            />
+          </.action_dropdown>
         </div>
       </div>
 
@@ -223,8 +227,8 @@ require Logger
           target={@myself}
           selected_dom_id={
             if assigns[:app_side_panel] && assigns[:app_side_panel].view_id =~ "panel-member-",
-            do: "member-" <> assigns[:app_side_panel].view_params.person_id,
-            else: nil
+              do: "member-" <> assigns[:app_side_panel].view_params.person_id,
+              else: nil
           }
           on_paginate="paginate"
           on_sort="sort"
@@ -235,8 +239,6 @@ require Logger
             end
           }
         >
-          <:top_content></:top_content>
-
           <:empty_state>
             <div class="flex flex-col items-center justify-center py-4">
               <i class="fa-solid fa-users-between-lines text-4xl text-gray-300 mb-3"></i>
@@ -245,9 +247,7 @@ require Logger
           </:empty_state>
 
           <:col :let={membership} label="Id" field={:person_id}>
-
             <.person_id_badge id={membership.person.person_id} title={membership.person.person_name} patch={~p"/app/members/#{membership.person.person_id}"} />
-
           </:col>
 
           <:col :let={membership} label="Nombre" field={:person_name}>

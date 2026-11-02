@@ -99,7 +99,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         size="quadruple_large"
         on_cancel={JS.push("app_modal_close", value: %{modal: @id})}
       >
-        <div class="w-full flex flex-col justify-start items-start">
+        <div class="w-full min-w-0 max-w-full flex flex-col justify-start items-stretch">
           <%= case @step do %>
             <% 0 -> %>
               <.step_0 {assigns} />
@@ -129,10 +129,10 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
         phx-submit="step_0_next"
         phx-change="step_0_validate"
         phx-target={@myself}
-        class="w-full"
+        class="w-full min-w-0 max-w-full"
       >
-        <div class="flex flex-row gap-4 justify-between items-start flex-nowrap">
-          <div class="flex flex-col gap-5 basis-1/2">
+        <div class="flex w-full min-w-0 flex-col gap-4 items-stretch lg:flex-row lg:items-start">
+          <div class="flex w-full min-w-0 flex-col gap-5 lg:w-auto lg:flex-1">
             <.live_component
               module={AuroraGov.Web.OUSelectorComponent}
               parent_module={__MODULE__}
@@ -147,8 +147,8 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
               phx-target={@myself}
             />
           </div>
-           <i class="fa-solid fa-arrow-right text-6xl mx-10 self-center"></i>
-          <div class="flex flex-col basis-1/2 gap-5 justify-center">
+          <i class="fa-solid fa-arrow-right text-2xl rotate-90 self-center shrink-0 lg:rotate-0 lg:text-3xl" aria-hidden="true"></i>
+          <div class="flex w-full min-w-0 flex-col gap-5 justify-center lg:w-auto lg:flex-1">
             <.live_component
               module={AuroraGov.Web.OUSelectorComponent}
               parent_module={__MODULE__}
@@ -164,7 +164,7 @@ defmodule AuroraGov.Web.Live.Panel.ProposalCreate do
           </div>
         </div>
 
-        <div class="py-6">
+        <div class="w-full min-w-0 max-w-full py-6">
           <.combobox
             searchable
             label="Acción"

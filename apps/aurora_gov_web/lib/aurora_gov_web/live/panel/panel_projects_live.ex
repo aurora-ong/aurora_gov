@@ -8,6 +8,7 @@ defmodule AuroraGov.Web.Live.Panel.Projects do
     socket =
       socket
       |> assign(:projects, [])
+      |> assign(:filter, "all")
       |> assign(:loading, true)
 
     {:ok, socket}
@@ -34,6 +35,11 @@ defmodule AuroraGov.Web.Live.Panel.Projects do
       |> load_projects()
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("update_filter", %{"filter" => filter}, socket) do
+    {:noreply, assign(socket, :filter, filter)}
   end
 
   defp load_projects(socket) do
@@ -69,24 +75,32 @@ defmodule AuroraGov.Web.Live.Panel.Projects do
 
   @impl true
   def render(assigns) do
+    filtered_projects = filter_projects(assigns.projects, assigns.filter)
+    assigns = assign(assigns, :filtered_projects, filtered_projects)
+
     ~H"""
     <div class="w-full h-full">
-      <div class="flex w-full flex-row justify-between mb-8 items-center border-b border-gray-100 pb-4">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-800">Proyectos</h2>
-          <p class="text-sm text-gray-500">Gestión de carpetas de productos y esfuerzos institucionales</p>
-        </div>
-        <div class="flex flex-row gap-3">
-          <.app_button
-            phx-click="open_proposal_create_modal"
-            phx-value-proposal_ou_origin={@app_context.current_ou_id}
-            phx-value-proposal_ou_end={@app_context.current_ou_id}
-            phx-value-proposal_power_id="org.project.create"
-            variant="primary"
-            icon="fa-solid fa-plus"
-          >
-            Nuevo Proyecto
-          </.app_button>
+      <div class="flex w-full min-h-12 flex-row justify-between items-center gap-3 mb-5">
+        <.filter_button_group
+          options={[
+            %{label: "Todos", value: "all"},
+            %{label: "Activos", value: "active"},
+            %{label: "Archivados", value: "archived"}
+          ]}
+          selected={@filter}
+          on_select="update_filter"
+          phx_target={@myself}
+        />
+        <div class="flex flex-row items-center gap-2 sm:gap-3 shrink-0">
+          <.action_dropdown id="projects-actions">
+            <:item
+              icon="fa-solid fa-plus"
+              label="Nuevo Proyecto"
+              proposal_ou_origin={@app_context.current_ou_id}
+              proposal_ou_end={@app_context.current_ou_id}
+              proposal_power_id="org.project.create"
+            />
+          </.action_dropdown>
         </div>
       </div>
 
@@ -95,15 +109,15 @@ defmodule AuroraGov.Web.Live.Panel.Projects do
           <.loading_spinner size="double_large" />
         </div>
       <% else %>
-        <%= if Enum.empty?(@projects) do %>
+        <%= if Enum.empty?(@filtered_projects) do %>
           <div class="flex flex-col items-center justify-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
             <i class="fa-solid fa-briefcase text-5xl text-gray-300 mb-4"></i>
-            <h3 class="text-lg font-semibold text-gray-700">No hay proyectos activos</h3>
+            <h3 class="text-lg font-semibold text-gray-700">No se encontraron proyectos</h3>
             <p class="text-sm text-gray-400 mt-1 mb-6">Crea una propuesta de gobernanza para iniciar un proyecto.</p>
           </div>
         <% else %>
           <div class="flex flex-col gap-6">
-            <%= for project <- @projects do %>
+            <%= for project <- @filtered_projects do %>
               <div class="flex flex-col bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-200 overflow-hidden">
                 <div class="p-6 flex-1 flex flex-col">
                   <.link
@@ -135,8 +149,6 @@ defmodule AuroraGov.Web.Live.Panel.Projects do
                       <div class="text-sm font-black text-aurora_orange">{Enum.count(project.tasks, fn t -> t.status == :in_progress end)}</div>
                     </div>
                   </div>
-
-
                 </div>
               </div>
             <% end %>
@@ -145,5 +157,11 @@ defmodule AuroraGov.Web.Live.Panel.Projects do
       <% end %>
     </div>
     """
+  end
+
+  defp filter_projects(projects, "all"), do: projects
+
+  defp filter_projects(projects, status) do
+    Enum.filter(projects, fn p -> to_string(p.status) == status end)
   end
 end
