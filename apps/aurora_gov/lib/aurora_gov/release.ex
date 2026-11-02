@@ -42,6 +42,7 @@ defmodule AuroraGov.Release do
       Logger.info("Seed ejecutado correctamente.")
     else
       Logger.error("Archivo de seed no encontrado: #{seeds_file}")
+      raise "Archivo de seed no encontrado: #{seeds_file}"
     end
 
     :ok
@@ -61,7 +62,11 @@ defmodule AuroraGov.Release do
     Logger.info("DB Drop...")
 
     for repo <- repos() do
-      case repo.__adapter__().storage_down(repo.config()) do
+      repo_config = repo.config()
+      db_name = Keyword.get(repo_config, :database)
+      if db_name, do: terminate_connections(repo_config, db_name)
+
+      case repo.__adapter__().storage_down(repo_config) do
         :ok ->
           Logger.info("Base de datos eliminada para #{inspect(repo)}")
 
@@ -74,6 +79,8 @@ defmodule AuroraGov.Release do
     end
 
     config = AuroraGov.EventStore.config()
+    es_db = Keyword.get(config, :database)
+    if es_db, do: terminate_connections(config, es_db)
     :ok = EventStore.Tasks.Drop.exec(config, [])
   end
 
@@ -114,5 +121,29 @@ defmodule AuroraGov.Release do
     Application.load(@app)
     {:ok, _} = Application.ensure_all_started(:postgrex)
     {:ok, _} = Application.ensure_all_started(:ssl)
+  end
+
+  defp terminate_connections(config, database) do
+    maintenance_config =
+      config
+      |> Keyword.put(:database, "postgres")
+      |> Keyword.delete(:name)
+      |> Keyword.put(:pool_size, 1)
+
+    case Postgrex.start_link(maintenance_config) do
+      {:ok, pid} ->
+        _ = Postgrex.query(pid, "ALTER DATABASE \"#{database}\" WITH ALLOW_CONNECTIONS false;", [])
+        _ = Postgrex.query(pid, "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid();", [database])
+        GenServer.stop(pid)
+        :ok
+
+      {:error, reason} ->
+        Logger.warning("No se pudieron cerrar conexiones activas para #{database}: #{inspect(reason)}")
+        :ok
+    end
+  rescue
+    e ->
+      Logger.warning("Excepción cerrando conexiones activas para #{database}: #{inspect(e)}")
+      :ok
   end
 end

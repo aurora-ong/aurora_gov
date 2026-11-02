@@ -1,4 +1,11 @@
-{{- if or .Values.seed.enabled .Values.seed.name }}
+{{- $hooks := list -}}
+{{- if .Values.seed.onCreate -}}
+  {{- $hooks = append $hooks "post-install" -}}
+{{- end -}}
+{{- if .Values.seed.onUpgrade -}}
+  {{- $hooks = append $hooks "post-upgrade" -}}
+{{- end -}}
+{{- if and (or .Values.seed.enabled .Values.seed.name) (gt (len $hooks) 0) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -8,7 +15,7 @@ metadata:
     {{- include "aurora-gov.labels" . | nindent 4 }}
     app.kubernetes.io/component: seed-job
   annotations:
-    "helm.sh/hook": post-install
+    "helm.sh/hook": {{ join "," $hooks | quote }}
     "helm.sh/hook-weight": "10"
     "helm.sh/hook-delete-policy": before-hook-creation
 spec:

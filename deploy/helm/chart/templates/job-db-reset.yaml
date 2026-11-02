@@ -1,4 +1,11 @@
-{{- if .Values.dbReset.enabled }}
+{{- $hooks := list -}}
+{{- if .Values.dbReset.onCreate -}}
+  {{- $hooks = append $hooks "post-install" -}}
+{{- end -}}
+{{- if .Values.dbReset.onUpgrade -}}
+  {{- $hooks = append $hooks "pre-upgrade" -}}
+{{- end -}}
+{{- if and .Values.dbReset.enabled (gt (len $hooks) 0) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -8,7 +15,7 @@ metadata:
     {{- include "aurora-gov.labels" . | nindent 4 }}
     app.kubernetes.io/component: db-reset-job
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook": {{ join "," $hooks | quote }}
     "helm.sh/hook-weight": "0"
     "helm.sh/hook-delete-policy": before-hook-creation
 spec:
@@ -34,9 +41,25 @@ spec:
             - -c
             - |
               until pg_isready -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }}; do
-                echo "Waiting for postgresql to become ready..."
+                echo "Esperando que PostgreSQL esté listo..."
                 sleep 2
               done
+        - name: terminate-db-connections
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+          imagePullPolicy: {{ .Values.database.image.pullPolicy | default "IfNotPresent" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              export PGPASSWORD="{{ .Values.database.password }}"
+              echo "Cerrando conexiones activas y bloqueando nuevas conexiones a las bases de datos..."
+              psql -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }} -d postgres -c \
+                "ALTER DATABASE \"{{ .Values.database.projectorDb }}\" WITH ALLOW_CONNECTIONS false;" 2>/dev/null || true
+              psql -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }} -d postgres -c \
+                "ALTER DATABASE \"{{ .Values.database.eventstoreDb }}\" WITH ALLOW_CONNECTIONS false;" 2>/dev/null || true
+              psql -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }} -d postgres -c \
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname IN ('{{ .Values.database.projectorDb }}', '{{ .Values.database.eventstoreDb }}') AND pid <> pg_backend_pid();" || true
+              echo "Conexiones terminadas exitosamente."
       containers:
         - name: db-reset
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

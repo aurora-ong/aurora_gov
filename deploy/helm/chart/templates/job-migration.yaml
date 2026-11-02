@@ -1,4 +1,11 @@
-{{- if .Values.migration.enabled }}
+{{- $hooks := list -}}
+{{- if .Values.migration.onCreate -}}
+  {{- $hooks = append $hooks "post-install" -}}
+{{- end -}}
+{{- if .Values.migration.onUpgrade -}}
+  {{- $hooks = append $hooks "post-upgrade" -}}
+{{- end -}}
+{{- if and .Values.migration.enabled (gt (len $hooks) 0) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -8,7 +15,7 @@ metadata:
     {{- include "aurora-gov.labels" . | nindent 4 }}
     app.kubernetes.io/component: migration-job
   annotations:
-    "helm.sh/hook": post-install,post-upgrade
+    "helm.sh/hook": {{ join "," $hooks | quote }}
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": before-hook-creation
 spec:

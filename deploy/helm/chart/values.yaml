@@ -30,7 +30,7 @@ app:
   replicas: 1
   resources:
     requests:
-      cpu: "200m"
+      cpu: "150m"
       memory: "256Mi"
       ephemeral-storage: "100Mi"
     limits: {}
@@ -62,7 +62,7 @@ database:
   eventstoreDb: aurora_gov_eventstore
   resources:
     requests:
-      cpu: "250m"
+      cpu: "150m"
       memory: "512Mi"
       ephemeral-storage: "100Mi"
   persistence:
@@ -79,28 +79,35 @@ database:
 # Runs AuroraGov.Release.db_create and db_migrate automatically (idempotent)
 migration:
   enabled: true
+  onCreate: true   # Ejecutar al crear / instalar (hook: post-install)
+  onUpgrade: true  # Ejecutar al actualizar (hook: post-upgrade)
   resources:
     requests:
-      cpu: "200m"
+      cpu: "100m"
       memory: "256Mi"
       ephemeral-storage: "100Mi"
 
 # Optional Seed Job
-# Triggered when seed.name is set (e.g. "seeds.exs" or "seeds")
+# Triggered when seed.enabled is true or seed.name is set (e.g. "seeds.exs" or "seeds")
 seed:
   enabled: false
-  name: ""  # e.g., "seeds.exs"
+  name: ""         # e.g., "seeds.exs"
+  onCreate: true   # Si enabled/name está activo, ejecutar en instalación (hook: post-install)
+  onUpgrade: false # Si enabled/name está activo, ejecutar en actualización (hook: post-upgrade)
   resources:
     requests:
-      cpu: "200m"
+      cpu: "100m"
       memory: "256Mi"
       ephemeral-storage: "100Mi"
 
 # Optional DB Reset Job (drops, creates, migrates)
+# Allows wiping and recreating the database cleanly.
 dbReset:
   enabled: false
+  onCreate: true   # Si enabled es true, ejecutar en instalación (hook: post-install)
+  onUpgrade: false # Si enabled es true, ejecutar en actualización (hook: pre-upgrade)
   resources:
     requests:
-      cpu: "200m"
+      cpu: "100m"
       memory: "256Mi"
       ephemeral-storage: "100Mi"

@@ -9,12 +9,17 @@ metadata:
 spec:
   replicas: {{ .Values.app.replicas | default 1 }}
   revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "aurora-gov.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: app
   template:
     metadata:
+      annotations:
+        releaseRevision: {{ .Release.Revision | quote }}
+        rollme: {{ randAlphaNum 5 | quote }}
       labels:
         {{- include "aurora-gov.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: app
@@ -24,6 +29,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       initContainers:
+        {{- if .Values.uploads.persistence.enabled }}
         - name: init-uploads-permissions
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy | default "IfNotPresent" }}
@@ -39,6 +45,29 @@ spec:
           volumeMounts:
             - name: uploads-volume
               mountPath: {{ .Values.uploads.mountPath | default "/uploads" }}
+        {{- end }}
+        - name: wait-for-db
+          image: "{{ .Values.database.image.repository }}:{{ .Values.database.image.tag }}"
+          imagePullPolicy: {{ .Values.database.image.pullPolicy | default "IfNotPresent" }}
+          command:
+            - /bin/sh
+            - -c
+            - |
+              until pg_isready -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }}; do
+                echo "Esperando que PostgreSQL esté listo..."
+                sleep 2
+              done
+              export PGPASSWORD="{{ .Values.database.password }}"
+              echo "Esperando que las bases de datos estén creadas y aceptando conexiones..."
+              until psql -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }} -d postgres -tAc "SELECT datallowconn FROM pg_database WHERE datname='{{ .Values.database.eventstoreDb }}'" 2>/dev/null | grep -q "t"; do
+                echo "Esperando base de datos {{ .Values.database.eventstoreDb }}..."
+                sleep 2
+              done
+              until psql -h {{ include "aurora-gov.fullname" . }}-database -p {{ .Values.database.port | default 5432 }} -U {{ .Values.database.user }} -d postgres -tAc "SELECT datallowconn FROM pg_database WHERE datname='{{ .Values.database.projectorDb }}'" 2>/dev/null | grep -q "t"; do
+                echo "Esperando base de datos {{ .Values.database.projectorDb }}..."
+                sleep 2
+              done
+              echo "Bases de datos listas y aceptando conexiones."
       containers:
         - name: aurora-gov
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
