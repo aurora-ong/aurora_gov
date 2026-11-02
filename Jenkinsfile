@@ -43,7 +43,7 @@ spec:
                 container('docker') {
                     script {
                         checkout scmGit(
-                            branches: [[name: '*/master']],
+                            branches: [[name: '*/main']],
                             extensions: [],
                             userRemoteConfigs: [[
                                 credentialsId: 'github-aurora_gov-deploy-key',
@@ -66,8 +66,8 @@ spec:
             steps {
                 container('kubectl') {
                     withKubeConfig([credentialsId: 'weychafe-k8s-deployer']) {
-                            sh "kubectl set image deployment/aurora-gov-deployment aurora-gov=$DOCKER_REGISTRY/$IMAGE_NAME:${env.BUILD_ID} -n aurora-gov"
-                            sh 'kubectl rollout status deployment/aurora-gov-deployment -n aurora-gov'
+                            sh "kubectl set image deployment/aurora-gov aurora-gov=$DOCKER_REGISTRY/$IMAGE_NAME:${env.BUILD_ID} -n aurora-gov"
+                            sh 'kubectl rollout status deployment/aurora-gov -n aurora-gov'
                     }
                 }
             }
