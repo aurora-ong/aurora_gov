@@ -6,7 +6,6 @@ defmodule AuroraGov.Projector.Model.Resource do
   schema "resources" do
     field :name, :string
     field :description, :string
-    field :is_fungible, :boolean, default: true
     field :unit_of_measure, :string
     field :ou_id, :string
 
@@ -15,7 +14,7 @@ defmodule AuroraGov.Projector.Model.Resource do
 
   def changeset(resource, attrs) do
     resource
-    |> cast(attrs, [:id, :name, :description, :is_fungible, :unit_of_measure, :ou_id])
-    |> validate_required([:id, :name, :is_fungible, :unit_of_measure])
+    |> cast(attrs, [:id, :name, :description, :unit_of_measure, :ou_id])
+    |> validate_required([:id, :name, :unit_of_measure])
   end
 end

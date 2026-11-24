@@ -75,8 +75,19 @@ defmodule AuroraGov.Router do
   dispatch(DemoteMembership, to: DemoteMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(RevokeMembership, to: RevokeMembershipHandler, aggregate: OU, identity: :ou_id)
   dispatch(UpdatePower, to: UpdatePowerHandler, aggregate: OU, identity: :ou_id)
-  dispatch(ActivatePowerDelegation, to: ActivatePowerDelegationHandler, aggregate: OU,identity: :ou_id)
-  dispatch(DeactivatePowerDelegation,to: DeactivatePowerDelegationHandler,aggregate: OU,identity: :ou_id)
+
+  dispatch(ActivatePowerDelegation,
+    to: ActivatePowerDelegationHandler,
+    aggregate: OU,
+    identity: :ou_id
+  )
+
+  dispatch(DeactivatePowerDelegation,
+    to: DeactivatePowerDelegationHandler,
+    aggregate: OU,
+    identity: :ou_id
+  )
+
   dispatch(CreateRole, to: CreateRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(AssignRole, to: AssignRoleHandler, aggregate: OU, identity: :ou_id)
   dispatch(UnassignRole, to: UnassignRoleHandler, aggregate: OU, identity: :ou_id)
@@ -102,7 +113,12 @@ defmodule AuroraGov.Router do
   )
 
   dispatch(CreateProposal, to: CreateProposalHandler, aggregate: Proposal, identity: :proposal_id)
-  dispatch(ApplyProposalVote,to: ApplyProposalVoteHandler,aggregate: Proposal, identity: :proposal_id)
+
+  dispatch(ApplyProposalVote,
+    to: ApplyProposalVoteHandler,
+    aggregate: Proposal,
+    identity: :proposal_id
+  )
 
   dispatch([ExecuteProposal, ConsumeProposal],
     to: AuroraGov.Aggregate.Proposal,
@@ -115,8 +131,8 @@ defmodule AuroraGov.Router do
   dispatch(
     [
       CreateResource,
-    UpdateResource,
-    CreateLedger,
+      UpdateResource,
+      CreateLedger,
       RecordTransaction
     ],
     to: Ledger,

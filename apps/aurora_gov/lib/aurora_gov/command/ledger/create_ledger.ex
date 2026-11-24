@@ -26,7 +26,6 @@ defmodule AuroraGov.Command.CreateLedger do
         options: [
           {"Activo (Asset) - Saldo positivo", "asset"}, 
           {"Pasivo (Liability) - Saldo deudor", "liability"}, 
-          {"Patrimonio (Equity) - Capital", "equity"}, 
           {"Externa (Mundo Real)", "external"}
         ],
         source: :user

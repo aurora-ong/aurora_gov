@@ -372,7 +372,6 @@ AuroraGov.dispatch(%AuroraGov.Command.CreateResource{
   resource_id: "clp",
   name: "Pesos Chilenos",
   description: "Moneda fiduciaria de curso legal para donaciones e ingresos externos.",
-  is_fungible: true,
   unit_of_measure: "CLP$",
   ou_id: "barrio_vivo"
 })
@@ -381,7 +380,6 @@ AuroraGov.dispatch(%AuroraGov.Command.CreateResource{
   resource_id: "hh_barrio",
   name: "Horas de Trabajo Solidario",
   description: "Medida representativa del esfuerzo aportado voluntariamente por los miembros de la comunidad para proyectos compartidos.",
-  is_fungible: true,
   unit_of_measure: "HH",
   ou_id: "barrio_vivo"
 })
@@ -390,7 +388,6 @@ AuroraGov.dispatch(%AuroraGov.Command.CreateResource{
   resource_id: "arboles",
   name: "Árboles Nativos",
   description: "Unidad contable para medir la cantidad de árboles donados y listos para plantación comunitaria.",
-  is_fungible: true,
   unit_of_measure: "Árbol",
   ou_id: "barrio_vivo.espacios_publicos"
 })
@@ -399,7 +396,6 @@ AuroraGov.dispatch(%AuroraGov.Command.CreateResource{
   resource_id: "hh_patrullaje",
   name: "Horas de Patrullaje",
   description: "Horas de trabajo invertidas por vecinos voluntarios en las rondas nocturnas de vigilancia.",
-  is_fungible: true,
   unit_of_measure: "HH",
   ou_id: "barrio_vivo.seguridad"
 })

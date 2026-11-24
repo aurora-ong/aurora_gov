@@ -6,7 +6,7 @@ defmodule AuroraGov.Projector.Model.Ledger do
   schema "ledgers" do
     field :owner_id, :string
     field :owner_type, Ecto.Enum, values: [:ou, :project, :person, :external]
-    field :ledger_type, Ecto.Enum, values: [:asset, :liability, :equity, :external]
+    field :ledger_type, Ecto.Enum, values: [:asset, :liability, :external]
     field :name, :string
     field :description, :string
     field :balance, :decimal

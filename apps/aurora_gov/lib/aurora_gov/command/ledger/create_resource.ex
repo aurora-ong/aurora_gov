@@ -3,7 +3,7 @@ defmodule AuroraGov.Command.CreateResource do
     gov_power: [
       id: "org.resource.create",
       name: "Crear Recurso Contable",
-      description: "Permite definir un nuevo recurso (fungible o no fungible) en el Ledger de la organización.",
+      description: "Permite definir un nuevo recurso en el Ledger de la organización.",
       category: :ledger
     ],
     fields: [
@@ -35,12 +35,6 @@ defmodule AuroraGov.Command.CreateResource do
         command_type: :string,
         label: "Unidad de Medida (Ej. $, Horas)",
         form_type: :text,
-        source: :user
-      ],
-      is_fungible: [
-        command_type: :boolean,
-        label: "¿Es Fungible?",
-        form_type: :checkbox,
         source: :user
       ]
     ]

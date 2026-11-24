@@ -8,7 +8,6 @@ defmodule AuroraGov.Projector.LedgerProjector do
       id: event.resource_id,
       name: event.name,
       description: event.description,
-      is_fungible: event.is_fungible,
       unit_of_measure: event.unit_of_measure,
       ou_id: event.ou_id
     })

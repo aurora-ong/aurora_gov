@@ -39,7 +39,7 @@ defmodule AuroraGov.Web.Components.SmartInputs.ResourceSelector do
             <div>
               <div class="text-xs font-bold text-gray-800">{@selected_resource.name}</div>
               <div class="text-[10px] text-gray-400">
-                U.M: {@selected_resource.unit_of_measure} | {if @selected_resource.is_fungible, do: "Fungible", else: "Único"}
+                U.M: {@selected_resource.unit_of_measure}
               </div>
             </div>
           </div>
@@ -86,9 +86,6 @@ defmodule AuroraGov.Web.Components.SmartInputs.ResourceSelector do
                   <div class="text-xs font-bold text-gray-800">{resource.name}</div>
                   <div class="text-[10px] text-gray-400">ID: {resource.id} | U.M: {resource.unit_of_measure}</div>
                 </div>
-                <span class={"text-[9px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wider " <> if(resource.is_fungible, do: "bg-blue-50 text-blue-700", else: "bg-purple-50 text-purple-700")}>
-                  {if resource.is_fungible, do: "Fungible", else: "Único"}
-                </span>
               </button>
             <% end %>
           </div>

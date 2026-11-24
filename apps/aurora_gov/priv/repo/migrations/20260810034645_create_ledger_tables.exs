@@ -6,7 +6,6 @@ defmodule AuroraGov.Projector.Repo.Migrations.CreateLedgerTables do
       add :id, :string, primary_key: true
       add :name, :string, null: false
       add :description, :text
-      add :is_fungible, :boolean, default: true, null: false
       add :unit_of_measure, :string
       add :ou_id, :string
 

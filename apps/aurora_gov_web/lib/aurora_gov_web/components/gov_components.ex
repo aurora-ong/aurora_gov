@@ -419,10 +419,11 @@ defmodule AuroraGov.Web.Components.AuroraComponents do
   attr :patch, :string, default: nil
   attr :class, :string, default: ""
   attr :title, :string, default: nil
+  attr :size, :string, default: nil
 
   def resource_id_badge(assigns) do
     ~H"""
-    <.base_id_badge id={@id} icon="fa-solid fa-cube" patch={@patch} class={@class} title={@title} />
+    <.base_id_badge id={@id} icon="fa-solid fa-cube" patch={@patch} class={@class} title={@title} size={@size} />
     """
   end
 

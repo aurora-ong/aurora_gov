@@ -52,13 +52,12 @@ defmodule AuroraGov.Context.LedgerContext do
       where: a.owner_id == ^owner_id,
       join: r in Resource, on: a.resource_id == r.resource_id,
       left_join: e in Entry, on: e.ledger_id == a.ledger_id,
-      group_by: [a.ledger_id, a.name, r.name, r.unit_of_measure, r.is_fungible],
+      group_by: [a.ledger_id, a.name, r.name, r.unit_of_measure],
       select: %{
         ledger_id: a.ledger_id,
         ledger_name: a.name,
         resource_name: r.name,
         unit: r.unit_of_measure,
-        fungible: r.is_fungible,
         balance: coalesce(sum(e.amount), 0.0)
       }
       

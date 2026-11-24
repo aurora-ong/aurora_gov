@@ -92,13 +92,11 @@ defmodule AuroraGov.Web.Live.Panel.Side.LedgerDetail do
                 <.badge size="md" class={"bg-gray-100 " <> case to_string(@ledger.ledger_type) do
                   "asset" -> "text-green-700 bg-green-50 border-green-200"
                   "liability" -> "text-red-700 bg-red-50 border-red-200"
-                  "equity" -> "text-purple-700 bg-purple-50 border-purple-200"
                   _ -> "text-gray-700"
                 end}>
                   <%= case to_string(@ledger.ledger_type) do %>
                     <% "asset" -> %>Activo
                     <% "liability" -> %>Pasivo
-                    <% "equity" -> %>Patrimonio
                     <% _ -> %>Externa
                   <% end %>
                 </.badge>
@@ -163,7 +161,6 @@ defmodule AuroraGov.Web.Live.Panel.Side.LedgerDetail do
             <%= case to_string(@ledger.ledger_type) do %>
               <% "asset" -> %><span class="px-2 py-1 rounded text-xs uppercase font-bold bg-green-50 text-green-700 border border-green-200">Activo (Asset)</span>
               <% "liability" -> %><span class="px-2 py-1 rounded text-xs uppercase font-bold bg-red-50 text-red-700 border border-red-200">Pasivo (Liability)</span>
-              <% "equity" -> %><span class="px-2 py-1 rounded text-xs uppercase font-bold bg-purple-50 text-purple-700 border border-purple-200">Patrimonio (Equity)</span>
               <% "external" -> %><span class="px-2 py-1 rounded text-xs uppercase font-bold bg-blue-50 text-blue-700 border border-blue-200">Externa</span>
               <% _ -> %><span class="px-2 py-1 rounded text-xs uppercase font-bold bg-gray-50 text-gray-700 border border-gray-200">Desconocida</span>
             <% end %>

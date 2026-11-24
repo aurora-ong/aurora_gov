@@ -21,7 +21,6 @@ defmodule AuroraGov.Aggregate.Ledger do
         resource_id: cmd.resource_id,
         name: cmd.name,
         description: cmd.description,
-        is_fungible: cmd.is_fungible,
         unit_of_measure: cmd.unit_of_measure,
         ou_id: cmd.ou_id
       }
@@ -66,44 +65,52 @@ defmodule AuroraGov.Aggregate.Ledger do
   end
 
   def execute(%Ledger{ledgers: ledgers}, %RecordTransaction{} = cmd) do
-    # 1. Construir Asientos Contables a partir de los parámetros simples del comando
     amount_decimal = if is_binary(cmd.amount), do: Decimal.new(cmd.amount), else: cmd.amount
-    
-    # Obtener el resource_id de la cuenta de origen
-    origin_ledger_data = Map.get(ledgers, cmd.origin_ledger_id)
-    resource_id = if origin_ledger_data, do: origin_ledger_data.resource_id, else: nil
 
-    entries = [
-      %{ledger_id: cmd.origin_ledger_id, resource_id: resource_id, amount: Decimal.negate(amount_decimal), description: cmd.description},
-      %{ledger_id: cmd.destination_ledger_id, resource_id: resource_id, amount: amount_decimal, description: cmd.description}
-    ]
+    cond do
+      is_nil(amount_decimal) or Decimal.compare(amount_decimal, Decimal.new("0")) != :gt ->
+        {:error, :invalid_amount}
 
-    # 2. Validar que la transacción sea de suma cero (Partida Doble)
-    balances =
-      entries
-      |> Enum.reduce(%{}, fn entry, acc ->
-        Map.update(acc, entry.resource_id, entry.amount, &Decimal.add(&1, entry.amount))
-      end)
-    
-    non_zero = Enum.find(balances, fn {_res_id, sum} -> not Decimal.eq?(sum, Decimal.new("0.0")) end)
-    
-    if is_nil(resource_id) do
-      {:error, :origin_ledger_not_found}
-    else
-      if non_zero do
-        {:error, :transaction_not_balanced}
-      else
-        # 3. Validar que las cuentas afectadas existan
-        missing_ledgers = Enum.filter(entries, fn entry -> not Map.has_key?(ledgers, entry.ledger_id) end)
-        
-        if length(missing_ledgers) > 0 do
-          {:error, :ledger_not_found}
-        else
-          # 4. Validar que la cuenta de destino tenga el mismo recurso
-          dest_ledger_data = Map.get(ledgers, cmd.destination_ledger_id)
-          if dest_ledger_data.resource_id != resource_id do
+      cmd.origin_ledger_id == cmd.destination_ledger_id ->
+        {:error, :same_origin_and_destination}
+
+      not Map.has_key?(ledgers, cmd.origin_ledger_id) ->
+        {:error, :origin_ledger_not_found}
+
+      not Map.has_key?(ledgers, cmd.destination_ledger_id) ->
+        {:error, :destination_ledger_not_found}
+
+      true ->
+        origin_ledger_data = Map.get(ledgers, cmd.origin_ledger_id)
+        dest_ledger_data = Map.get(ledgers, cmd.destination_ledger_id)
+        resource_id = origin_ledger_data.resource_id
+
+        is_asset = origin_ledger_data.ledger_type in ["asset", :asset]
+        origin_balance = Map.get(origin_ledger_data, :balance, Decimal.new("0.0"))
+
+        cond do
+          dest_ledger_data.resource_id != resource_id ->
             {:error, :resource_mismatch}
-          else
+
+          is_asset and Decimal.compare(origin_balance, amount_decimal) == :lt ->
+            {:error, :insufficient_funds}
+
+          true ->
+            entries = [
+              %{
+                ledger_id: cmd.origin_ledger_id,
+                resource_id: resource_id,
+                amount: Decimal.negate(amount_decimal),
+                description: cmd.description
+              },
+              %{
+                ledger_id: cmd.destination_ledger_id,
+                resource_id: resource_id,
+                amount: amount_decimal,
+                description: cmd.description
+              }
+            ]
+
             %TransactionRecorded{
               transaction_id: cmd.transaction_id,
               reference_id: cmd.reference_id,
@@ -111,9 +118,7 @@ defmodule AuroraGov.Aggregate.Ledger do
               timestamp: cmd.timestamp || DateTime.utc_now(),
               entries: entries
             }
-          end
         end
-      end
     end
   end
 
@@ -127,13 +132,34 @@ defmodule AuroraGov.Aggregate.Ledger do
     %Ledger{ledger | resources: Map.put(ledger.resources, id, %{ou_id: ou_id})}
   end
 
-  def apply(%Ledger{} = ledger, %LedgerCreated{ledger_id: id, resource_id: res_id}) do
-    %Ledger{ledger | ledgers: Map.put(ledger.ledgers, id, %{resource_id: res_id})}
+  def apply(%Ledger{} = ledger, %LedgerCreated{} = event) do
+    ledger_data = %{
+      resource_id: event.resource_id,
+      ledger_type: to_string(event.ledger_type),
+      balance: Decimal.new("0.0")
+    }
+
+    %Ledger{ledger | ledgers: Map.put(ledger.ledgers, event.ledger_id, ledger_data)}
   end
 
-  def apply(%Ledger{} = ledger, %TransactionRecorded{}) do
-    # La transacción no modifica la existencia de recursos ni cuentas en memoria
-    # El balance es manejado por el read model (Ecto)
-    ledger
+  def apply(%Ledger{} = ledger, %TransactionRecorded{entries: entries}) do
+    updated_ledgers =
+      Enum.reduce(entries, ledger.ledgers, fn entry, acc ->
+        case Map.get(acc, entry.ledger_id) do
+          nil ->
+            acc
+
+          account ->
+            entry_amount =
+              if is_binary(entry.amount), do: Decimal.new(entry.amount), else: entry.amount
+
+            current_balance = Map.get(account, :balance, Decimal.new("0.0"))
+            new_balance = Decimal.add(current_balance, entry_amount)
+
+            Map.put(acc, entry.ledger_id, %{account | balance: new_balance})
+        end
+      end)
+
+    %Ledger{ledger | ledgers: updated_ledgers}
   end
 end

@@ -23,5 +23,18 @@ defmodule AuroraGov.Command.RecordTransaction do
     |> put_change(:timestamp, DateTime.utc_now())
     |> put_change(:reference_type, "manual")
     |> validate_required([:origin_ledger_id, :destination_ledger_id, :amount])
+    |> validate_number(:amount, greater_than: 0, message: "El monto debe ser mayor a cero")
+    |> validate_different_accounts()
+  end
+
+  defp validate_different_accounts(changeset) do
+    origin = get_field(changeset, :origin_ledger_id)
+    destination = get_field(changeset, :destination_ledger_id)
+
+    if origin && destination && origin == destination do
+      add_error(changeset, :destination_ledger_id, "La cuenta de destino no puede ser igual a la de origen")
+    else
+      changeset
+    end
   end
 end

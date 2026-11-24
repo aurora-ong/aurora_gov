@@ -164,7 +164,6 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
                     %{label: "Todas", value: "all"},
                     %{label: "Activos", value: "asset"},
                     %{label: "Pasivos", value: "liability"},
-                    %{label: "Patrimonio", value: "equity"},
                     %{label: "Externas", value: "external"}
                   ]}
                   selected={@active_ledger_filter}
@@ -201,7 +200,6 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
                           case item.ledger.ledger_type do
                             :asset -> "border-green-200 border-t-4 border-t-green-500"
                             :liability -> "border-red-200 border-t-4 border-t-red-500"
-                            :equity -> "border-purple-200 border-t-4 border-t-purple-500"
                             :external -> "border-blue-200 border-t-4 border-t-blue-500"
                             _ -> "border-gray-200"
                           end
@@ -219,19 +217,15 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
                             <%= case to_string(item.ledger.ledger_type) do %>
                               <% "asset" -> %>
                                 <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-green-50 text-green-700 border border-green-200">
-                                  Activo
+                                   Activo
                                 </span>
                               <% "liability" -> %>
                                 <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-red-50 text-red-700 border border-red-200">
-                                  Pasivo
-                                </span>
-                              <% "equity" -> %>
-                                <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                                  Patrimonio
+                                   Pasivo
                                 </span>
                               <% "external" -> %>
                                 <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-blue-50 text-blue-700 border border-blue-200">
-                                  Externa
+                                   Externa
                                 </span>
                               <% _ -> %>
                                 <span class="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold bg-gray-50 text-gray-700 border border-gray-200">
@@ -289,15 +283,7 @@ defmodule AuroraGov.Web.Live.Panel.Resources do
                     <div class="p-5 border border-gray-200 rounded-xl bg-gray-50 hover:shadow-sm transition-shadow">
                       <div class="flex justify-between items-start mb-3">
                         <div class="font-bold text-gray-800 text-lg">{resource.name}</div>
-                        <span class={
-                          "text-[10px] uppercase tracking-wider font-semibold px-2.5 py-1 rounded-full " <>
-                            if(resource.is_fungible,
-                              do: "bg-blue-100 text-blue-800",
-                              else: "bg-purple-100 text-purple-800"
-                            )
-                        }>
-                          {if resource.is_fungible, do: "Fungible", else: "Único"}
-                        </span>
+                        <.resource_id_badge id={resource.id} />
                       </div>
                       <div class="flex flex-col gap-2 mt-4">
                         <div class="text-sm text-gray-600 flex justify-between">
